@@ -1,0 +1,7 @@
+package: ydeploy
+version: '0.1-dev'
+author: Gregor Harlan
+supportpage: www.redaxo.org/de/forum/
+
+requires:
+    redaxo: ^5.4.0-dev
