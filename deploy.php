@@ -43,9 +43,14 @@ task('deploy', [
     'deploy:clear_paths',
     'deploy:shared',
     'deploy:writable',
+    'database:migration',
     'deploy:symlink',
     'deploy:unlock',
     'cleanup',
-])->desc('Deploy your project');
+])->desc('Deploy project');
+
+task('database:migration', function () use ($baseDir) {
+    run("cd {{release_path}}/$baseDir && redaxo/bin/console ydeploy:migrate");
+})->desc('Migrate database');
 
 after('deploy', 'success');
