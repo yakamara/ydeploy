@@ -1,7 +1,30 @@
 YDeploy
 =======
 
-REDAXO-Projekte deployen über [deployer](https://deployer.org).
+Das Addon bietet Tools für die Datenbank-Migration während des Deployments von REDAXO-Projekten.
+ Zusätzlich bietet es eine auf REDAXO abgestimmte Konfiguration für [deployer](https://deployer.org).
+
+Migration
+---------
+
+Das Addon bietet zwei Konsolen-Befehle für die Migration:
+
+### `redaxo/bin/console ydeploy:diff`
+
+Beim ersten Aufruf dieses Kommandos wird eine Schemadatei in `redaxo/data/addons/ydeploy/schema.yml` angelegt, mit allen Tabellendefinitionen der Datenbank.
+
+Beim erneuten Aufruf wird dann die aktuelle Datenbank-Struktur mit der aus der Schemadatei verglichen. Sollte es Abweichungen geben, wird die Schemadatei aktualisiert und eine Migrationsdatei in `redaxo/data/addons/ydeploy/migrations/` erstellt, die alle Änderungen enthält.
+
+Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:diff`.
+
+### `redaxo/bin/console ydeploy:migrate`
+
+Dieses Kommando führt alle noch ausstehenden Migrationsdateien aus.
+
+Bei Nutzung von deployer (siehe unten) wird dieses Kommando automatisch während des Deployments ausgeführt.
+Es ist aber auch geeignet, um Datenbank-Änderungen der anderen Entwickler in die lokale Entwicklungsumgebung zu übernehmen.
+
+Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:migrate`.
 
 Setup für deployer
 ------------------
