@@ -79,6 +79,7 @@ EOL;
     $sql = rex_sql::factory();
     $sql->setQuery('SET FOREIGN_KEY_CHECKS = 1');
 }
+
 EOL;
 
         return $content;
