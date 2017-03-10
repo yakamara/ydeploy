@@ -160,24 +160,8 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
      */
     private function handleFixtures(array $tables, rex_ydeploy_diff_file $diff)
     {
-        $fixtureTableNames = [
-            'action',
-            'markitup_profiles',
-            'media_manager_type',
-            'media_manager_type_effect',
-            'metainfo_field',
-            'metainfo_type',
-            'module',
-            'module_action',
-            'redactor2_profiles',
-            'template',
-            'url_generate',
-            'yform_field',
-            'yform_table',
-        ];
-
         $fixtureTables = [];
-        foreach ($fixtureTableNames as $name) {
+        foreach ($this->addon->getProperty('config')['fixtures']['tables'] as $name => $config) {
             $fixtureTables[rex::getTable($name)] = true;
         }
 
