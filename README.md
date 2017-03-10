@@ -79,10 +79,13 @@ Die folgende `.gitignore` hat sich als Basis bewährt bei Nutzung von deployer:
 /media/*
 !/media/.redaxo
 /redaxo/cache/*
-/redaxo/data/*
 !/redaxo/cache/.*
-!/redaxo/data/.*
+/redaxo/data/addons/*/*
+!/redaxo/data/addons/developer/*
+!/redaxo/data/addons/mblock/*
+!/redaxo/data/addons/mform/*
 !/redaxo/data/addons/ydeploy/*
+/redaxo/data/core/*
 ```
 
 Sollte REDAXO nicht direkt im Projekt-Root liegen, müssen die Pfade entsprechend angepasst werden.
