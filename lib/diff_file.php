@@ -16,7 +16,7 @@ class rex_ydeploy_diff_file
 
     public function dropTable($tableName)
     {
-        $this->drop[$tableName] = true;
+        $this->drop[] = $tableName;
     }
 
     public function ensureColumn($tableName, rex_sql_column $column)
