@@ -162,7 +162,7 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     {
         $fixtureTables = [];
         foreach ($this->addon->getProperty('config')['fixtures']['tables'] as $name => $config) {
-            $fixtureTables[rex::getTable($name)] = true;
+            $fixtureTables[rex::getTable($name)] = $config ?: true;
         }
 
         $path = $this->addon->getDataPath('fixtures.yml');
@@ -170,7 +170,6 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         $fixtures = $fixturesExists ? rex_file::getConfig($path) : [];
 
         $newFixtures = [];
-        $sql = rex_sql::factory();
 
         foreach ($tables as $table) {
             $tableName = $table->getName();
@@ -183,8 +182,7 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 throw new Exception(sprintf('Table "%s" can not be used for fixtures because it does not have a primary key.', $tableName));
             }
 
-            $data = $sql->getArray('SELECT * FROM '.$sql->escapeIdentifier($tableName));
-            $data = $this->normalize($data);
+            $data = $this->getData($table, is_array($fixtureTables[$tableName]) ? $fixtureTables[$tableName] : null);
 
             $newFixtures[$tableName] = $data;
 
@@ -216,6 +214,10 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             }
 
             foreach ($hashedFixtures as $row) {
+                if (is_array($fixtureTables[$tableName]) && !$this->rowMatchesConditions($row, $fixtureTables[$tableName])) {
+                    continue;
+                }
+
                 $diff->removeFixture($tableName, $this->getKey($table, $row));
             }
         }
@@ -235,8 +237,30 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return sha1(json_encode($data));
     }
 
-    private function normalize(array $data)
+    private function getData(rex_sql_table $table, array $conditions = null)
     {
+        $sql = rex_sql::factory();
+
+        $where = '';
+        $params = [];
+
+        if (null !== $conditions) {
+            $where = [];
+
+            foreach ($conditions as $condition) {
+                $parts = [];
+                foreach ($condition as $name => $value) {
+                    $parts[] = $sql->escapeIdentifier($name).' = ?';
+                    $params[] = $value;
+                }
+                $where[] = implode(' AND ', $parts);
+            }
+
+            $where = ' WHERE '.implode(" OR ", $where);
+        }
+
+        $data = $sql->getArray('SELECT * FROM '.$sql->escapeIdentifier($table->getName()).$where, $params);
+
         foreach ($data as &$row) {
             foreach ($row as &$value) {
                 if (!is_string($value)) {
@@ -252,6 +276,26 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         }
 
         return $data;
+    }
+
+    private function rowMatchesConditions(array $row, array $conditions)
+    {
+        foreach ($conditions as $condition) {
+            $match = true;
+
+            foreach ($condition as $name => $value) {
+                if (!isset($row[$name]) || $row[$name] !== $value) {
+                    $match = false;
+                    break;
+                }
+            }
+
+            if ($match) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

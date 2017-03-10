@@ -10,6 +10,9 @@ config:
     fixtures:
         tables:
             action: ~
+            config:
+                - { namespace: core, key: package-config }
+                - { namespace: core, key: package-order }
             markitup_profiles: ~
             media_manager_type: ~
             media_manager_type_effect: ~
