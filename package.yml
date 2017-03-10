@@ -9,7 +9,6 @@ requires:
 config:
     fixtures:
         tables:
-            action: ~
             config:
                 - { namespace: core, key: package-config }
                 - { namespace: core, key: package-order }
@@ -18,10 +17,8 @@ config:
             media_manager_type_effect: ~
             metainfo_field: ~
             metainfo_type: ~
-            module: ~
             module_action: ~
             redactor2_profiles: ~
-            template: ~
             url_generate: ~
             yform_field: ~
             yform_table: ~
