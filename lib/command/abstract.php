@@ -5,7 +5,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-abstract class rex_ydeploy_command_abstract extends Command
+abstract class rex_ydeploy_command_abstract extends rex_console_command
 {
     /** @var rex_addon */
     protected $addon;
@@ -19,16 +19,5 @@ abstract class rex_ydeploy_command_abstract extends Command
         $this->migrationTable = rex::getTable('ydeploy_migration');
 
         parent::__construct();
-    }
-
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return SymfonyStyle
-     */
-    protected function getStyle(InputInterface $input, OutputInterface $output)
-    {
-        return new SymfonyStyle($input, $output);
     }
 }
