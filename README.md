@@ -11,11 +11,16 @@ Das Addon bietet zwei Konsolen-Befehle für die Migration:
 
 ### `redaxo/bin/console ydeploy:diff`
 
-Beim ersten Aufruf dieses Kommandos wird eine Schemadatei in `redaxo/data/addons/ydeploy/schema.yml` angelegt, mit allen Tabellendefinitionen der Datenbank.
+Beim ersten Aufruf dieses Kommandos werden in `redaxo/data/addons/ydeploy` zwei Dateien angelegt:
 
-Beim erneuten Aufruf wird dann die aktuelle Datenbank-Struktur mit der aus der Schemadatei verglichen. Sollte es Abweichungen geben, wird die Schemadatei aktualisiert und eine Migrationsdatei in `redaxo/data/addons/ydeploy/migrations/` erstellt, die alle Änderungen enthält.
+* `schema.yml` mit den Tabellendefinitionen der Datenbank
+* `fixtures.yml` mit allen Datensätzen der Tabellen, deren Daten mit synchronisiert werden sollen (Metainfo-Definitionen, MediaManager-Typen, YForm-Manager-Defintionen etc.)
+
+Beim erneuten Aufruf wird dann die aktuelle Datenbank-Struktur mit der aus der `schema.yml` verglichen, und die relevanten Daten mit der `fixtures.yml`. Sollte es Abweichungen geben, werden die beiden Dateien aktualisiert und eine Migrationsdatei in `redaxo/data/addons/ydeploy/migrations/` erstellt, die alle Änderungen enthält.
 
 Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:diff`.
+
+Templates, Module und Actions werden nicht über die `fixtures.yml` synchronisiert, sondern dafür sollte das [Developer-Addon](https://github.com/FriendsOfREDAXO/developer) genutzt werden.
 
 ### `redaxo/bin/console ydeploy:migrate`
 

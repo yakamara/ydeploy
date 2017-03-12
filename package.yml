@@ -5,3 +5,20 @@ supportpage: www.redaxo.org/de/forum/
 
 requires:
     redaxo: ^5.4.0-dev
+
+config:
+    fixtures:
+        tables:
+            config:
+                - { namespace: core, key: package-config }
+                - { namespace: core, key: package-order }
+            markitup_profiles: ~
+            media_manager_type: ~
+            media_manager_type_effect: ~
+            metainfo_field: ~
+            metainfo_type: ~
+            module_action: ~
+            redactor2_profiles: ~
+            url_generate: ~
+            yform_field: ~
+            yform_table: ~

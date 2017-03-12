@@ -8,6 +8,7 @@ class rex_ydeploy_diff_file
     private $create = [];
     private $alter = [];
     private $drop = [];
+    private $fixtures = [];
 
     public function createTable(rex_sql_table $table)
     {
@@ -34,9 +35,19 @@ class rex_ydeploy_diff_file
         $this->alter[$tableName]['primaryKey'] = $primaryKey;
     }
 
+    public function ensureFixture($tableName, array $data)
+    {
+        $this->fixtures[$tableName]['ensure'][] = $data;
+    }
+
+    public function removeFixture($tableName, array $key)
+    {
+        $this->fixtures[$tableName]['remove'][] = $key;
+    }
+
     public function isEmpty()
     {
-        return !$this->create && !$this->alter && !$this->drop;
+        return !$this->create && !$this->alter && !$this->drop && !$this->fixtures;
     }
 
     public function getContent()
@@ -44,6 +55,7 @@ class rex_ydeploy_diff_file
         $changes = $this->addCreateTables();
         $changes .= $this->addAlterTables();
         $changes .= $this->addDropTables();
+        $changes .= $this->addFixtures();
         $changes = ltrim($changes);
 
         $content = <<<'EOL'
@@ -67,6 +79,7 @@ EOL;
     $sql = rex_sql::factory();
     $sql->setQuery('SET FOREIGN_KEY_CHECKS = 1');
 }
+
 EOL;
 
         return $content;
@@ -151,6 +164,70 @@ EOL;
         return $content;
     }
 
+    private function addFixtures()
+    {
+        $content = '';
+
+        $sql = rex_sql::factory();
+
+        foreach ($this->fixtures as $tableName => $changes) {
+            if (isset($changes['ensure'])) {
+                $rows = [];
+                foreach ($changes['ensure'] as $data) {
+                    $data = array_map(function ($value) use ($sql) {
+                        if (is_int($value)) {
+                            return $value;
+                        }
+
+                        return $sql->escape($value);
+                    }, $data);
+
+                    $rows[] = '('.implode(', ', $data).')';
+                }
+
+                $columns = array_keys($changes['ensure'][0]);
+                $primaryKey = rex_sql_table::get($tableName)->getPrimaryKey();
+
+                $updates = [];
+                foreach ($columns as $column) {
+                    if (!in_array($column, $primaryKey)) {
+                        $column = $sql->escapeIdentifier($column);
+                        $updates[] = $column.' = VALUES('.$column.')';
+                    }
+                }
+
+                $query = "        INSERT INTO ".$sql->escapeIdentifier($tableName);
+                $query .= ' ('.implode(', ', array_map([$sql, 'escapeIdentifier'], $columns)).')';
+                $query .= "\n        VALUES\n            ";
+                $query .= implode(",\n            ", $rows);
+                if ($updates) {
+                    $query .= "\n        ON DUPLICATE KEY UPDATE ".implode(', ', $updates);
+                }
+
+                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).'    );';
+            }
+
+            if (isset($changes['remove'])) {
+                $where = [];
+                foreach ($changes['remove'] as $key) {
+                    $parts = [];
+                    foreach ($key as $name => $value) {
+                        $parts[] = $sql->escapeIdentifier($name).' = '.$sql->escape($value);
+                    }
+                    $where[] = implode(' AND ', $parts);
+                }
+
+                $query = "        DELETE FROM ".$sql->escapeIdentifier($tableName);
+                $query .= "\n        WHERE\n            ";
+                $query .= implode(" OR\n            ", $where);
+
+                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).'    );';
+            }
+        }
+
+        return $content;
+    }
+
     private function sprintf($format, ...$args)
     {
         return sprintf($format, ...array_map([$this, 'quote'], $args));
@@ -186,5 +263,10 @@ EOL;
         }
 
         return '['.implode(', ', $elements).']';
+    }
+
+    private function nowdoc($var)
+    {
+        return "<<<'SQL'\n$var\nSQL\n";
     }
 }

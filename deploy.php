@@ -51,6 +51,8 @@ task('deploy', [
 
 task('database:migration', function () use ($baseDir) {
     run("cd {{release_path}}/$baseDir && redaxo/bin/console ydeploy:migrate");
+
+    run("cd {{release_path}}/$baseDir && if [[ $(redaxo/bin/console list --raw | grep developer:sync) ]]; then redaxo/bin/console developer:sync; fi");
 })->desc('Migrate database');
 
 after('deploy', 'success');

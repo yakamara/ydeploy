@@ -27,22 +27,42 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         /** @var rex_sql_table[] $tables */
         $tables = array_map('rex_sql_table::get', $tables);
 
-        $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
+        $schemaExists = file_exists($this->addon->getDataPath('schema.yml'));
 
-        $diff = null;
-        if ($schema) {
-            $diff = $this->createDiff($schema, $tables, $input->getOption('empty'));
+        $diff = new rex_ydeploy_diff_file();
+
+        $this->handleSchema($tables, $diff);
+        $this->handleFixtures($tables, $diff);
+
+        $diffTimestamp = null;
+        if (!$diff->isEmpty() || $input->getOption('empty')) {
+            $diffTimestamp = $this->saveDiff($diff);
+
+            if (!$input->getOption('unmarked')) {
+                rex_sql::factory()
+                    ->setTable($this->migrationTable)
+                    ->setValue('timestamp', $diffTimestamp)
+                    ->insert();
+            }
         }
 
-        $this->createSchema($tables);
-
-        if (!$schema) {
-            $io->success('Created initial schema file.');
-        } elseif ($diff) {
-            $io->success(sprintf('Updated schema file and created diff file "%s".', $diff));
+        if (!$schemaExists) {
+            $io->success('Created initial schema and fixtures files.');
+        } elseif ($diffTimestamp) {
+            $io->success(sprintf('Updated schema and fixtures file and created diff file "%s.php".', $diffTimestamp));
         } else {
-            $io->success('Updated schema file, nothing changed.');
+            $io->success('Updated schema and fixtures files, nothing changed.');
         }
+    }
+
+    /**
+     * @param rex_sql_table[]       $tables
+     * @param rex_ydeploy_diff_file $diff
+     */
+    private function handleSchema(array $tables, rex_ydeploy_diff_file $diff)
+    {
+        $this->addSchemaDiff($diff, $tables);
+        $this->createSchema($tables);
     }
 
     /**
@@ -74,15 +94,16 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param array           $schema
-     * @param rex_sql_table[] $tables
-     * @param bool            $allowEmpty
-     *
-     * @return null|string
+     * @param rex_ydeploy_diff_file $diff
+     * @param rex_sql_table[]       $tables
      */
-    private function createDiff(array $schema, array $tables, $allowEmpty)
+    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables)
     {
-        $diff = new rex_ydeploy_diff_file();
+        $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
+
+        if (!$schema) {
+            return;
+        }
 
         foreach ($tables as $table) {
             $tableName = $table->getName();
@@ -131,11 +152,159 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         foreach ($schema as $tableName => $table) {
             $diff->dropTable($tableName);
         }
+    }
 
-        if ($diff->isEmpty() && !$allowEmpty) {
-            return null;
+    /**
+     * @param rex_sql_table[]       $tables
+     * @param rex_ydeploy_diff_file $diff
+     */
+    private function handleFixtures(array $tables, rex_ydeploy_diff_file $diff)
+    {
+        $fixtureTables = [];
+        foreach ($this->addon->getProperty('config')['fixtures']['tables'] as $name => $config) {
+            $fixtureTables[rex::getTable($name)] = $config ?: true;
         }
 
+        $path = $this->addon->getDataPath('fixtures.yml');
+        $fixturesExists = file_exists($path);
+        $fixtures = $fixturesExists ? rex_file::getConfig($path) : [];
+
+        $newFixtures = [];
+
+        foreach ($tables as $table) {
+            $tableName = $table->getName();
+
+            if (!isset($fixtureTables[$tableName])) {
+                continue;
+            }
+
+            if (!$table->getPrimaryKey()) {
+                throw new Exception(sprintf('Table "%s" can not be used for fixtures because it does not have a primary key.', $tableName));
+            }
+
+            $data = $this->getData($table, is_array($fixtureTables[$tableName]) ? $fixtureTables[$tableName] : null);
+
+            $newFixtures[$tableName] = $data;
+
+            if (!$fixturesExists) {
+                continue;
+            }
+
+            $hashedFixtures = [];
+            if (isset($fixtures[$tableName])) {
+                foreach ($fixtures[$tableName] as $row) {
+                    $hashedFixtures[$this->hash($this->getKey($table, $row))] = $row;
+                }
+                unset($fixtures[$tableName]);
+            }
+
+            foreach ($data as $row) {
+                $key = $this->getKey($table, $row);
+                $hash = $this->hash($key);
+
+                if (isset($hashedFixtures[$hash]) && $this->hash($hashedFixtures[$hash]) === $this->hash($row)) {
+                    unset($hashedFixtures[$hash]);
+
+                    continue;
+                }
+
+                unset($hashedFixtures[$hash]);
+
+                $diff->ensureFixture($tableName, $row);
+            }
+
+            foreach ($hashedFixtures as $row) {
+                if (is_array($fixtureTables[$tableName]) && !$this->rowMatchesConditions($row, $fixtureTables[$tableName])) {
+                    continue;
+                }
+
+                $diff->removeFixture($tableName, $this->getKey($table, $row));
+            }
+        }
+
+        rex_file::putConfig($this->addon->getDataPath('fixtures.yml'), $newFixtures);
+    }
+
+    private function getKey(rex_sql_table $table, array $data)
+    {
+        return array_intersect_key($data, array_flip($table->getPrimaryKey()));
+    }
+
+    private function hash(array $data)
+    {
+        ksort($data);
+
+        return sha1(json_encode($data));
+    }
+
+    private function getData(rex_sql_table $table, array $conditions = null)
+    {
+        $sql = rex_sql::factory();
+
+        $where = '';
+        $params = [];
+
+        if (null !== $conditions) {
+            $where = [];
+
+            foreach ($conditions as $condition) {
+                $parts = [];
+                foreach ($condition as $name => $value) {
+                    $parts[] = $sql->escapeIdentifier($name).' = ?';
+                    $params[] = $value;
+                }
+                $where[] = implode(' AND ', $parts);
+            }
+
+            $where = ' WHERE '.implode(" OR ", $where);
+        }
+
+        $data = $sql->getArray('SELECT * FROM '.$sql->escapeIdentifier($table->getName()).$where, $params);
+
+        foreach ($data as &$row) {
+            foreach ($row as &$value) {
+                if (!is_string($value)) {
+                    continue;
+                }
+
+                if ('0' === $value) {
+                    $value = 0;
+                } elseif (preg_match('/^[1-9]\d{0,8}$/', $value)) {
+                    $value = (int) $value;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    private function rowMatchesConditions(array $row, array $conditions)
+    {
+        foreach ($conditions as $condition) {
+            $match = true;
+
+            foreach ($condition as $name => $value) {
+                if (!isset($row[$name]) || $row[$name] !== $value) {
+                    $match = false;
+                    break;
+                }
+            }
+
+            if ($match) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param rex_ydeploy_diff_file $diff
+     *
+     * @return string
+     */
+    private function saveDiff(rex_ydeploy_diff_file $diff)
+    {
         $timestamp = DateTime::createFromFormat('U.u', sprintf('%.f', microtime(true)));
         $timestamp->setTimezone(new DateTimeZone('UTC'));
         $timestamp = $timestamp->format('Y-m-d H:i:s.u');
@@ -148,11 +317,6 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
         rex_file::put($path, $diff->getContent());
 
-        rex_sql::factory()
-            ->setTable($this->migrationTable)
-            ->setValue('timestamp', $timestamp)
-            ->insert();
-
-        return $filename;
+        return $timestamp;
     }
 }
