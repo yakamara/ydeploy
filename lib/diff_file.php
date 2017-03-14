@@ -30,7 +30,7 @@ class rex_ydeploy_diff_file
         $this->alter[$tableName]['remove'][] = $columnName;
     }
 
-    public function setPrimaryKey($tableName, array $primaryKey)
+    public function setPrimaryKey($tableName, $primaryKey)
     {
         $this->alter[$tableName]['primaryKey'] = $primaryKey;
     }
@@ -148,7 +148,7 @@ EOL;
         );
     }
 
-    private function addSetPrimaryKey(array $primaryKey)
+    private function addSetPrimaryKey($primaryKey)
     {
         return $this->sprintf("\n        ->setPrimaryKey(%s)", $primaryKey);
     }
