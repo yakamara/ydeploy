@@ -20,9 +20,9 @@ class rex_ydeploy_diff_file
         $this->drop[] = $tableName;
     }
 
-    public function ensureColumn($tableName, rex_sql_column $column, $after = null)
+    public function ensureColumn($tableName, rex_sql_column $column, $afterColumn = null)
     {
-        $this->alter[$tableName]['ensure'][] = [$column, $after];
+        $this->alter[$tableName]['ensure'][] = [$column, $afterColumn];
     }
 
     public function removeColumn($tableName, $columnName)
@@ -136,13 +136,13 @@ EOL;
         return $content;
     }
 
-    private function addEnsureColumn(rex_sql_column $column, $after = null)
+    private function addEnsureColumn(rex_sql_column $column, $afterColumn = null)
     {
         $addAfter = '';
-        if (rex_sql_table::FIRST == $after) {
+        if (rex_sql_table::FIRST == $afterColumn) {
             $addAfter = ', rex_sql_table::FIRST';
-        } elseif (null !== $after) {
-            $addAfter = $this->sprintf(', %s', $after);
+        } elseif (null !== $afterColumn) {
+            $addAfter = $this->sprintf(', %s', $afterColumn);
         }
 
         return $this->sprintf(
