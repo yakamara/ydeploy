@@ -20,9 +20,9 @@ class rex_ydeploy_diff_file
         $this->drop[] = $tableName;
     }
 
-    public function ensureColumn($tableName, rex_sql_column $column)
+    public function ensureColumn($tableName, rex_sql_column $column, $afterColumn = null)
     {
-        $this->alter[$tableName]['ensure'][] = $column;
+        $this->alter[$tableName]['ensure'][] = [$column, $afterColumn];
     }
 
     public function removeColumn($tableName, $columnName)
@@ -115,8 +115,8 @@ EOL;
             $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $tableName);
 
             if (isset($alter['ensure'])) {
-                foreach ($alter['ensure'] as $column) {
-                    $content .= $this->addEnsureColumn($column);
+                foreach ($alter['ensure'] as list($column, $after)) {
+                    $content .= $this->addEnsureColumn($column, $after);
                 }
             }
 
@@ -136,10 +136,17 @@ EOL;
         return $content;
     }
 
-    private function addEnsureColumn(rex_sql_column $column)
+    private function addEnsureColumn(rex_sql_column $column, $afterColumn = null)
     {
+        $addAfter = '';
+        if (rex_sql_table::FIRST == $afterColumn) {
+            $addAfter = ', rex_sql_table::FIRST';
+        } elseif (null !== $afterColumn) {
+            $addAfter = $this->sprintf(', %s', $afterColumn);
+        }
+
         return $this->sprintf(
-            "\n        ->ensureColumn(new rex_sql_column(%s, %s, %s, %s, %s))",
+            "\n        ->ensureColumn(new rex_sql_column(%s, %s, %s, %s, %s)$addAfter)",
             $column->getName(),
             $column->getType(),
             $column->isNullable(),
@@ -196,7 +203,7 @@ EOL;
                     }
                 }
 
-                $query = "        INSERT INTO ".$sql->escapeIdentifier($tableName);
+                $query = '        INSERT INTO '.$sql->escapeIdentifier($tableName);
                 $query .= ' ('.implode(', ', array_map([$sql, 'escapeIdentifier'], $columns)).')';
                 $query .= "\n        VALUES\n            ";
                 $query .= implode(",\n            ", $rows);
@@ -217,7 +224,7 @@ EOL;
                     $where[] = implode(' AND ', $parts);
                 }
 
-                $query = "        DELETE FROM ".$sql->escapeIdentifier($tableName);
+                $query = '        DELETE FROM '.$sql->escapeIdentifier($tableName);
                 $query .= "\n        WHERE\n            ";
                 $query .= implode(" OR\n            ", $where);
 

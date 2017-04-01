@@ -115,9 +115,35 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             }
 
             $tableSchema = &$schema[$tableName];
+
+            $currentOrder = [];
+            $after = rex_sql_table::FIRST;
+            foreach ($tableSchema['columns'] as $columnName => $_) {
+                $currentOrder[$after] = $columnName;
+                $after = $columnName;
+            }
+
+            $after = rex_sql_table::FIRST;
             foreach ($table->getColumns() as $columnName => $column) {
-                if (!isset($tableSchema['columns'][$columnName])) {
-                    $diff->ensureColumn($tableName, $column);
+                if (
+                    !isset($tableSchema['columns'][$columnName]) ||
+                    !isset($currentOrder[$after]) || $columnName !== $currentOrder[$after]
+                ) {
+                    $diff->ensureColumn($tableName, $column, $after);
+
+                    if (false !== $previous = array_search($columnName, $currentOrder)) {
+                        if (isset($currentOrder[$columnName])) {
+                            $currentOrder[$previous] = $currentOrder[$columnName];
+                        } else {
+                            unset($currentOrder[$previous]);
+                        }
+                    }
+                    if (isset($currentOrder[$after])) {
+                        $currentOrder[$columnName] = $currentOrder[$after];
+                    }
+                    $currentOrder[$after] = $columnName;
+                    $after = $columnName;
+                    unset($tableSchema['columns'][$columnName]);
 
                     continue;
                 }
@@ -135,6 +161,7 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                     $diff->ensureColumn($tableName, $column);
                 }
 
+                $after = $columnName;
                 unset($tableSchema['columns'][$columnName]);
             }
 
@@ -256,7 +283,7 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 $where[] = implode(' AND ', $parts);
             }
 
-            $where = ' WHERE '.implode(" OR ", $where);
+            $where = ' WHERE '.implode(' OR ', $where);
         }
 
         $data = $sql->getArray('SELECT * FROM '.$sql->escapeIdentifier($table->getName()).$where, $params);
