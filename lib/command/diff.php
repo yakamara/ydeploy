@@ -115,18 +115,43 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             }
 
             $tableSchema = &$schema[$tableName];
+            $columns = $table->getColumns();
 
+            $renamed = [];
             $currentOrder = [];
             $after = rex_sql_table::FIRST;
-            foreach ($tableSchema['columns'] as $columnName => $_) {
-                $currentOrder[$after] = $columnName;
-                $after = $columnName;
+            foreach ($tableSchema['columns'] as $columnName => $columnSchema) {
+                if (isset($columns[$columnName])) {
+                    $currentOrder[$after] = $columnName;
+                    $after = $columnName;
+
+                    continue;
+                }
+
+                foreach ($columns as $newName => $newColumn) {
+                    if (isset($tableSchema['columns'][$newName]) || isset($renamed[$newName])) {
+                        continue;
+                    }
+
+                    if (!$this->columnEqualsSchema($newColumn, $columnSchema)) {
+                        continue;
+                    }
+
+                    $diff->renameColumn($tableName, $columnName, $newName);
+                    $renamed[$newName] = true;
+                    $currentOrder[$after] = $newName;
+                    $after = $newName;
+
+                    continue 2;
+                }
+
+                $diff->removeColumn($tableName, $columnName);
             }
 
             $after = rex_sql_table::FIRST;
-            foreach ($table->getColumns() as $columnName => $column) {
+            foreach ($columns as $columnName => $column) {
                 if (
-                    !isset($tableSchema['columns'][$columnName]) ||
+                    !isset($tableSchema['columns'][$columnName]) && !isset($renamed[$columnName]) ||
                     !isset($currentOrder[$after]) || $columnName !== $currentOrder[$after]
                 ) {
                     $diff->ensureColumn($tableName, $column, $after);
@@ -143,30 +168,19 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                     }
                     $currentOrder[$after] = $columnName;
                     $after = $columnName;
-                    unset($tableSchema['columns'][$columnName]);
 
                     continue;
                 }
 
-                $columnSchema = $tableSchema['columns'][$columnName];
-                $oldColumn = new rex_sql_column(
-                    $columnName,
-                    $columnSchema['type'],
-                    $columnSchema['nullable'],
-                    $columnSchema['default'],
-                    $columnSchema['extra']
-                );
+                $after = $columnName;
 
-                if (!$oldColumn->equals($column)) {
-                    $diff->ensureColumn($tableName, $column);
+                if (!isset($tableSchema['columns'][$columnName])) {
+                    continue;
                 }
 
-                $after = $columnName;
-                unset($tableSchema['columns'][$columnName]);
-            }
-
-            foreach ($tableSchema['columns'] as $columnName => $column) {
-                $diff->removeColumn($tableName, $columnName);
+                if (!$this->columnEqualsSchema($column, $tableSchema['columns'][$columnName])) {
+                    $diff->ensureColumn($tableName, $column);
+                }
             }
 
             if ($tableSchema['primaryKey'] !== $table->getPrimaryKey()) {
@@ -179,6 +193,15 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         foreach ($schema as $tableName => $table) {
             $diff->dropTable($tableName);
         }
+    }
+
+    private function columnEqualsSchema(rex_sql_column $column, array $schema)
+    {
+        return
+            $column->getType() === $schema['type'] &&
+            $column->isNullable() === $schema['nullable'] &&
+            $column->getDefault() === $schema['default'] &&
+            $column->getExtra() === $schema['extra'];
     }
 
     /**

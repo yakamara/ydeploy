@@ -25,6 +25,11 @@ class rex_ydeploy_diff_file
         $this->alter[$tableName]['ensure'][] = [$column, $afterColumn];
     }
 
+    public function renameColumn($tableName, $oldName, $newName)
+    {
+        $this->alter[$tableName]['rename'][$oldName] = $newName;
+    }
+
     public function removeColumn($tableName, $columnName)
     {
         $this->alter[$tableName]['remove'][] = $columnName;
@@ -114,6 +119,12 @@ EOL;
         foreach ($this->alter as $tableName => $alter) {
             $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $tableName);
 
+            if (isset($alter['rename'])) {
+                foreach ($alter['rename'] as $oldName => $newName) {
+                    $content .= $this->addRenameColumn($oldName, $newName);
+                }
+            }
+
             if (isset($alter['ensure'])) {
                 foreach ($alter['ensure'] as list($column, $after)) {
                     $content .= $this->addEnsureColumn($column, $after);
@@ -134,6 +145,11 @@ EOL;
         }
 
         return $content;
+    }
+
+    private function addRenameColumn($oldName, $newName)
+    {
+        return $this->sprintf("\n        ->renameColumn(%s, %s)", $oldName, $newName);
     }
 
     private function addEnsureColumn(rex_sql_column $column, $afterColumn = null)
