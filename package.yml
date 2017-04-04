@@ -19,6 +19,5 @@ config:
             metainfo_type: ~
             module_action: ~
             redactor2_profiles: ~
-            url_generate: ~
             yform_field: ~
             yform_table: ~
