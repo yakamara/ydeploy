@@ -9,9 +9,13 @@ requires:
 config:
     fixtures:
         tables:
+            article: ~
             config:
-                - { namespace: core, key: package-config }
-                - { namespace: core, key: package-order }
+                - { namespace: core }
+                - { namespace: mblock }
+                - { namespace: media_manager }
+                - { namespace: mform }
+                - { namespace: sprog }
             markitup_profiles: ~
             media_manager_type: ~
             media_manager_type_effect: ~
