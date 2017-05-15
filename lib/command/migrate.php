@@ -64,7 +64,7 @@ class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
                 ++$countMigrated;
             }
         } finally {
-            rex_file::delete(rex_path::coreCache('config.cache'));
+            rex_delete_cache();
 
             if ($countMigrated === count($paths)) {
                 $io->success(sprintf('%s %d migrations.', $fake ? 'Faked' : 'Executed', $countMigrated));
