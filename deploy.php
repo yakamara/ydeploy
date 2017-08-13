@@ -14,18 +14,20 @@ if (0 === strpos($baseDir, getcwd())) {
     $baseDir = ltrim($baseDir.'/', '/');
 }
 
+set('base_dir', $baseDir);
+
 set('shared_dirs', [
-    $baseDir.'media',
-    $baseDir.'redaxo/data/addons/cronjob',
-    $baseDir.'redaxo/data/addons/phpmailer',
-    $baseDir.'redaxo/data/core',
+    '{{base_dir}}media',
+    '{{base_dir}}redaxo/data/addons/cronjob',
+    '{{base_dir}}redaxo/data/addons/phpmailer',
+    '{{base_dir}}redaxo/data/core',
 ]);
 
 set('writable_dirs', [
-    $baseDir.'assets',
-    $baseDir.'media',
-    $baseDir.'redaxo/cache',
-    $baseDir.'redaxo/data',
+    '{{base_dir}}assets',
+    '{{base_dir}}media',
+    '{{base_dir}}redaxo/cache',
+    '{{base_dir}}redaxo/data',
 ]);
 
 set('ssh_type', 'native');
@@ -49,10 +51,10 @@ task('deploy', [
     'cleanup',
 ])->desc('Deploy project');
 
-task('database:migration', function () use ($baseDir) {
-    run("cd {{release_path}}/$baseDir && redaxo/bin/console ydeploy:migrate");
+task('database:migration', function () {
+    run('cd {{release_path}}/{{base_dir}} && redaxo/bin/console ydeploy:migrate');
 
-    run("cd {{release_path}}/$baseDir && if [[ $(redaxo/bin/console list --raw | grep developer:sync) ]]; then redaxo/bin/console developer:sync; fi");
+    run('cd {{release_path}}/{{base_dir}} && if [[ $(redaxo/bin/console list --raw | grep developer:sync) ]]; then redaxo/bin/console developer:sync; fi');
 })->desc('Migrate database');
 
 after('deploy', 'success');
