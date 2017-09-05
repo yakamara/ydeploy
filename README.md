@@ -81,6 +81,7 @@ Siehe dazu:
 Die folgende `.gitignore` hat sich als Basis bewährt bei Nutzung von deployer:
 
 ```
+/.build
 /media/*
 !/media/.redaxo
 /redaxo/cache/*

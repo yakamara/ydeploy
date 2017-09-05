@@ -15,19 +15,38 @@ if (0 === strpos($baseDir, getcwd())) {
 }
 
 set('base_dir', $baseDir);
+set('cache_dir', '{{base_dir}}redaxo/cache');
+set('data_dir', '{{base_dir}}redaxo/data');
+set('src_dir', '{{base_dir}}redaxo/src');
+
+set('bin/console', '{{base_dir}}redaxo/bin/console');
 
 set('shared_dirs', [
     '{{base_dir}}media',
-    '{{base_dir}}redaxo/data/addons/cronjob',
-    '{{base_dir}}redaxo/data/addons/phpmailer',
-    '{{base_dir}}redaxo/data/core',
+    '{{data_dir}}/addons/cronjob',
+    '{{data_dir}}/addons/phpmailer',
+    '{{data_dir}}/addons/yform',
+    '{{data_dir}}/core',
 ]);
 
 set('writable_dirs', [
     '{{base_dir}}assets',
     '{{base_dir}}media',
-    '{{base_dir}}redaxo/cache',
-    '{{base_dir}}redaxo/data',
+    '{{cache_dir}}',
+    '{{data_dir}}',
+]);
+
+set('copy_dirs', [
+    '{{base_dir}}assets',
+    '{{src_dir}}',
+]);
+
+set('clear_paths', [
+    'gulpfile.js',
+    'node_modules',
+    'deploy.php',
+    'package.json',
+    'yarn.lock',
 ]);
 
 set('ssh_type', 'native');
@@ -37,24 +56,87 @@ set('ssh_multiplexing', true);
  * Tasks
  */
 
-task('deploy', [
+task('build', function () {
+    set('deploy_path', getcwd().'/.build');
+    set('keep_releases', 1);
+
+    invoke('build:info');
+    invoke('deploy:prepare');
+    invoke('deploy:release');
+    invoke('deploy:update_code');
+    invoke('build:assets');
+    invoke('deploy:clear_paths');
+    invoke('deploy:symlink');
+    invoke('cleanup');
+})->shallow()->local();
+
+task('release', [
+    'deploy:info',
     'deploy:prepare',
-    'deploy:lock',
     'deploy:release',
-    'deploy:update_code',
-    'deploy:clear_paths',
+    'deploy:copy_dirs',
+    'upload',
     'deploy:shared',
     'deploy:writable',
     'database:migration',
     'deploy:symlink',
     'deploy:unlock',
     'cleanup',
-])->desc('Deploy project');
+    'success',
+]);
+
+task('deploy', [
+    'build',
+    'release',
+]);
+
+task('build:info', function () {
+    $what = '';
+    $branch = get('branch');
+
+    if (!empty($branch)) {
+        $what = "<fg=magenta>$branch</fg=magenta>";
+    }
+
+    if (input()->hasOption('tag') && !empty(input()->getOption('tag'))) {
+        $tag = input()->getOption('tag');
+        $what = "tag <fg=magenta>$tag</fg=magenta>";
+    } elseif (input()->hasOption('revision') && !empty(input()->getOption('revision'))) {
+        $revision = input()->getOption('revision');
+        $what = "revision <fg=magenta>$revision</fg=magenta>";
+    }
+
+    if (empty($what)) {
+        $what = '<fg=magenta>HEAD</fg=magenta>';
+    }
+
+    writeln("✂ Building $what on <fg=cyan>{{hostname}}</fg=cyan>");
+})->shallow()->setPrivate();
+
+task('build:assets', function () {
+    cd('{{release_path}}');
+
+    if (get('yarn')) {
+        run('yarn');
+    }
+
+    if (get('gulp')) {
+        run('gulp {{gulp_options}}');
+    }
+});
+
+task('upload', function () {
+    upload(getcwd().'/.build/current/', '{{release_path}}', [
+        'options' => ['--exclude=".git/"', '--delete'],
+    ]);
+});
 
 task('database:migration', function () {
-    run('cd {{release_path}}/{{base_dir}} && redaxo/bin/console ydeploy:migrate');
+    cd('{{release_path}}');
 
-    run('cd {{release_path}}/{{base_dir}} && if [[ $(redaxo/bin/console list --raw | grep developer:sync) ]]; then redaxo/bin/console developer:sync; fi');
-})->desc('Migrate database');
+    run('{{bin/console}} ydeploy:migrate');
 
-after('deploy', 'success');
+    run('if [[ $({{bin/console}} list --raw | grep developer:sync) ]]; then {{bin/console}} developer:sync; fi');
+});
+
+after('deploy:failed', 'deploy:unlock');
