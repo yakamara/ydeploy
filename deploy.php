@@ -21,6 +21,10 @@ set('src_dir', '{{base_dir}}redaxo/src');
 
 set('bin/console', '{{base_dir}}redaxo/bin/console');
 
+set('yarn', false);
+set('gulp', false);
+set('gulp_options', '');
+
 set('shared_dirs', [
     '{{base_dir}}media',
     '{{data_dir}}/addons/cronjob',
