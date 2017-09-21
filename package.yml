@@ -24,3 +24,7 @@ config:
             redactor2_profiles: ~
             yform_field: ~
             yform_table: ~
+
+console_commands:
+    ydeploy:diff: rex_ydeploy_command_diff
+    ydeploy:migrate: rex_ydeploy_command_migrate
