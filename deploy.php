@@ -53,6 +53,7 @@ set('clear_paths', [
     'yarn.lock',
 ]);
 
+set('allow_anonymous_stats', false);
 set('ssh_type', 'native');
 set('ssh_multiplexing', true);
 
