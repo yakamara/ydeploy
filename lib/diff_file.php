@@ -22,22 +22,32 @@ class rex_ydeploy_diff_file
 
     public function ensureColumn($tableName, rex_sql_column $column, $afterColumn = null)
     {
-        $this->alter[$tableName]['ensure'][] = [$column, $afterColumn];
+        $this->alter[$tableName]['ensureColumn'][] = [$column, $afterColumn];
     }
 
     public function renameColumn($tableName, $oldName, $newName)
     {
-        $this->alter[$tableName]['rename'][$oldName] = $newName;
+        $this->alter[$tableName]['renameColumn'][$oldName] = $newName;
     }
 
     public function removeColumn($tableName, $columnName)
     {
-        $this->alter[$tableName]['remove'][] = $columnName;
+        $this->alter[$tableName]['removeColumn'][] = $columnName;
     }
 
     public function setPrimaryKey($tableName, $primaryKey)
     {
         $this->alter[$tableName]['primaryKey'] = $primaryKey;
+    }
+
+    public function ensureIndex($tableName, rex_sql_index $index)
+    {
+        $this->alter[$tableName]['ensureIndex'][] = $index;
+    }
+
+    public function removeIndex($tableName, $indexName)
+    {
+        $this->alter[$tableName]['removeIndex'][] = $indexName;
     }
 
     public function ensureFixture($tableName, array $data)
@@ -106,6 +116,10 @@ EOL;
                 $content .= $this->addSetPrimaryKey($table->getPrimaryKey());
             }
 
+            foreach ($table->getIndexes() as $index) {
+                $content .= $this->addEnsureIndex($index);
+            }
+
             $content .= "\n        ->ensure();";
         }
 
@@ -119,26 +133,38 @@ EOL;
         foreach ($this->alter as $tableName => $alter) {
             $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $tableName);
 
-            if (isset($alter['rename'])) {
-                foreach ($alter['rename'] as $oldName => $newName) {
+            if (isset($alter['renameColumn'])) {
+                foreach ($alter['renameColumn'] as $oldName => $newName) {
                     $content .= $this->addRenameColumn($oldName, $newName);
                 }
             }
 
-            if (isset($alter['ensure'])) {
-                foreach ($alter['ensure'] as list($column, $after)) {
+            if (isset($alter['ensureColumn'])) {
+                foreach ($alter['ensureColumn'] as list($column, $after)) {
                     $content .= $this->addEnsureColumn($column, $after);
                 }
             }
 
-            if (isset($alter['remove'])) {
-                foreach ($alter['remove'] as $columnName) {
+            if (isset($alter['removeColumn'])) {
+                foreach ($alter['removeColumn'] as $columnName) {
                     $content .= $this->sprintf("\n        ->removeColumn(%s)", $columnName);
                 }
             }
 
             if (isset($alter['primaryKey'])) {
                 $content .= $this->addSetPrimaryKey($alter['primaryKey']);
+            }
+
+            if (isset($alter['ensureIndex'])) {
+                foreach ($alter['ensureIndex'] as $index) {
+                    $content .= $this->addEnsureIndex($index);
+                }
+            }
+
+            if (isset($alter['removeIndex'])) {
+                foreach ($alter['removeIndex'] as $indexName) {
+                    $content .= $this->sprintf("\n        ->removeIndex(%s)", $indexName);
+                }
             }
 
             $content .= "\n        ->alter();";
@@ -174,6 +200,26 @@ EOL;
     private function addSetPrimaryKey($primaryKey)
     {
         return $this->sprintf("\n        ->setPrimaryKey(%s)", $primaryKey);
+    }
+
+    private function addEnsureIndex(rex_sql_index $index)
+    {
+        static $types = [
+            rex_sql_index::UNIQUE => 'rex_sql_index::UNIQUE',
+            rex_sql_index::FULLTEXT => 'rex_sql_index::FULLTEXT',
+        ];
+
+        $add = '';
+        if (rex_sql_index::INDEX !== $index->getType()) {
+            $add .= ', '.$types[$index->getType()];
+        }
+
+        return $this->sprintf(
+            "\n        ->ensureIndex(new rex_sql_index(%s, %s$add))",
+            $index->getName(),
+            $index->getColumns(),
+            $index->getType()
+        );
     }
 
     private function addDropTables()

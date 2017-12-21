@@ -73,10 +73,10 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         $schema = [];
 
         foreach ($tables as $table) {
-            $columns = [];
+            $tableName = $table->getName();
 
             foreach ($table->getColumns() as $column) {
-                $columns[$column->getName()] = [
+                $schema[$tableName]['columns'][$column->getName()] = [
                     'type' => $column->getType(),
                     'nullable' => $column->isNullable(),
                     'default' => $column->getDefault(),
@@ -84,10 +84,14 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 ];
             }
 
-            $schema[$table->getName()] = [
-                'columns' => $columns,
-                'primaryKey' => $table->getPrimaryKey(),
-            ];
+            $schema[$tableName]['primaryKey'] = $table->getPrimaryKey();
+
+            foreach ($table->getIndexes() as $index) {
+                $schema[$tableName]['indexes'][$index->getName()] = [
+                    'type' => $index->getType(),
+                    'columns' => $index->getColumns(),
+                ];
+            }
         }
 
         rex_file::putConfig($this->addon->getDataPath('schema.yml'), $schema);
@@ -187,6 +191,20 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 $diff->setPrimaryKey($tableName, $table->getPrimaryKey());
             }
 
+            foreach ($table->getIndexes() as $indexName => $index) {
+                if (!isset($tableSchema['indexes'][$indexName]) || !$this->indexEqualsSchema($index, $tableSchema['indexes'][$indexName])) {
+                    $diff->ensureIndex($tableName, $index);
+                }
+
+                unset($tableSchema['indexes'][$indexName]);
+            }
+
+            if (isset($tableSchema['indexes'])) {
+                foreach ($tableSchema['indexes'] as $indexName => $indexSchema) {
+                    $diff->removeIndex($tableName, $indexName);
+                }
+            }
+
             unset($schema[$tableName]);
         }
 
@@ -202,6 +220,13 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             $column->isNullable() === $schema['nullable'] &&
             $column->getDefault() === $schema['default'] &&
             $column->getExtra() === $schema['extra'];
+    }
+
+    private function indexEqualsSchema(rex_sql_index $index, array $schema)
+    {
+        return
+            $index->getType() === $schema['type'] &&
+            $index->getColumns() === $schema['columns'];
     }
 
     /**
