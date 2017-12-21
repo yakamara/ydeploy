@@ -54,8 +54,6 @@ set('clear_paths', [
 ]);
 
 set('allow_anonymous_stats', false);
-set('ssh_type', 'native');
-set('ssh_multiplexing', true);
 
 /*
  * Tasks
