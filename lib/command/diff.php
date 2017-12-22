@@ -41,7 +41,7 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             if (!$input->getOption('unmarked')) {
                 rex_sql::factory()
                     ->setTable($this->migrationTable)
-                    ->setValue('timestamp', $diffTimestamp)
+                    ->setValue('timestamp', $diffTimestamp->format('Y-m-d H:i:s.u'))
                     ->insert();
             }
         }
@@ -49,7 +49,7 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         if (!$schemaExists) {
             $io->success('Created initial schema and fixtures files.');
         } elseif ($diffTimestamp) {
-            $io->success(sprintf('Updated schema and fixtures file and created diff file "%s.php".', $diffTimestamp));
+            $io->success(sprintf('Updated schema and fixtures file and created diff file "%s.php".', $diffTimestamp->format('Y-m-d H-i-s.u')));
         } else {
             $io->success('Updated schema and fixtures files, nothing changed.');
         }
@@ -376,14 +376,13 @@ class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     /**
      * @param rex_ydeploy_diff_file $diff
      *
-     * @return string
+     * @return DateTime
      */
     private function saveDiff(rex_ydeploy_diff_file $diff)
     {
         $timestamp = DateTime::createFromFormat('U.u', sprintf('%.f', microtime(true)));
         $timestamp->setTimezone(new DateTimeZone('UTC'));
-        $timestamp = $timestamp->format('Y-m-d H:i:s.u');
-        $filename = $timestamp.'.php';
+        $filename = $timestamp->format('Y-m-d H-i-s.u').'.php';
         $path = $this->addon->getDataPath('migrations/'.$filename);
 
         if (file_exists($path)) {

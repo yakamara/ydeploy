@@ -27,13 +27,20 @@ class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
 
         $fake = $input->getOption('fake');
 
-        $paths = glob($this->addon->getDataPath('migrations/*-*-* *:*:*.*.php'));
+        $glob = glob($this->addon->getDataPath('migrations/*-*-* *.*.php'));
+        $paths = [];
 
-        foreach ($paths as $i => $path) {
+        foreach ($glob as $path) {
             $timestamp = substr(basename($path), 0, -4);
 
-            if (isset($migrated[$timestamp])) {
-                unset($paths[$i]);
+            if (!preg_match('/^(\d{4}-\d{2}-\d{2}) (\d{2})[-:](\d{2})[-:](\d{2}\.\d+)$/', $timestamp, $match)) {
+                continue;
+            }
+
+            $timestamp = $match[1].' '.$match[2].':'.$match[3].':'.$match[4];
+
+            if (!isset($migrated[$timestamp])) {
+                $paths[$path] = $timestamp;
             }
         }
 
@@ -49,9 +56,7 @@ class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
 
         $path = null;
         try {
-            foreach ($paths as $path) {
-                $timestamp = substr(basename($path), 0, -4);
-
+            foreach ($paths as $path => $timestamp) {
                 if (!$fake) {
                     $this->migrate($path);
                 }
