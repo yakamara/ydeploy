@@ -4,7 +4,7 @@ author: Gregor Harlan
 supportpage: www.redaxo.org/de/forum/
 
 requires:
-    redaxo: ^5.4.0-dev
+    redaxo: ^5.5
 
 config:
     fixtures:
