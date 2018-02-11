@@ -139,7 +139,7 @@ task('database:migration', function () {
 
     run('{{bin/php}} {{bin/console}} ydeploy:migrate');
 
-    run('if [[ $({{bin/php}} {{bin/console}} list --raw | grep developer:sync) ]]; then {{bin/php}} {{bin/console}} developer:sync; fi');
+    run('if [[ $({{bin/php}} {{bin/console}} list --raw | grep developer:sync) ]]; then {{bin/php}} {{bin/console}} developer:sync --force-files; fi');
 });
 
 after('deploy:failed', 'deploy:unlock');
