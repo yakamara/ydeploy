@@ -6,6 +6,10 @@ supportpage: www.redaxo.org/de/forum/
 requires:
     redaxo: ^5.5
 
+conflicts:
+    packages:
+        developer: '<3.7'
+
 config:
     fixtures:
         tables:
