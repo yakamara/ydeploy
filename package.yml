@@ -4,6 +4,7 @@ author: Gregor Harlan
 supportpage: www.redaxo.org/de/forum/
 
 requires:
+    php: ^7.0
     redaxo: ^5.5
 
 conflicts:
