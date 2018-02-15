@@ -52,3 +52,11 @@ set('url', function () {
 set('allow_anonymous_stats', false);
 
 after('deploy:failed', 'deploy:unlock');
+
+set('bin/mysql', function () {
+    return locateBinaryPath('mysql');
+});
+
+set('bin/mysqldump', function () {
+    return locateBinaryPath('mysqldump');
+});
