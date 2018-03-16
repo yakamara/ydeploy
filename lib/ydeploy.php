@@ -41,7 +41,7 @@ class rex_ydeploy
     }
 
     /**
-     * Returns whether this a deployed or local instance.
+     * Returns whether this a deployed (`true`) or local (`false`) instance.
      *
      * @return bool
      */
