@@ -8,7 +8,7 @@ task('deploy:dump_info', function () {
         'host' => get('hostname'),
         'stage' => get('stage', false) ?: null,
         'timestamp' => time(),
-        'commit' => runLocally('git -C .build rev-parse HEAD'),
+        'commit' => runLocally('{{bin/git}} -C .build rev-parse HEAD'),
     ];
 
     $infos = json_encode($infos, JSON_PRETTY_PRINT);
