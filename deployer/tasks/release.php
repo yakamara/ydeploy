@@ -10,6 +10,7 @@ task('release', [
     'deploy:copy_dirs',
     'upload',
     'deploy:shared',
+    'deploy:dump_info',
     'deploy:writable',
     'database:migration',
     'deploy:symlink',
