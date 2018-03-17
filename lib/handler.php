@@ -48,4 +48,34 @@ class rex_ydeploy_handler
 
         return str_replace('</body>', $badge.'</body>', $ep->getSubject());
     }
+
+    public static function protectPages()
+    {
+        $protectedPages = rex_addon::get('ydeploy')->getProperty('config')['protected_pages'];
+        
+        $page = rex_be_controller::getCurrentPage();
+        
+        foreach ($protectedPages as $page) {
+            $page = rex_be_controller::getPageObject($page);
+            
+            if (!$page) {
+                continue;
+            }
+            
+            $page->setHidden(true);
+            $page->setPath(rex_path::addon('ydeploy', 'pages/protected.php'));
+            
+            // If page is first subpage of other page, then the other page must be also hidden
+            while ($parent = $page->getParent()) {
+                $subpages = $parent->getSubpages();
+                
+                if ($page !== reset($subpages)) {
+                    break;
+                }
+                
+                $parent->setHidden(true);
+                $page = $parent;
+            }
+        }
+    }
 }
