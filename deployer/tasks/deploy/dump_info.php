@@ -8,6 +8,7 @@ task('deploy:dump_info', function () {
         'host' => get('hostname'),
         'stage' => get('stage', false) ?: null,
         'timestamp' => time(),
+        'branch' => runLocally('{{bin/git}} -C .build rev-parse --abbrev-ref HEAD'),
         'commit' => runLocally('{{bin/git}} -C .build rev-parse HEAD'),
     ];
 

@@ -8,6 +8,7 @@ class rex_ydeploy
 
     private $host;
     private $stage;
+    private $branch;
     private $commit;
     private $timestamp;
 
@@ -27,6 +28,7 @@ class rex_ydeploy
 
         $this->host = $info['host'];
         $this->stage = $info['stage'];
+        $this->branch = $info['branch'];
         $this->commit = $info['commit'];
         $this->timestamp = DateTimeImmutable::createFromFormat('U', $info['timestamp']);
     }
@@ -68,6 +70,16 @@ class rex_ydeploy
     public function getStage()
     {
         return $this->stage;
+    }
+
+    /**
+     * Returns the deployed branch.
+     *
+     * @return null|string
+     */
+    public function getBranch()
+    {
+        return $this->branch;
     }
 
     /**

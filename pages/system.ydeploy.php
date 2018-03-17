@@ -7,6 +7,7 @@ if ($ydeploy->isDeployed()) {
         'Deployed' => rex_formatter::strftime($ydeploy->getTimestamp()->getTimestamp(), 'datetime'),
         'Host' => $ydeploy->getHost(),
         'Stage' => $ydeploy->getStage(),
+        'Branch' => $ydeploy->getBranch(),
         'Commit' => $ydeploy->getCommit(),
     ];
 } else {
