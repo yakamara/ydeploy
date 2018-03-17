@@ -52,9 +52,7 @@ class rex_ydeploy_handler
     public static function protectPages()
     {
         $protectedPages = rex_addon::get('ydeploy')->getProperty('config')['protected_pages'];
-        
-        $page = rex_be_controller::getCurrentPage();
-        
+
         foreach ($protectedPages as $page) {
             $page = rex_be_controller::getPageObject($page);
             
