@@ -33,3 +33,7 @@ config:
 console_commands:
     ydeploy:diff: rex_ydeploy_command_diff
     ydeploy:migrate: rex_ydeploy_command_migrate
+
+pages:
+    system/ydeploy:
+        title: YDeploy
