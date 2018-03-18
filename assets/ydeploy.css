@@ -1,0 +1,36 @@
+.ydeploy-badge {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 10000;
+    transform: translate(-50%, 0);
+    padding: 5px 20px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 0 5px 0 rgba(0,0,0, .4);
+    background-color: #ccc;
+    color: #000;
+    font-size: 13px;
+    font-family: 'Fira Code', 'Menlo', monospace;
+    font-weight: 400;
+}
+
+.ydeploy-badge small {
+    font-size: 100%;
+}
+
+.ydeploy-is-not-deployed .ydeploy-badge {
+    background-color: #0f6;
+}
+
+.ydeploy-stage-staging .ydeploy-badge,
+.ydeploy-stage-test .ydeploy-badge,
+.ydeploy-stage-testing .ydeploy-badge {
+    background-color: #fc0;
+}
+
+.ydeploy-stage-live .ydeploy-badge,
+.ydeploy-stage-prod .ydeploy-badge,
+.ydeploy-stage-production .ydeploy-badge {
+    background-color: #f66;
+}
