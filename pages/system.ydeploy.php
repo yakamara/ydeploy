@@ -39,7 +39,7 @@ $content = '';
 $protectedPages = rex_addon::get('ydeploy')->getProperty('config')['protected_pages'];
 $pages = [];
 
-foreach ($protectedPages as $page) {
+foreach ($protectedPages as $page => $subpages) {
     $page = rex_be_controller::getPageObject($page);
 
     if (!$page) {
@@ -70,7 +70,6 @@ foreach ($protectedPages as $page) {
 }
 
 $navi = rex_be_navigation::factory();
-$prio = 10000;
 
 // add fake pages to navigation, but use original order from rex_be_controller
 foreach (rex_be_controller::getPages() as $key => $page) {
@@ -79,11 +78,6 @@ foreach (rex_be_controller::getPages() as $key => $page) {
     }
 
     foreach ($pages[$key] as $fakePage) {
-        // some protected subpages does not have a title, so we force a prio to avoid sorting by title
-        if ($fakePage instanceof rex_be_page_main && !$fakePage->getPrio()) {
-            $fakePage->setPrio(++$prio);
-        }
-
         $navi->addPage($fakePage);
     }
 }
