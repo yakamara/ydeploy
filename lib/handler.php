@@ -108,7 +108,7 @@ class rex_ydeploy_handler
 
     private static function protectPage(rex_be_page $page)
     {
-        if ($page->isActive()) {
+        if (rex_be_controller::getCurrentPage() && $page->isActive()) {
             rex_be_controller::setCurrentPage('system/ydeploy');
         }
 
@@ -129,7 +129,7 @@ class rex_ydeploy_handler
 
     private static function handleUnlockedPage(rex_be_page $page, array $subpages = null)
     {
-        if (!$page->isActive()) {
+        if (!rex_be_controller::getCurrentPage() || !$page->isActive()) {
             return;
         }
 
