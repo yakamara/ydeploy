@@ -143,9 +143,12 @@ class rex_ydeploy_handler
         }
 
         rex_extension::register('PAGE_TITLE_SHOWN', function (rex_extension_point $ep) {
-            $url = rex_url::backendPage('system/ydeploy', rex_api_ydeploy_lock_page::getUrlParams() + ['protected_page' => rex_be_controller::getCurrentPage()]);
+            $url = rex_url::backendPage('system/ydeploy', rex_api_ydeploy_protected_page::getUrlParams() + [
+                'action' => 'lock',
+                'protected_page' => rex_be_controller::getCurrentPage(),
+            ]);
             $error = rex_view::error('
-                    This page is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
+                    The page <code>'.rex_escape(rex_be_controller::getCurrentPage()).'</code> is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
                     
                     <a href="'.$url.'">Lock and leave this page</a>
                 ');

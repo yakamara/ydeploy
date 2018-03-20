@@ -34,7 +34,9 @@ if (!$ydeploy->isDeployed()) {
     return;
 }
 
-$apiUrl = function (array $params, string $page, string $redirect = null) {
+$apiUrl = function (string $action, string $page, string $redirect = null) {
+    $params = rex_api_ydeploy_protected_page::getUrlParams();
+    $params['action'] = $action;
     $params['protected_page'] = $page;
 
     if ($redirect) {
@@ -48,10 +50,10 @@ $calledPage = rex_request('page', 'string');
 
 if ('system/ydeploy' !== $calledPage) {
     $redirect = rex_context::fromGet()->getUrl([], false);
-    $url = $apiUrl(rex_api_ydeploy_unlock_page::getUrlParams(), $calledPage, $redirect);
+    $url = $apiUrl('unlock', $calledPage, $redirect);
 
     echo rex_view::error('
-        The called page <code>'.$calledPage.'</code> is protected in deployed instances because it should be used only in development instances. <br><br>
+        The called page <code>'.rex_escape($calledPage).'</code> is protected in deployed instances because it should be used only in development instances. <br><br>
         <a href="'.$url.'">Unlock and open it anyway</a>
     ');
 }
@@ -115,15 +117,15 @@ foreach ($navi->getNavigation() as $block) {
 
     foreach ($block['navigation'] as $page) {
         if (isset($unlockedPages[$page['href']])) {
-            $url = $apiUrl(rex_api_ydeploy_lock_page::getUrlParams(), $page['href']);
+            $url = $apiUrl('lock', $page['href']);
             $action = '<a class="rex-online" href="'.$url.'"><i class="rex-icon fa-unlock-alt"></i> Unlocked</a>';
 
             $action2 = '<a href="'.rex_url::backendPage($page['href']).'">Open</a>';
         } else {
-            $url = $apiUrl(rex_api_ydeploy_unlock_page::getUrlParams(), $page['href']);
+            $url = $apiUrl('unlock', $page['href']);
             $action = '<a class="rex-offline" href="'.$url.'"><i class="rex-icon fa-lock"></i> Locked</a>';
 
-            $url = $apiUrl(rex_api_ydeploy_unlock_page::getUrlParams(), $page['href'], rex_url::backendPage($page['href']));
+            $url = $apiUrl('unlock', $page['href'], rex_url::backendPage($page['href']));
             $action2 = '<a href="'.$url.'">Unlock & open</a>';
         }
 
