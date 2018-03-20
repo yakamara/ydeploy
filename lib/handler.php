@@ -51,12 +51,18 @@ class rex_ydeploy_handler
 
     public static function protectPages()
     {
-        $protectedPages = rex_addon::get('ydeploy')->getProperty('config')['protected_pages'];
+        $unlockedPages = self::getUnlockedPages();
 
-        foreach ($protectedPages as $page => $subpages) {
+        foreach (self::getProtectedPages() as $page => $subpages) {
             $page = rex_be_controller::getPageObject($page);
 
             if (!$page) {
+                continue;
+            }
+
+            if (isset($unlockedPages[$page->getFullKey()])) {
+                self::handleUnlockedPage($page, $subpages);
+
                 continue;
             }
 
@@ -69,16 +75,44 @@ class rex_ydeploy_handler
             foreach ($subpages as $subpage) {
                 $subpage = $page->getSubpage($subpage);
 
-                if ($subpage)
+                if ($subpage) {
                     self::protectPage($subpage);
+                }
             }
         }
     }
 
+    public static function getProtectedPages(): array
+    {
+        return rex_addon::get('ydeploy')->getProperty('config')['protected_pages'];
+    }
+
+    public static function getUnlockedPages(): array
+    {
+        return rex_session('ydeploy_unlocked_pages', 'array', []);
+    }
+
+    public static function unlockPage(string $page)
+    {
+        $unlockedPages = self::getUnlockedPages();
+        $unlockedPages[$page] = true;
+        rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
+    }
+
+    public static function lockPage(string $page)
+    {
+        $unlockedPages = self::getUnlockedPages();
+        unset($unlockedPages[$page]);
+        rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
+    }
+
     private static function protectPage(rex_be_page $page)
     {
+        if ($page->isActive()) {
+            rex_be_controller::setCurrentPage('system/ydeploy');
+        }
+
         $page->setHidden(true);
-        $page->setPath(rex_path::addon('ydeploy', 'pages/protected.php'));
 
         // If page is first subpage of other page, then the other page must be also hidden
         while ($parent = $page->getParent()) {
@@ -91,5 +125,32 @@ class rex_ydeploy_handler
             $parent->setHidden(true);
             $page = $parent;
         }
+    }
+
+    private static function handleUnlockedPage(rex_be_page $page, array $subpages = null)
+    {
+        if (!$page->isActive()) {
+            return;
+        }
+
+        if (is_array($subpages)) {
+            $subpage = substr(rex_be_controller::getCurrentPage(), strlen($page->getFullKey()) + 1);
+            $subpage = explode('/', $subpage, 2)[0];
+
+            if (!in_array($subpage, $subpages, true)) {
+                return;
+            }
+        }
+
+        rex_extension::register('PAGE_TITLE_SHOWN', function (rex_extension_point $ep) {
+            $url = rex_url::backendPage('system/ydeploy', rex_api_ydeploy_lock_page::getUrlParams() + ['protected_page' => rex_be_controller::getCurrentPage()]);
+            $error = rex_view::error('
+                    This page is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
+                    
+                    <a href="'.$url.'">Lock and leave this page</a>
+                ');
+
+            return $ep->getSubject().$error;
+        });
     }
 }

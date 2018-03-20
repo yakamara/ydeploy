@@ -18,6 +18,7 @@ console_commands:
 pages:
     system/ydeploy:
         title: YDeploy
+        pjax: false
 
 config:
     fixtures:
