@@ -14,6 +14,7 @@ task('release', [
     'deploy:writable',
     'database:migration',
     'deploy:symlink',
+    'php:clear_cache',
     'deploy:unlock',
     'cleanup',
     'success',

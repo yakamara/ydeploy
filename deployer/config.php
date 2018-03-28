@@ -2,6 +2,8 @@
 
 namespace Deployer;
 
+use Deployer\Task\Context;
+
 $baseDir = dirname(__DIR__, 5);
 if (0 === strpos($baseDir, getcwd())) {
     $baseDir = substr($baseDir, strlen(getcwd()));
@@ -42,6 +44,10 @@ set('clear_paths', [
     'package.json',
     'yarn.lock',
 ]);
+
+set('url', function () {
+    return 'https://'.Context::get()->getHost()->getRealHostname();
+});
 
 set('allow_anonymous_stats', false);
 
