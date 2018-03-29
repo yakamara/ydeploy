@@ -2,8 +2,8 @@
 
 namespace Deployer;
 
-desc('Clears the php opcache and realpath cache');
-task('php:clear_cache', function () {
+desc('Clear the php opcache and realpath cache');
+task('server:php:clear_cache', function () {
     cd('{{release_path}}/{{base_dir}}');
 
     $dir = '_clear_cache';
