@@ -2,10 +2,14 @@
 
 namespace Deployer;
 
-use Deployer\Task\Context;
-
+// restart apache server
 set('restart_apache', false);
+
+// kill processes with the given name (eg. "fcgi")
 set('kill_process', false);
+
+// clear the php opcache and realpath cache for the web environment
+// (by calling a temp php file via curl)
 set('clear_web_php_cache', false);
 
 set('bin/apachectl', function () {
@@ -38,6 +42,7 @@ task('server:clear_cache', new class {
 
     private function killProcess()
     {
+        // ignore error when no process with given name is running
         run('pkill -u `whoami` {{kill_process}} || true');
     }
 
