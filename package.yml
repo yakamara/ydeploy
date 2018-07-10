@@ -5,7 +5,7 @@ supportpage: www.redaxo.org/de/forum/
 
 requires:
     php: ^7.0
-    redaxo: ^5.5
+    redaxo: ^5.6.2
 
 conflicts:
     packages:
