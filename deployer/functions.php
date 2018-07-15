@@ -2,7 +2,10 @@
 
 namespace YDeploy;
 
-use function Deployer\{get, upload};
+use function Deployer\{cd, download, get, upload};
+use Deployer\Host\Host;
+use Deployer\Host\Localhost;
+use Deployer\Task\Context;
 
 function uploadContent(string $destination, string $content)
 {
@@ -17,5 +20,38 @@ function uploadContent(string $destination, string $content)
         upload($path, $destination);
     } finally {
         unlink($path);
+    }
+}
+
+function downloadContent(string $source): string
+{
+    if (!empty($workingPath = get('working_path', ''))) {
+        $source = "$workingPath/$source";
+    }
+
+    $path = tempnam(getcwd().'/'.get('data_dir').'/addons/ydeploy', 'tmp');
+
+    download($source, $path);
+    $content = file_get_contents($path);
+    unlink($path);
+
+    return $content;
+}
+
+function onHost(Host $host, callable $callback)
+{
+    $input = Context::has() ? Context::get()->getInput() : null;
+    $output = Context::has() ? Context::get()->getOutput() : null;
+
+    Context::push(new Context($host, $input, $output));
+
+    try {
+        if (!$host instanceof Localhost) {
+            cd('{{release_path}}');
+        }
+
+        return $callback($host);
+    } finally {
+        Context::pop();
     }
 }
