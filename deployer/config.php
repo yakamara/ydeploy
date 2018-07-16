@@ -11,6 +11,7 @@ if (0 === strpos($baseDir, getcwd())) {
 }
 
 set('base_dir', $baseDir);
+set('media_dir', '{{base_dir}}media');
 set('cache_dir', '{{base_dir}}redaxo/cache');
 set('data_dir', '{{base_dir}}redaxo/data');
 set('src_dir', '{{base_dir}}redaxo/src');
@@ -18,7 +19,7 @@ set('src_dir', '{{base_dir}}redaxo/src');
 set('bin/console', '{{base_dir}}redaxo/bin/console');
 
 set('shared_dirs', [
-    '{{base_dir}}media',
+    '{{media_dir}}',
     '{{data_dir}}/addons/cronjob',
     '{{data_dir}}/addons/phpmailer',
     '{{data_dir}}/addons/yform',
@@ -27,7 +28,7 @@ set('shared_dirs', [
 
 set('writable_dirs', [
     '{{base_dir}}assets',
-    '{{base_dir}}media',
+    '{{media_dir}}',
     '{{cache_dir}}',
     '{{data_dir}}',
 ]);
