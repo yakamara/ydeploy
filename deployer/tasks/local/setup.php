@@ -2,36 +2,31 @@
 
 namespace Deployer;
 
-use Deployer\Exception\RuntimeException;
 use Deployer\Host\Host;
-use Deployer\Host\Localhost;
-use Deployer\Task\Context;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Yaml\Yaml;
 use function YDeploy\{downloadContent, uploadContent, onHost};
 
-desc('Setup redaxo instance');
-task('setup', new class {
+desc('Setup local redaxo instance');
+task('local:setup', new class {
     private $mysqlOptions;
 
-    /** @var Host */
+    /** @var null|Host */
     private $source;
+
+    /** @var null|string */
+    private $sourceFile;
 
     /** @var null|string */
     private $server;
 
     public function __invoke()
     {
-        cd('{{release_path}}');
-
-        if (test('[ -f {{data_dir}}/core/config.yml ]')) {
-            return;
-        }
-
         writeln('');
 
         $this->mysqlOptions = get('data_dir').'/addons/ydeploy/mysql-options';
 
-        $this->source = $this->chooseSource();
+        $this->chooseSource();
 
         try {
             $this->setConfigYml();
@@ -44,52 +39,75 @@ task('setup', new class {
         }
     }
 
-    private function chooseSource(): Host
+    private function chooseSource()
     {
-        $this->headline('Setup <fg=cyan>{{hostname}}</fg=cyan>');
+        $this->headline('Setup <fg=cyan>local</fg=cyan> instance');
 
         $hosts = Deployer::get()->hosts;
-        $localhost = new Localhost('local');
 
-        if (count($hosts) < 2) {
-            writeln("The host <fg=cyan>{{hostname}}</fg=cyan> will be initialized by data from <fg=cyan>{$localhost}</fg=cyan>.");
+        if (count($hosts) > 0) {
+            writeln('The data can be imported from one of the hosts, or from dump file.');
             writeln('');
 
-            return $localhost;
+            $fromHost = askConfirmation('Import from host');
+            writeln('');
+        } else {
+            writeln('The data must be imported from an existing dump file.');
+            writeln('');
+
+            $fromHost = false;
         }
 
-        $hosts->set($localhost->getHostname(), $localhost);
+        if (!$fromHost) {
+            do {
+                $file = ask('Dump file', getcwd().'/dump.sql');
+
+                if (file_exists($file)) {
+                    $this->sourceFile = $file;
+                } else {
+                    writeln('');
+                    writeln('<error>The file does not exist: '.$file.'</error>');
+                    writeln('');
+                }
+            } while (!$this->sourceFile);
+
+            writeln('');
+
+            return;
+        }
+
+        if (count($hosts) === 1) {
+            $this->source = $hosts->first();
+
+            return;
+        }
 
         $hostsArray = $hosts->toArray();
-        unset($hostsArray[Context::get()->getHost()->getHostname()]);
         $hostsArray = array_values($hostsArray);
-
-        writeln('The data from which host shall be used for initializing <fg=cyan>{{hostname}}</fg=cyan>?');
-        writeln('');
 
         $host = askChoice('Select source host:', $hostsArray);
 
         writeln('');
 
-        return $hosts->get($host);
+        $this->source = $hosts->get($host);
     }
 
     private function setConfigYml()
     {
-        $this->headline('Create config.yml for <fg=cyan>{{hostname}}</fg=cyan>');
+        $this->headline('Create <fg=cyan>local</fg=cyan> config.yml');
 
-        if ($this->source instanceof Localhost) {
-            $config = file_get_contents(getcwd().'/'.get('data_dir').'/core/config.yml');
-        } else {
+        if ($this->source) {
             $config = onHost($this->source, function () {
                 return downloadContent('{{data_dir}}/core/config.yml');
             });
+        } else {
+            $config = file_get_contents(getcwd().'/'.get('src_dir').'/core/default.config.yml');
         }
 
         $config = Yaml::parse($config);
 
         $config['setup'] = false;
-        $config['debug'] = false;
+        $config['debug'] = true;
         $config['instname'] = 'rex'.date('YmdHis');
 
         $config['server'] = ask('Server:', get('url'));
@@ -114,22 +132,28 @@ task('setup', new class {
             $db['login'] = ask('Database user:', $db['login']);
             $db['password'] = askHiddenResponse('Database password:');
 
-            uploadContent($this->mysqlOptions, implode("\n", [
+            file_put_contents($this->mysqlOptions, implode("\n", [
                 '--host='.escapeshellarg($db['host']),
                 '--user='.escapeshellarg($db['login']),
                 '--password='.escapeshellarg($db['password']),
-                escapeshellarg($db['name']),
             ]));
 
             try {
-                run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e ";"');
+                run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "CREATE DATABASE IF NOT EXISTS '.escapeshellcmd($db['name']).' CHARACTER SET utf8 COLLATE utf8_general_ci"');
                 $dbValid = true;
-            } catch (RuntimeException $e) {
+            } catch (ProcessFailedException $e) {
                 writeln('');
-                writeln('<error>Could not connect to database: '.trim($e->getErrorOutput()).'</error>');
+                writeln('<error>Could not create/connect database: '.trim($e->getProcess()->getErrorOutput()).'</error>');
                 writeln('');
             }
         } while (!$dbValid);
+
+        file_put_contents($this->mysqlOptions, implode("\n", [
+            '--host='.escapeshellarg($db['host']),
+            '--user='.escapeshellarg($db['login']),
+            '--password='.escapeshellarg($db['password']),
+            escapeshellarg($db['name'])
+        ]));
 
         $config['db'][1] = $db;
 
@@ -144,37 +168,36 @@ task('setup', new class {
 
     private function copyDatabase()
     {
-        $this->headline("Copy database from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>{{hostname}}</fg=cyan>");
+        if ($this->source) {
+            $this->headline("Copy database from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>local</fg=cyan>");
 
-        $path = get('data_dir').'/addons/ydeploy/'.date('YmdHis').'.sql';
+            $path = get('data_dir').'/addons/ydeploy/'.date('YmdHis').'.sql';
 
-        // export source database
-        onHost($this->source, function () use ($path) {
-            run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
+            // export source database
+            onHost($this->source, function () use ($path) {
+                run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
+                download("{{release_path}}/$path", $path);
+                run('rm -f '.escapeshellarg($path));
+            });
+        } else {
+            $this->headline("Import database dump");
 
-            if (Context::get()->getHost() instanceof Localhost) {
-                return;
-            }
+            $path = $this->sourceFile;
+        }
 
-            download("{{release_path}}/$path", $path);
-            run('rm -f '.escapeshellarg($path));
-        });
-
-        // upload and import the dump
-        upload($path, "{{release_path}}/$path");
+        // import the dump
         run('< '.escapeshellarg($this->mysqlOptions).' xargs sh -c \'{{bin/mysql}} "$0" "$@" < '.escapeshellcmd(escapeshellarg($path)).'\'');
 
         run('rm -f '.escapeshellarg($path));
-        unlink(getcwd().'/'.$path);
 
         $this->ok();
     }
 
     private function configureDeveloper()
     {
-        $this->headline('Configure developer addon for production usage');
+        $this->headline('Configure developer addon for local usage');
 
-        run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_config SET value = \"false\" WHERE namespace=\"developer\" AND \`key\` NOT IN (\"templates\", \"modules\", \"actions\", \"items\")"');
+        run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_config SET value = \"true\" WHERE namespace=\"developer\" AND \`key\` IN (\"sync_frontend\", \"sync_backend\", \"rename\", \"dir_suffix\", \"delete\")"');
 
         $this->ok();
     }
@@ -184,8 +207,8 @@ task('setup', new class {
         try {
             $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
             $data = trim($data);
-        } catch (RuntimeException $exception) {
-            if (false !== strpos($exception->getMessage(), 'ERROR 1146')) {
+        } catch (ProcessFailedException $exception) {
+            if (false !== strpos($exception->getProcess()->getErrorOutput(), 'ERROR 1146')) {
                 // Table does not exist (yrewite not activated)
                 return;
             }
@@ -212,17 +235,17 @@ task('setup', new class {
 
     private function copyMedia()
     {
-        $this->headline("Copy media files from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>{{hostname}}</fg=cyan>");
+        if (!$this->source) {
+            return;
+        }
+
+        $this->headline("Copy media files from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>local</fg=cyan>");
 
         $path = get('data_dir').'/addons/ydeploy/media_'.date('YmdHis').'.tar.gz';
 
         // create source archive
         onHost($this->source, function () use ($path) {
             run('tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
-
-            if (Context::get()->getHost() instanceof Localhost) {
-                return;
-            }
 
             try {
                 download("{{release_path}}/$path", $path);
@@ -232,10 +255,9 @@ task('setup', new class {
         });
 
         try {
-            upload($path, "{{release_path}}/$path");
+            run('mkdir -p {{media_dir}}');
             run('tar -zxvf '.escapeshellarg($path).' -C {{media_dir}}/');
         } finally {
-            unlink($path);
             run('rm -f '.escapeshellarg($path));
         }
 
@@ -253,4 +275,4 @@ task('setup', new class {
         writeln('<info>✔</info> Ok');
         writeln('');
     }
-});
+})->local()->shallow();
