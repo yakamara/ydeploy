@@ -62,7 +62,7 @@ task('setup', new class {
 
         $hostsArray = $hosts->toArray();
         unset($hostsArray[Context::get()->getHost()->getHostname()]);
-        $hostsArray = array_values($hostsArray);
+        $hostsArray = array_keys($hostsArray);
 
         writeln('The data from which host shall be used for initializing <fg=cyan>{{hostname}}</fg=cyan>?');
         writeln('');
