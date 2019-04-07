@@ -218,7 +218,7 @@ task('setup', new class() {
 
         // create source archive
         onHost($this->source, static function () use ($path) {
-            run('tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
+            run('COPYFILE_DISABLE=1 tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
 
             if (Context::get()->getHost() instanceof Localhost) {
                 return;
