@@ -1,0 +1,46 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__)
+;
+
+return PhpCsFixer\Config::create()
+    ->setUsingCache(true)
+    ->setRiskyAllowed(true)
+    ->setRules([
+        '@Symfony' => true,
+        '@Symfony:risky' => true,
+        '@PHP71Migration' => true,
+        '@PHP71Migration:risky' => true,
+        '@PHPUnit60Migration:risky' => true,
+        'array_indentation' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'braces' => ['allow_single_line_closure' => false],
+        'comment_to_phpdoc' => true,
+        'declare_strict_types' => false,
+        'function_to_constant' => ['functions' => ['get_class', 'get_called_class', 'php_sapi_name', 'phpversion', 'pi']],
+        'heredoc_to_nowdoc' => true,
+        'list_syntax' => ['syntax' => 'short'],
+        'logical_operators' => true,
+        'no_blank_lines_after_phpdoc' => false,
+        'no_null_property_initialization' => true,
+        'no_php4_constructor' => true,
+        'no_superfluous_elseif' => true,
+        'no_unreachable_default_argument_value' => true,
+        'no_useless_else' => true,
+        'no_useless_return' => true,
+        'ordered_imports' => true,
+        'phpdoc_order' => true,
+        'phpdoc_trim_consecutive_blank_line_separation' => true,
+        'phpdoc_types_order' => true,
+        'phpdoc_var_annotation_correct_order' => true,
+        'psr4' => false,
+        'single_import_per_statement' => false,
+        'space_after_semicolon' => true,
+        'static_lambda' => true,
+        'string_line_ending' => true,
+        'void_return' => false,
+        'yoda_style' => true,
+    ])
+    ->setFinder($finder)
+;

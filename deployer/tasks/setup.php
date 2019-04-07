@@ -7,10 +7,10 @@ use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
 use Symfony\Component\Yaml\Yaml;
-use function YDeploy\{downloadContent, uploadContent, onHost};
+use function YDeploy\{downloadContent, onHost, uploadContent};
 
 desc('Setup redaxo instance');
-task('setup', new class {
+task('setup', new class() {
     private $mysqlOptions;
 
     /** @var Host */
@@ -51,7 +51,7 @@ task('setup', new class {
         $hosts = Deployer::get()->hosts;
         $localhost = new Localhost('local');
 
-        if (count($hosts) < 2) {
+        if (\count($hosts) < 2) {
             writeln("The host <fg=cyan>{{hostname}}</fg=cyan> will be initialized by data from <fg=cyan>{$localhost}</fg=cyan>.");
             writeln('');
 
@@ -81,7 +81,7 @@ task('setup', new class {
         if ($this->source instanceof Localhost) {
             $config = file_get_contents(getcwd().'/'.get('data_dir').'/core/config.yml');
         } else {
-            $config = onHost($this->source, function () {
+            $config = onHost($this->source, static function () {
                 return downloadContent('{{data_dir}}/core/config.yml');
             });
         }
@@ -149,7 +149,7 @@ task('setup', new class {
         $path = get('data_dir').'/addons/ydeploy/'.date('YmdHis').'.sql';
 
         // export source database
-        onHost($this->source, function () use ($path) {
+        onHost($this->source, static function () use ($path) {
             run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
 
             if (Context::get()->getHost() instanceof Localhost) {
@@ -200,7 +200,7 @@ task('setup', new class {
         $this->headline('Replace yrewrite domains');
 
         foreach (explode("\n", $data) as $line) {
-            list($id, $domain) = explode("\t", $line, 2);
+            [$id, $domain] = explode("\t", $line, 2);
             $id = (int) $id;
             $domain = ask($domain.':', $this->server ?: get('url'));
             run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"'.addslashes($domain).'\" WHERE id = '.$id.'"');
@@ -217,7 +217,7 @@ task('setup', new class {
         $path = get('data_dir').'/addons/ydeploy/media_'.date('YmdHis').'.tar.gz';
 
         // create source archive
-        onHost($this->source, function () use ($path) {
+        onHost($this->source, static function () use ($path) {
             run('tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
 
             if (Context::get()->getHost() instanceof Localhost) {

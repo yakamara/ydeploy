@@ -3,7 +3,7 @@
 namespace Deployer;
 
 desc('Prepare the next release in local subdir ".build"');
-task('build', function () {
+task('build', static function () {
     set('deploy_path', getcwd().'/.build');
     set('keep_releases', 1);
 

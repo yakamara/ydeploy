@@ -12,12 +12,12 @@ set('kill_process', false);
 // (by calling a temp php file via curl)
 set('clear_web_php_cache', false);
 
-set('bin/apachectl', function () {
+set('bin/apachectl', static function () {
     return locateBinaryPath('apachectl');
 });
 
 desc('Clear the server cache');
-task('server:clear_cache', new class {
+task('server:clear_cache', new class() {
     public function __invoke(): void
     {
         if (get('restart_apache')) {

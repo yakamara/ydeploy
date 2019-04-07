@@ -7,7 +7,7 @@ set('gulp', false);
 set('gulp_options', '');
 
 desc('Load (yarn) and build (gulp) assets');
-task('build:assets', function () {
+task('build:assets', static function () {
     cd('{{release_path}}');
 
     if (get('yarn')) {

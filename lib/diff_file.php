@@ -140,7 +140,7 @@ EOL;
             }
 
             if (isset($alter['ensureColumn'])) {
-                foreach ($alter['ensureColumn'] as list($column, $after)) {
+                foreach ($alter['ensureColumn'] as [$column, $after]) {
                     $content .= $this->addEnsureColumn($column, $after);
                 }
             }
@@ -243,7 +243,7 @@ EOL;
             if (isset($changes['ensure'])) {
                 $rows = [];
                 foreach ($changes['ensure'] as $data) {
-                    $data = array_map(function ($value) use ($sql) {
+                    $data = array_map(static function ($value) use ($sql) {
                         if (is_int($value)) {
                             return $value;
                         }

@@ -34,7 +34,7 @@ if (!$ydeploy->isDeployed()) {
     return;
 }
 
-$apiUrl = function (string $action, string $page, string $redirect = null) {
+$apiUrl = static function (string $action, string $page, string $redirect = null) {
     $params = rex_api_ydeploy_protected_page::getUrlParams();
     $params['action'] = $action;
     $params['protected_page'] = $page;

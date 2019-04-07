@@ -5,10 +5,10 @@ namespace Deployer;
 use Deployer\Host\Host;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Yaml\Yaml;
-use function YDeploy\{downloadContent, uploadContent, onHost};
+use function YDeploy\{downloadContent, onHost, uploadContent};
 
 desc('Setup local redaxo instance');
-task('local:setup', new class {
+task('local:setup', new class() {
     private $mysqlOptions;
 
     /** @var null|Host */
@@ -45,7 +45,7 @@ task('local:setup', new class {
 
         $hosts = Deployer::get()->hosts;
 
-        if (count($hosts) > 0) {
+        if (\count($hosts) > 0) {
             writeln('The data can be imported from one of the hosts, or from dump file.');
             writeln('');
 
@@ -76,7 +76,7 @@ task('local:setup', new class {
             return;
         }
 
-        if (count($hosts) === 1) {
+        if (1 === \count($hosts)) {
             $this->source = $hosts->first();
 
             return;
@@ -97,7 +97,7 @@ task('local:setup', new class {
         $this->headline('Create <fg=cyan>local</fg=cyan> config.yml');
 
         if ($this->source) {
-            $config = onHost($this->source, function () {
+            $config = onHost($this->source, static function () {
                 return downloadContent('{{data_dir}}/core/config.yml');
             });
         } else {
@@ -152,7 +152,7 @@ task('local:setup', new class {
             '--host='.escapeshellarg($db['host']),
             '--user='.escapeshellarg($db['login']),
             '--password='.escapeshellarg($db['password']),
-            escapeshellarg($db['name'])
+            escapeshellarg($db['name']),
         ]));
 
         $config['db'][1] = $db;
@@ -174,13 +174,13 @@ task('local:setup', new class {
             $path = get('data_dir').'/addons/ydeploy/'.date('YmdHis').'.sql';
 
             // export source database
-            onHost($this->source, function () use ($path) {
+            onHost($this->source, static function () use ($path) {
                 run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
                 download("{{release_path}}/$path", $path);
                 run('rm -f '.escapeshellarg($path));
             });
         } else {
-            $this->headline("Import database dump");
+            $this->headline('Import database dump');
 
             $path = $this->sourceFile;
         }
@@ -223,7 +223,7 @@ task('local:setup', new class {
         $this->headline('Replace yrewrite domains');
 
         foreach (explode("\n", $data) as $line) {
-            list($id, $domain) = explode("\t", $line, 2);
+            [$id, $domain] = explode("\t", $line, 2);
             $id = (int) $id;
             $domain = ask($domain.':', $this->server ?: get('url'));
             run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"'.addslashes($domain).'\" WHERE id = '.$id.'"');
@@ -244,7 +244,7 @@ task('local:setup', new class {
         $path = get('data_dir').'/addons/ydeploy/media_'.date('YmdHis').'.tar.gz';
 
         // create source archive
-        onHost($this->source, function () use ($path) {
+        onHost($this->source, static function () use ($path) {
             run('tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
 
             try {

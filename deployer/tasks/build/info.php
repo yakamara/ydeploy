@@ -3,7 +3,7 @@
 namespace Deployer;
 
 desc('Show branch info');
-task('build:info', function () {
+task('build:info', static function () {
     $what = '';
     $branch = get('branch');
 

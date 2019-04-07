@@ -142,7 +142,7 @@ final class rex_ydeploy_handler
             }
         }
 
-        rex_extension::register('PAGE_TITLE_SHOWN', function (rex_extension_point $ep) {
+        rex_extension::register('PAGE_TITLE_SHOWN', static function (rex_extension_point $ep) {
             $url = rex_url::backendPage('system/ydeploy', rex_api_ydeploy_protected_page::getUrlParams() + [
                 'action' => 'lock',
                 'protected_page' => rex_be_controller::getCurrentPage(),

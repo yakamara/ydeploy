@@ -4,9 +4,9 @@ namespace Deployer;
 
 use Deployer\Task\Context;
 
-$baseDir = dirname(__DIR__, 5);
+$baseDir = \dirname(__DIR__, 5);
 if (0 === strpos($baseDir, getcwd())) {
-    $baseDir = substr($baseDir, strlen(getcwd()));
+    $baseDir = substr($baseDir, \strlen(getcwd()));
     $baseDir = ltrim($baseDir.'/', '/');
 }
 
@@ -46,7 +46,7 @@ set('clear_paths', [
     'yarn.lock',
 ]);
 
-set('url', function () {
+set('url', static function () {
     return 'https://'.Context::get()->getHost()->getRealHostname();
 });
 
@@ -54,10 +54,10 @@ set('allow_anonymous_stats', false);
 
 after('deploy:failed', 'deploy:unlock');
 
-set('bin/mysql', function () {
+set('bin/mysql', static function () {
     return locateBinaryPath('mysql');
 });
 
-set('bin/mysqldump', function () {
+set('bin/mysqldump', static function () {
     return locateBinaryPath('mysqldump');
 });

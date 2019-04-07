@@ -3,7 +3,7 @@
 namespace Deployer;
 
 desc('Migrate the database');
-task('database:migration', function () {
+task('database:migration', static function () {
     cd('{{release_path}}');
 
     run('{{bin/php}} {{bin/console}} ydeploy:migrate');

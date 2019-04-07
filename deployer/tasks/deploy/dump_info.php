@@ -3,7 +3,7 @@
 namespace Deployer;
 
 desc('Dump info about current deployment');
-task('deploy:dump_info', function () {
+task('deploy:dump_info', static function () {
     $infos = [
         'host' => get('hostname'),
         'stage' => get('stage', false) ?: null,
