@@ -1,6 +1,6 @@
 <?php
 
-class rex_ydeploy
+final class rex_ydeploy
 {
     private static $instance;
 

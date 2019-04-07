@@ -3,7 +3,7 @@
 /**
  * @internal
  */
-class rex_ydeploy_diff_file
+final class rex_ydeploy_diff_file
 {
     private $create = [];
     private $alter = [];

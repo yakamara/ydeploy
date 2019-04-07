@@ -4,7 +4,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
+/**
+ * @internal
+ */
+final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
 {
     protected function configure()
     {

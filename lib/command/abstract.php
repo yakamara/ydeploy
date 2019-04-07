@@ -5,6 +5,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @internal
+ */
 abstract class rex_ydeploy_command_abstract extends rex_console_command
 {
     /** @var rex_addon */

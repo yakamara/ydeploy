@@ -3,7 +3,7 @@
 /**
  * @internal
  */
-class rex_ydeploy_handler
+final class rex_ydeploy_handler
 {
     public static function addBodyClasses(rex_extension_point $ep)
     {

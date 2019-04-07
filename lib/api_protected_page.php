@@ -1,6 +1,9 @@
 <?php
 
-class rex_api_ydeploy_protected_page extends rex_api_function
+/**
+ * @internal
+ */
+final class rex_api_ydeploy_protected_page extends rex_api_function
 {
     public function execute()
     {
