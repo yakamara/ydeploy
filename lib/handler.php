@@ -5,7 +5,7 @@
  */
 final class rex_ydeploy_handler
 {
-    public static function addBodyClasses(rex_extension_point $ep)
+    public static function addBodyClasses(rex_extension_point $ep): array
     {
         $ydeploy = rex_ydeploy::factory();
 
@@ -24,7 +24,7 @@ final class rex_ydeploy_handler
         return $attr;
     }
 
-    public static function addBadge(rex_extension_point $ep)
+    public static function addBadge(rex_extension_point $ep): ?string
     {
         $ydeploy = rex_ydeploy::factory();
 
@@ -41,7 +41,7 @@ final class rex_ydeploy_handler
         $badge = rex_extension::registerPoint(new rex_extension_point('YDEPLOY_BADGE', $badge));
 
         if (!$badge) {
-            return;
+            return null;
         }
 
         $badge = '<div class="ydeploy-badge">'.$badge.'</div>';
@@ -49,7 +49,7 @@ final class rex_ydeploy_handler
         return str_replace('</body>', $badge.'</body>', $ep->getSubject());
     }
 
-    public static function protectPages()
+    public static function protectPages(): void
     {
         $unlockedPages = self::getUnlockedPages();
 
@@ -92,21 +92,21 @@ final class rex_ydeploy_handler
         return rex_session('ydeploy_unlocked_pages', 'array', []);
     }
 
-    public static function unlockPage(string $page)
+    public static function unlockPage(string $page): void
     {
         $unlockedPages = self::getUnlockedPages();
         $unlockedPages[$page] = true;
         rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
     }
 
-    public static function lockPage(string $page)
+    public static function lockPage(string $page): void
     {
         $unlockedPages = self::getUnlockedPages();
         unset($unlockedPages[$page]);
         rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
     }
 
-    private static function protectPage(rex_be_page $page)
+    private static function protectPage(rex_be_page $page): void
     {
         if (rex_be_controller::getCurrentPage() && $page->isActive()) {
             rex_be_controller::setCurrentPage('system/ydeploy');
@@ -127,7 +127,7 @@ final class rex_ydeploy_handler
         }
     }
 
-    private static function handleUnlockedPage(rex_be_page $page, array $subpages = null)
+    private static function handleUnlockedPage(rex_be_page $page, ?array $subpages = null): void
     {
         if (!rex_be_controller::getCurrentPage() || !$page->isActive()) {
             return;

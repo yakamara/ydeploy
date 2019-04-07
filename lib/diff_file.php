@@ -10,62 +10,62 @@ final class rex_ydeploy_diff_file
     private $drop = [];
     private $fixtures = [];
 
-    public function createTable(rex_sql_table $table)
+    public function createTable(rex_sql_table $table): void
     {
         $this->create[] = $table;
     }
 
-    public function dropTable($tableName)
+    public function dropTable(string $tableName): void
     {
         $this->drop[] = $tableName;
     }
 
-    public function ensureColumn($tableName, rex_sql_column $column, $afterColumn = null)
+    public function ensureColumn(string $tableName, rex_sql_column $column, ?string $afterColumn = null): void
     {
         $this->alter[$tableName]['ensureColumn'][] = [$column, $afterColumn];
     }
 
-    public function renameColumn($tableName, $oldName, $newName)
+    public function renameColumn(string $tableName, string $oldName, string $newName): void
     {
         $this->alter[$tableName]['renameColumn'][$oldName] = $newName;
     }
 
-    public function removeColumn($tableName, $columnName)
+    public function removeColumn(string $tableName, string $columnName): void
     {
         $this->alter[$tableName]['removeColumn'][] = $columnName;
     }
 
-    public function setPrimaryKey($tableName, $primaryKey)
+    public function setPrimaryKey(string $tableName, ?array $primaryKey): void
     {
         $this->alter[$tableName]['primaryKey'] = $primaryKey;
     }
 
-    public function ensureIndex($tableName, rex_sql_index $index)
+    public function ensureIndex(string $tableName, rex_sql_index $index): void
     {
         $this->alter[$tableName]['ensureIndex'][] = $index;
     }
 
-    public function removeIndex($tableName, $indexName)
+    public function removeIndex(string $tableName, string $indexName): void
     {
         $this->alter[$tableName]['removeIndex'][] = $indexName;
     }
 
-    public function ensureFixture($tableName, array $data)
+    public function ensureFixture(string $tableName, array $data): void
     {
         $this->fixtures[$tableName]['ensure'][] = $data;
     }
 
-    public function removeFixture($tableName, array $key)
+    public function removeFixture(string $tableName, array $key): void
     {
         $this->fixtures[$tableName]['remove'][] = $key;
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return !$this->create && !$this->alter && !$this->drop && !$this->fixtures;
     }
 
-    public function getContent()
+    public function getContent(): string
     {
         $changes = $this->addCreateTables();
         $changes .= $this->addAlterTables();
@@ -100,7 +100,7 @@ EOL;
         return $content;
     }
 
-    private function addCreateTables()
+    private function addCreateTables(): string
     {
         $content = '';
 
@@ -126,7 +126,7 @@ EOL;
         return $content;
     }
 
-    private function addAlterTables()
+    private function addAlterTables(): string
     {
         $content = '';
 
@@ -173,12 +173,12 @@ EOL;
         return $content;
     }
 
-    private function addRenameColumn($oldName, $newName)
+    private function addRenameColumn(string $oldName, string $newName): string
     {
         return $this->sprintf("\n        ->renameColumn(%s, %s)", $oldName, $newName);
     }
 
-    private function addEnsureColumn(rex_sql_column $column, $afterColumn = null)
+    private function addEnsureColumn(rex_sql_column $column, ?string $afterColumn = null): string
     {
         $addAfter = '';
         if (rex_sql_table::FIRST == $afterColumn) {
@@ -197,12 +197,12 @@ EOL;
         );
     }
 
-    private function addSetPrimaryKey($primaryKey)
+    private function addSetPrimaryKey(array $primaryKey): string
     {
         return $this->sprintf("\n        ->setPrimaryKey(%s)", $primaryKey);
     }
 
-    private function addEnsureIndex(rex_sql_index $index)
+    private function addEnsureIndex(rex_sql_index $index): string
     {
         static $types = [
             rex_sql_index::UNIQUE => 'rex_sql_index::UNIQUE',
@@ -222,7 +222,7 @@ EOL;
         );
     }
 
-    private function addDropTables()
+    private function addDropTables(): string
     {
         $content = '';
 
@@ -233,7 +233,7 @@ EOL;
         return $content;
     }
 
-    private function addFixtures()
+    private function addFixtures(): string
     {
         $content = '';
 
@@ -297,12 +297,12 @@ EOL;
         return $content;
     }
 
-    private function sprintf($format, ...$args)
+    private function sprintf(string $format, ...$args): string
     {
         return sprintf($format, ...array_map([$this, 'quote'], $args));
     }
 
-    private function quote($var)
+    private function quote($var): string
     {
         if (null === $var) {
             return 'null';
@@ -334,7 +334,7 @@ EOL;
         return '['.implode(', ', $elements).']';
     }
 
-    private function nowdoc($var)
+    private function nowdoc(string $var): string
     {
         return "<<<'SQL'\n$var\nSQL\n";
     }

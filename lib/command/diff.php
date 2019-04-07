@@ -59,10 +59,9 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param rex_sql_table[]       $tables
-     * @param rex_ydeploy_diff_file $diff
+     * @param rex_sql_table[] $tables
      */
-    private function handleSchema(array $tables, rex_ydeploy_diff_file $diff)
+    private function handleSchema(array $tables, rex_ydeploy_diff_file $diff): void
     {
         $this->addSchemaDiff($diff, $tables);
         $this->createSchema($tables);
@@ -71,7 +70,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     /**
      * @param rex_sql_table[] $tables
      */
-    private function createSchema(array $tables)
+    private function createSchema(array $tables): void
     {
         $schema = [];
 
@@ -101,10 +100,9 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param rex_ydeploy_diff_file $diff
-     * @param rex_sql_table[]       $tables
+     * @param rex_sql_table[] $tables
      */
-    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables)
+    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables): void
     {
         $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
 
@@ -216,7 +214,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         }
     }
 
-    private function columnEqualsSchema(rex_sql_column $column, array $schema)
+    private function columnEqualsSchema(rex_sql_column $column, array $schema): bool
     {
         return
             $column->getType() === $schema['type'] &&
@@ -225,7 +223,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             $column->getExtra() === $schema['extra'];
     }
 
-    private function indexEqualsSchema(rex_sql_index $index, array $schema)
+    private function indexEqualsSchema(rex_sql_index $index, array $schema): bool
     {
         return
             $index->getType() === $schema['type'] &&
@@ -233,10 +231,9 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param rex_sql_table[]       $tables
-     * @param rex_ydeploy_diff_file $diff
+     * @param rex_sql_table[] $tables
      */
-    private function handleFixtures(array $tables, rex_ydeploy_diff_file $diff)
+    private function handleFixtures(array $tables, rex_ydeploy_diff_file $diff): void
     {
         $fixtureTables = [];
         foreach ($this->addon->getProperty('config')['fixtures']['tables'] as $name => $config) {
@@ -303,19 +300,19 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         rex_file::putConfig($this->addon->getDataPath('fixtures.yml'), $newFixtures);
     }
 
-    private function getKey(rex_sql_table $table, array $data)
+    private function getKey(rex_sql_table $table, array $data): array
     {
         return array_intersect_key($data, array_flip($table->getPrimaryKey()));
     }
 
-    private function hash(array $data)
+    private function hash(array $data): string
     {
         ksort($data);
 
         return sha1(json_encode($data));
     }
 
-    private function getData(rex_sql_table $table, array $conditions = null)
+    private function getData(rex_sql_table $table, array $conditions = null): array
     {
         $sql = rex_sql::factory();
 
@@ -356,7 +353,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return $data;
     }
 
-    private function rowMatchesConditions(array $row, array $conditions)
+    private function rowMatchesConditions(array $row, array $conditions): bool
     {
         foreach ($conditions as $condition) {
             $match = true;
@@ -376,12 +373,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return false;
     }
 
-    /**
-     * @param rex_ydeploy_diff_file $diff
-     *
-     * @return DateTime
-     */
-    private function saveDiff(rex_ydeploy_diff_file $diff)
+    private function saveDiff(rex_ydeploy_diff_file $diff): DateTime
     {
         $timestamp = DateTime::createFromFormat('U.u', sprintf('%.f', microtime(true)));
         $timestamp->setTimezone(new DateTimeZone('UTC'));

@@ -20,7 +20,7 @@ task('local:setup', new class {
     /** @var null|string */
     private $server;
 
-    public function __invoke()
+    public function __invoke(): void
     {
         writeln('');
 
@@ -39,7 +39,7 @@ task('local:setup', new class {
         }
     }
 
-    private function chooseSource()
+    private function chooseSource(): void
     {
         $this->headline('Setup <fg=cyan>local</fg=cyan> instance');
 
@@ -92,7 +92,7 @@ task('local:setup', new class {
         $this->source = $hosts->get($host);
     }
 
-    private function setConfigYml()
+    private function setConfigYml(): void
     {
         $this->headline('Create <fg=cyan>local</fg=cyan> config.yml');
 
@@ -166,7 +166,7 @@ task('local:setup', new class {
         $this->ok();
     }
 
-    private function copyDatabase()
+    private function copyDatabase(): void
     {
         if ($this->source) {
             $this->headline("Copy database from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>local</fg=cyan>");
@@ -193,7 +193,7 @@ task('local:setup', new class {
         $this->ok();
     }
 
-    private function configureDeveloper()
+    private function configureDeveloper(): void
     {
         $this->headline('Configure developer addon for local usage');
 
@@ -202,7 +202,7 @@ task('local:setup', new class {
         $this->ok();
     }
 
-    private function replaceYrewriteDomains()
+    private function replaceYrewriteDomains(): void
     {
         try {
             $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
@@ -233,7 +233,7 @@ task('local:setup', new class {
         $this->ok();
     }
 
-    private function copyMedia()
+    private function copyMedia(): void
     {
         if (!$this->source) {
             return;
@@ -264,13 +264,13 @@ task('local:setup', new class {
         $this->ok();
     }
 
-    private function headline(string $headline)
+    private function headline(string $headline): void
     {
         writeln('<comment>'.$headline.'</comment>');
         writeln('');
     }
 
-    private function ok()
+    private function ok(): void
     {
         writeln('<info>✔</info> Ok');
         writeln('');

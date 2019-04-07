@@ -19,7 +19,7 @@ task('setup', new class {
     /** @var null|string */
     private $server;
 
-    public function __invoke()
+    public function __invoke(): void
     {
         cd('{{release_path}}');
 
@@ -74,7 +74,7 @@ task('setup', new class {
         return $hosts->get($host);
     }
 
-    private function setConfigYml()
+    private function setConfigYml(): void
     {
         $this->headline('Create config.yml for <fg=cyan>{{hostname}}</fg=cyan>');
 
@@ -142,7 +142,7 @@ task('setup', new class {
         $this->ok();
     }
 
-    private function copyDatabase()
+    private function copyDatabase(): void
     {
         $this->headline("Copy database from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>{{hostname}}</fg=cyan>");
 
@@ -170,7 +170,7 @@ task('setup', new class {
         $this->ok();
     }
 
-    private function configureDeveloper()
+    private function configureDeveloper(): void
     {
         $this->headline('Configure developer addon for production usage');
 
@@ -179,7 +179,7 @@ task('setup', new class {
         $this->ok();
     }
 
-    private function replaceYrewriteDomains()
+    private function replaceYrewriteDomains(): void
     {
         try {
             $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
@@ -210,7 +210,7 @@ task('setup', new class {
         $this->ok();
     }
 
-    private function copyMedia()
+    private function copyMedia(): void
     {
         $this->headline("Copy media files from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>{{hostname}}</fg=cyan>");
 
@@ -242,13 +242,13 @@ task('setup', new class {
         $this->ok();
     }
 
-    private function headline(string $headline)
+    private function headline(string $headline): void
     {
         writeln('<comment>'.$headline.'</comment>');
         writeln('');
     }
 
-    private function ok()
+    private function ok(): void
     {
         writeln('<info>✔</info> Ok');
         writeln('');

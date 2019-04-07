@@ -84,7 +84,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         }
     }
 
-    private function migrate($path)
+    private function migrate($path): void
     {
         require $path;
     }

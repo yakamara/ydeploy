@@ -44,8 +44,6 @@ final class rex_ydeploy
 
     /**
      * Returns whether this a deployed (`true`) or local (`false`) instance.
-     *
-     * @return bool
      */
     public function isDeployed(): bool
     {
@@ -54,50 +52,40 @@ final class rex_ydeploy
 
     /**
      * Returns the host name (from deploy.php).
-     *
-     * @return null|string
      */
-    public function getHost()
+    public function getHost(): ?string
     {
         return $this->host;
     }
 
     /**
      * Returns the stage name (from deploy.php).
-     *
-     * @return null|string
      */
-    public function getStage()
+    public function getStage(): ?string
     {
         return $this->stage;
     }
 
     /**
      * Returns the deployed branch.
-     *
-     * @return null|string
      */
-    public function getBranch()
+    public function getBranch(): ?string
     {
         return $this->branch;
     }
 
     /**
      * Returns the hash of the deployed commit.
-     *
-     * @return null|string
      */
-    public function getCommit()
+    public function getCommit(): ?string
     {
         return $this->commit;
     }
 
     /**
      * Returns timestamp of last deployment.
-     *
-     * @return null|DateTimeImmutable
      */
-    public function getTimestamp()
+    public function getTimestamp(): ?DateTimeImmutable
     {
         return $this->timestamp;
     }

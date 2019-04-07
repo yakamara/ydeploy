@@ -7,7 +7,7 @@ use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
 
-function uploadContent(string $destination, string $content)
+function uploadContent(string $destination, string $content): void
 {
     if (!empty($workingPath = get('working_path', ''))) {
         $destination = "$workingPath/$destination";

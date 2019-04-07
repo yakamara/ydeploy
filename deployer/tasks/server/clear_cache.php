@@ -18,7 +18,7 @@ set('bin/apachectl', function () {
 
 desc('Clear the server cache');
 task('server:clear_cache', new class {
-    public function __invoke()
+    public function __invoke(): void
     {
         if (get('restart_apache')) {
             $this->restartApache();
@@ -35,18 +35,18 @@ task('server:clear_cache', new class {
         $this->clearCliPhpCache();
     }
 
-    private function restartApache()
+    private function restartApache(): void
     {
         run('{{bin/apachectl}} configtest && {{bin/apachectl}} graceful');
     }
 
-    private function killProcess()
+    private function killProcess(): void
     {
         // ignore error when no process with given name is running
         run('pkill -u `whoami` {{kill_process}} || true');
     }
 
-    private function clearWebPhpCache()
+    private function clearWebPhpCache(): void
     {
         cd('{{release_path}}/{{base_dir}}');
 
@@ -64,7 +64,7 @@ task('server:clear_cache', new class {
         }
     }
 
-    private function clearCliPhpCache()
+    private function clearCliPhpCache(): void
     {
         run('{{bin/php}} -r '.escapeshellarg($this->getPhpClearCacheCode()));
     }
