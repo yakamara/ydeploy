@@ -61,7 +61,7 @@ final class rex_ydeploy_handler
             }
 
             if (isset($unlockedPages[$page->getFullKey()])) {
-                self::handleUnlockedPage($page, $subpages);
+                self::handleUnlockedPage($page, is_array($subpages) ? $subpages : null);
 
                 continue;
             }
