@@ -56,6 +56,8 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         } else {
             $io->success('Updated schema and fixtures files, nothing changed.');
         }
+
+        return 0;
     }
 
     /**
