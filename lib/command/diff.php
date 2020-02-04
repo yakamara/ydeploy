@@ -96,6 +96,15 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                     'columns' => $index->getColumns(),
                 ];
             }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $schema[$tableName]['foreignKeys'][$foreignKey->getName()] = [
+                    'table' => $foreignKey->getTable(),
+                    'columns' => $foreignKey->getColumns(),
+                    'onUpdate' => $foreignKey->getOnUpdate(),
+                    'onDelete' => $foreignKey->getOnDelete(),
+                ];
+            }
         }
 
         rex_file::putConfig($this->addon->getDataPath('schema.yml'), $schema);
@@ -208,6 +217,20 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 }
             }
 
+            foreach ($table->getForeignKeys() as $foreignKeyName => $foreignKey) {
+                if (!isset($tableSchema['foreignKeys'][$foreignKeyName]) || !$this->foreignKeyEqualsSchema($foreignKey, $tableSchema['foreignKeys'][$foreignKeyName])) {
+                    $diff->ensureForeignKey($tableName, $foreignKey);
+                }
+
+                unset($tableSchema['foreignKeys'][$foreignKeyName]);
+            }
+
+            if (isset($tableSchema['foreignKeys'])) {
+                foreach ($tableSchema['foreignKeys'] as $foreignKeyName => $foreignKeySchema) {
+                    $diff->removeForeignKey($tableName, $foreignKeyName);
+                }
+            }
+
             unset($schema[$tableName]);
         }
 
@@ -230,6 +253,15 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return
             $index->getType() === $schema['type'] &&
             $index->getColumns() === $schema['columns'];
+    }
+
+    private function foreignKeyEqualsSchema(rex_sql_foreign_key $foreignKey, array $schema): bool
+    {
+        return
+            $foreignKey->getTable() === $schema['table'] &&
+            $foreignKey->getColumns() === $schema['columns'] &&
+            $foreignKey->getOnUpdate() === $schema['onUpdate'] &&
+            $foreignKey->getOnDelete() === $schema['onDelete'];
     }
 
     /**

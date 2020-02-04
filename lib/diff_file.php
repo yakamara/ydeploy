@@ -50,6 +50,16 @@ final class rex_ydeploy_diff_file
         $this->alter[$tableName]['removeIndex'][] = $indexName;
     }
 
+    public function ensureForeignKey(string $tableName, rex_sql_foreign_key $foreignKey): void
+    {
+        $this->alter[$tableName]['ensureForeignKey'][] = $foreignKey;
+    }
+
+    public function removeForeignKey(string $tableName, string $foreignKeyName): void
+    {
+        $this->alter[$tableName]['removeForeignKey'][] = $foreignKeyName;
+    }
+
     public function ensureFixture(string $tableName, array $data): void
     {
         $this->fixtures[$tableName]['ensure'][] = $data;
@@ -120,6 +130,10 @@ EOL;
                 $content .= $this->addEnsureIndex($index);
             }
 
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $content .= $this->addEnsureForeignKey($foreignKey);
+            }
+
             $content .= "\n        ->ensure();";
         }
 
@@ -164,6 +178,18 @@ EOL;
             if (isset($alter['removeIndex'])) {
                 foreach ($alter['removeIndex'] as $indexName) {
                     $content .= $this->sprintf("\n        ->removeIndex(%s)", $indexName);
+                }
+            }
+
+            if (isset($alter['ensureForeignKey'])) {
+                foreach ($alter['ensureForeignKey'] as $foreignKey) {
+                    $content .= $this->addEnsureForeignKey($foreignKey);
+                }
+            }
+
+            if (isset($alter['removeForeignKey'])) {
+                foreach ($alter['removeForeignKey'] as $foreignKeyName) {
+                    $content .= $this->sprintf("\n        ->removeForeignKey(%s)", $foreignKeyName);
                 }
             }
 
@@ -219,6 +245,24 @@ EOL;
             $index->getName(),
             $index->getColumns(),
             $index->getType()
+        );
+    }
+
+    private function addEnsureForeignKey(rex_sql_foreign_key $foreignKey): string
+    {
+        static $modes = [
+            rex_sql_foreign_key::RESTRICT => 'rex_sql_foreign_key::RESTRICT',
+            rex_sql_foreign_key::CASCADE => 'rex_sql_foreign_key::CASCADE',
+            rex_sql_foreign_key::SET_NULL => 'rex_sql_foreign_key::SET_NULL',
+        ];
+
+        $add = $modes[$foreignKey->getOnUpdate()].', '.$modes[$foreignKey->getOnDelete()];
+
+        return $this->sprintf(
+            "\n        ->ensureForeignKey(new rex_sql_foreign_key(%s, %s, %s, $add))",
+            $foreignKey->getName(),
+            $foreignKey->getTable(),
+            $foreignKey->getColumns()
         );
     }
 
