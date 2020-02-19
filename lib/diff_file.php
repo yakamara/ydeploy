@@ -12,12 +12,17 @@ final class rex_ydeploy_diff_file
 
     public function createTable(rex_sql_table $table): void
     {
-        $this->create[] = $table;
+        $this->create[$table->getName()] = $table;
     }
 
     public function dropTable(string $tableName): void
     {
         $this->drop[] = $tableName;
+    }
+
+    public function setCharset(string $tableName, string $charset): void
+    {
+        $this->alter[$tableName]['charset'] = $charset;
     }
 
     public function ensureColumn(string $tableName, rex_sql_column $column, ?string $afterColumn = null): void
@@ -115,7 +120,7 @@ EOL;
         $content = '';
 
         /** @var rex_sql_table $table */
-        foreach ($this->create as $table) {
+        foreach ($this->create as $tableName => $table) {
             $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $table->getName());
 
             foreach ($table->getColumns() as $column) {
@@ -135,6 +140,10 @@ EOL;
             }
 
             $content .= "\n        ->ensure();";
+
+            if (isset($this->alter[$tableName]['charset'])) {
+                $content .= $this->addConvertCharset($tableName, $this->alter[$tableName]['charset']);
+            }
         }
 
         return $content;
@@ -145,58 +154,74 @@ EOL;
         $content = '';
 
         foreach ($this->alter as $tableName => $alter) {
-            $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $tableName);
+            $lines = '';
 
             if (isset($alter['renameColumn'])) {
                 foreach ($alter['renameColumn'] as $oldName => $newName) {
-                    $content .= $this->addRenameColumn($oldName, $newName);
+                    $lines .= $this->addRenameColumn($oldName, $newName);
                 }
             }
 
             if (isset($alter['ensureColumn'])) {
                 foreach ($alter['ensureColumn'] as [$column, $after]) {
-                    $content .= $this->addEnsureColumn($column, $after);
+                    $lines .= $this->addEnsureColumn($column, $after);
                 }
             }
 
             if (isset($alter['removeColumn'])) {
                 foreach ($alter['removeColumn'] as $columnName) {
-                    $content .= $this->sprintf("\n        ->removeColumn(%s)", $columnName);
+                    $lines .= $this->sprintf("\n        ->removeColumn(%s)", $columnName);
                 }
             }
 
             if (isset($alter['primaryKey'])) {
-                $content .= $this->addSetPrimaryKey($alter['primaryKey']);
+                $lines .= $this->addSetPrimaryKey($alter['primaryKey']);
             }
 
             if (isset($alter['ensureIndex'])) {
                 foreach ($alter['ensureIndex'] as $index) {
-                    $content .= $this->addEnsureIndex($index);
+                    $lines .= $this->addEnsureIndex($index);
                 }
             }
 
             if (isset($alter['removeIndex'])) {
                 foreach ($alter['removeIndex'] as $indexName) {
-                    $content .= $this->sprintf("\n        ->removeIndex(%s)", $indexName);
+                    $lines .= $this->sprintf("\n        ->removeIndex(%s)", $indexName);
                 }
             }
 
             if (isset($alter['ensureForeignKey'])) {
                 foreach ($alter['ensureForeignKey'] as $foreignKey) {
-                    $content .= $this->addEnsureForeignKey($foreignKey);
+                    $lines .= $this->addEnsureForeignKey($foreignKey);
                 }
             }
 
             if (isset($alter['removeForeignKey'])) {
                 foreach ($alter['removeForeignKey'] as $foreignKeyName) {
-                    $content .= $this->sprintf("\n        ->removeForeignKey(%s)", $foreignKeyName);
+                    $lines .= $this->sprintf("\n        ->removeForeignKey(%s)", $foreignKeyName);
                 }
             }
 
-            $content .= "\n        ->alter();";
+            if ($lines) {
+                $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $tableName);
+                $content .= $lines;
+                $content .= "\n        ->alter();";
+            }
+
+            if (isset($alter['charset']) && !isset($this->create[$tableName])) {
+                $content .= $this->addConvertCharset($tableName, $alter['charset']);
+            }
         }
 
         return $content;
+    }
+
+    private function addConvertCharset(string $tableName, string $charset): string
+    {
+        $tableName = addslashes(rex_sql::factory()->escapeIdentifier($tableName));
+        $charset = addslashes($charset);
+
+        return "\n\n    \$sql->setQuery('ALTER TABLE $tableName CONVERT TO CHARACTER SET $charset');";
     }
 
     private function addRenameColumn(string $oldName, string $newName): string

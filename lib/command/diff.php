@@ -65,19 +65,30 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
      */
     private function handleSchema(array $tables, rex_ydeploy_diff_file $diff): void
     {
-        $this->addSchemaDiff($diff, $tables);
-        $this->createSchema($tables);
+        $charsets = rex_sql::factory()->getArray('
+            SELECT T.TABLE_NAME, CCSA.CHARACTER_SET_NAME
+            FROM INFORMATION_SCHEMA.TABLES T
+            INNER JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA ON CCSA.COLLATION_NAME = T.TABLE_COLLATION
+            WHERE T.TABLE_SCHEMA = DATABASE() AND T.TABLE_NAME LIKE :prefix
+        ', ['prefix' => rex::getTablePrefix().'%']);
+
+        $charsets = array_column($charsets, 'CHARACTER_SET_NAME', 'TABLE_NAME');
+
+        $this->addSchemaDiff($diff, $tables, $charsets);
+        $this->createSchema($tables, $charsets);
     }
 
     /**
      * @param rex_sql_table[] $tables
      */
-    private function createSchema(array $tables): void
+    private function createSchema(array $tables, array $charsets): void
     {
         $schema = [];
 
         foreach ($tables as $table) {
             $tableName = $table->getName();
+
+            $schema[$tableName]['charset'] = $charsets[$tableName];
 
             foreach ($table->getColumns() as $column) {
                 $schema[$tableName]['columns'][$column->getName()] = [
@@ -113,7 +124,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     /**
      * @param rex_sql_table[] $tables
      */
-    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables): void
+    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables, array $charsets): void
     {
         $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
 
@@ -127,10 +138,20 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             if (!isset($schema[$tableName])) {
                 $diff->createTable($table);
 
+                $defaultCharset = rex::getConfig('utf8mb4') ? 'utf8mb4' : 'utf8';
+                if ($defaultCharset !== $charsets[$tableName]) {
+                    $diff->setCharset($tableName, $charsets[$tableName]);
+                }
+
                 continue;
             }
 
             $tableSchema = &$schema[$tableName];
+
+            if (!isset($tableSchema['charset']) || $tableSchema['charset'] !== $charsets[$tableName]) {
+                $diff->setCharset($tableName, $charsets[$tableName]);
+            }
+
             $columns = $table->getColumns();
 
             $renamed = [];
