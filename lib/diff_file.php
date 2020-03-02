@@ -20,9 +20,9 @@ final class rex_ydeploy_diff_file
         $this->drop[] = $tableName;
     }
 
-    public function setCharset(string $tableName, string $charset): void
+    public function setCharset(string $tableName, string $charset, string $collation): void
     {
-        $this->alter[$tableName]['charset'] = $charset;
+        $this->alter[$tableName]['charset'] = [$charset, $collation];
     }
 
     public function ensureColumn(string $tableName, rex_sql_column $column, ?string $afterColumn = null): void
@@ -216,12 +216,13 @@ EOL;
         return $content;
     }
 
-    private function addConvertCharset(string $tableName, string $charset): string
+    private function addConvertCharset(string $tableName, array $charsetAndCollation): string
     {
         $tableName = addslashes(rex_sql::factory()->escapeIdentifier($tableName));
-        $charset = addslashes($charset);
+        $charset = addslashes($charsetAndCollation[0]);
+        $collation = addslashes($charsetAndCollation[1]);
 
-        return "\n\n    \$sql->setQuery('ALTER TABLE $tableName CONVERT TO CHARACTER SET $charset');";
+        return "\n\n    \$sql->setQuery('ALTER TABLE $tableName CONVERT TO CHARACTER SET $charset COLLATE $collation');";
     }
 
     private function addRenameColumn(string $oldName, string $newName): string

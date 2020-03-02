@@ -5,7 +5,7 @@ supportpage: https://github.com/yakamara/ydeploy
 
 requires:
     php: ^7.1
-    redaxo: ^5.6.2
+    redaxo: ^5.10
 
 conflicts:
     packages:

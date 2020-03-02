@@ -66,13 +66,13 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     private function handleSchema(array $tables, rex_ydeploy_diff_file $diff): void
     {
         $charsets = rex_sql::factory()->getArray('
-            SELECT T.TABLE_NAME, CCSA.CHARACTER_SET_NAME
+            SELECT T.TABLE_NAME table_name, CCSA.CHARACTER_SET_NAME charset, CCSA.COLLATION_NAME collation
             FROM INFORMATION_SCHEMA.TABLES T
             INNER JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA ON CCSA.COLLATION_NAME = T.TABLE_COLLATION
             WHERE T.TABLE_SCHEMA = DATABASE() AND T.TABLE_NAME LIKE :prefix
         ', ['prefix' => rex::getTablePrefix().'%']);
 
-        $charsets = array_column($charsets, 'CHARACTER_SET_NAME', 'TABLE_NAME');
+        $charsets = array_column($charsets, null, 'table_name');
 
         $this->addSchemaDiff($diff, $tables, $charsets);
         $this->createSchema($tables, $charsets);
@@ -88,7 +88,8 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         foreach ($tables as $table) {
             $tableName = $table->getName();
 
-            $schema[$tableName]['charset'] = $charsets[$tableName];
+            $schema[$tableName]['charset'] = $charsets[$tableName]['charset'];
+            $schema[$tableName]['collation'] = $charsets[$tableName]['collation'];
 
             foreach ($table->getColumns() as $column) {
                 $schema[$tableName]['columns'][$column->getName()] = [
@@ -139,8 +140,9 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 $diff->createTable($table);
 
                 $defaultCharset = rex::getConfig('utf8mb4') ? 'utf8mb4' : 'utf8';
-                if ($defaultCharset !== $charsets[$tableName]) {
-                    $diff->setCharset($tableName, $charsets[$tableName]);
+                $defaultCollation = $defaultCharset.'_unicode_ci';
+                if ($defaultCharset !== $charsets[$tableName]['charset'] || $defaultCollation !== $charsets[$tableName]['collation']) {
+                    $diff->setCharset($tableName, $charsets[$tableName]['charset'], $charsets[$tableName]['collation']);
                 }
 
                 continue;
@@ -148,8 +150,11 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
             $tableSchema = &$schema[$tableName];
 
-            if (!isset($tableSchema['charset']) || $tableSchema['charset'] !== $charsets[$tableName]) {
-                $diff->setCharset($tableName, $charsets[$tableName]);
+            if (
+                !isset($tableSchema['charset']) || $tableSchema['charset'] !== $charsets[$tableName]['charset'] ||
+                !isset($tableSchema['collation']) || $tableSchema['collation'] !== $charsets[$tableName]['collation']
+            ) {
+                $diff->setCharset($tableName, $charsets[$tableName]['charset'], $charsets[$tableName]['collation']);
             }
 
             $columns = $table->getColumns();
