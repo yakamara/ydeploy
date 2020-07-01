@@ -39,6 +39,7 @@ set('copy_dirs', [
 ]);
 
 set('clear_paths', [
+    '.gitlab-ci.yml', 
     'gulpfile.js',
     'node_modules',
     'deploy.php',
