@@ -81,6 +81,8 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
             }
 
             $io->error(sprintf('%s %d of %d migrations, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, count($paths), basename($path)));
+
+            return 1;
         }
     }
 

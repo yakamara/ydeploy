@@ -5,9 +5,28 @@
  */
 final class rex_ydeploy_diff_file
 {
+    /** @var array<string, rex_sql_table> */
     private $create = [];
+
+    /**
+     * @var array<string, array{
+     *          charset?: array{string, string},
+     *          ensureColumn?: list<array{rex_sql_column, ?string}>,
+     *          renameColumn?: array<string, string>,
+     *          removeColumn?: list<string>,
+     *          primaryKey?: ?list<string>,
+     *          ensureIndex?: list<rex_sql_index>,
+     *          removeIndex?: list<string>,
+     *          ensureForeignKey?: list<rex_sql_foreign_key>,
+     *          removeForeignKey?: list<string>
+     *      }>
+     */
     private $alter = [];
+
+    /** @var list<string> */
     private $drop = [];
+
+    /** @var array<string, array{ensure?: list<array<?scalar>>, remove?: list<array<string, int|string>>}> */
     private $fixtures = [];
 
     public function createTable(rex_sql_table $table): void
@@ -40,6 +59,7 @@ final class rex_ydeploy_diff_file
         $this->alter[$tableName]['removeColumn'][] = $columnName;
     }
 
+    /** @param ?list<string> $primaryKey */
     public function setPrimaryKey(string $tableName, ?array $primaryKey): void
     {
         $this->alter[$tableName]['primaryKey'] = $primaryKey;
@@ -65,11 +85,13 @@ final class rex_ydeploy_diff_file
         $this->alter[$tableName]['removeForeignKey'][] = $foreignKeyName;
     }
 
+    /** @param array<?scalar> $data */
     public function ensureFixture(string $tableName, array $data): void
     {
         $this->fixtures[$tableName]['ensure'][] = $data;
     }
 
+    /** @param array<string, int|string> $key */
     public function removeFixture(string $tableName, array $key): void
     {
         $this->fixtures[$tableName]['remove'][] = $key;
@@ -119,7 +141,6 @@ final class rex_ydeploy_diff_file
     {
         $content = '';
 
-        /** @var rex_sql_table $table */
         foreach ($this->create as $tableName => $table) {
             $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $table->getName());
 
@@ -256,6 +277,7 @@ final class rex_ydeploy_diff_file
 
     private function addEnsureIndex(rex_sql_index $index): string
     {
+        /** @var array<rex_sql_index::*, string> $types */
         static $types = [
             rex_sql_index::UNIQUE => 'rex_sql_index::UNIQUE',
             rex_sql_index::FULLTEXT => 'rex_sql_index::FULLTEXT',
@@ -276,6 +298,7 @@ final class rex_ydeploy_diff_file
 
     private function addEnsureForeignKey(rex_sql_foreign_key $foreignKey): string
     {
+        /** @var array<rex_sql_foreign_key::*, string> $modes */
         static $modes = [
             rex_sql_foreign_key::RESTRICT => 'rex_sql_foreign_key::RESTRICT',
             rex_sql_foreign_key::CASCADE => 'rex_sql_foreign_key::CASCADE',
@@ -321,7 +344,7 @@ final class rex_ydeploy_diff_file
                             return $value;
                         }
 
-                        return $sql->escape($value);
+                        return $sql->escape((string) $value);
                     }, $data);
 
                     $rows[] = '('.implode(', ', $data).')';
@@ -354,7 +377,7 @@ final class rex_ydeploy_diff_file
                 foreach ($changes['remove'] as $key) {
                     $parts = [];
                     foreach ($key as $name => $value) {
-                        $parts[] = $sql->escapeIdentifier($name).' = '.$sql->escape($value);
+                        $parts[] = $sql->escapeIdentifier($name).' = '.(is_int($value) ? $value : $sql->escape((string) $value));
                     }
                     $where[] = implode(' AND ', $parts);
                 }

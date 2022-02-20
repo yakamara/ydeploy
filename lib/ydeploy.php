@@ -2,14 +2,25 @@
 
 final class rex_ydeploy
 {
+    /** @var self|null */
     private static $instance;
 
+    /** @var bool */
     private $deployed;
 
+    /** @var string|null */
     private $host;
+
+    /** @var string|null */
     private $stage;
+
+    /** @var string|null */
     private $branch;
+
+    /** @var string|null */
     private $commit;
+
+    /** @var DateTimeImmutable|null */
     private $timestamp;
 
     private function __construct()
