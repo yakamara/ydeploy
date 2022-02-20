@@ -149,7 +149,7 @@ final class rex_ydeploy_handler
             ]);
             $error = rex_view::error('
                     The page <code>'.rex_escape(rex_be_controller::getCurrentPage()).'</code> is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
-                    
+
                     <a href="'.$url.'">Lock and leave this page</a>
                 ');
 

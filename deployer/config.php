@@ -3,10 +3,12 @@
 namespace Deployer;
 
 use Deployer\Task\Context;
+use function dirname;
+use function strlen;
 
-$baseDir = \dirname(__DIR__, 5);
+$baseDir = dirname(__DIR__, 5);
 if (0 === strpos($baseDir, getcwd())) {
-    $baseDir = substr($baseDir, \strlen(getcwd()));
+    $baseDir = substr($baseDir, strlen(getcwd()));
     $baseDir = ltrim($baseDir.'/', '/');
 }
 
@@ -41,7 +43,7 @@ set('copy_dirs', [
 set('clear_paths', [
     'gulpfile.js',
     'node_modules',
-    '.gitlab-ci.yml', 
+    '.gitlab-ci.yml',
     'deploy.php',
     'package.json',
     'yarn.lock',

@@ -7,7 +7,10 @@ use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
 use Symfony\Component\Yaml\Yaml;
-use function YDeploy\{downloadContent, onHost, uploadContent};
+use function count;
+use function YDeploy\downloadContent;
+use function YDeploy\onHost;
+use function YDeploy\uploadContent;
 
 desc('Setup redaxo instance');
 task('setup', new class() {
@@ -51,7 +54,7 @@ task('setup', new class() {
         $hosts = Deployer::get()->hosts;
         $localhost = new Localhost('local');
 
-        if (\count($hosts) < 2) {
+        if (count($hosts) < 2) {
             writeln("The host <fg=cyan>{{hostname}}</fg=cyan> will be initialized by data from <fg=cyan>{$localhost}</fg=cyan>.");
             writeln('');
 

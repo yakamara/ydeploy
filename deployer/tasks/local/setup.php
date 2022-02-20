@@ -5,7 +5,10 @@ namespace Deployer;
 use Deployer\Host\Host;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Yaml\Yaml;
-use function YDeploy\{downloadContent, onHost, uploadContent};
+use function count;
+use function YDeploy\downloadContent;
+use function YDeploy\onHost;
+use function YDeploy\uploadContent;
 
 desc('Setup local redaxo instance');
 task('local:setup', new class() {
@@ -45,7 +48,7 @@ task('local:setup', new class() {
 
         $hosts = Deployer::get()->hosts;
 
-        if (\count($hosts) > 0) {
+        if (count($hosts) > 0) {
             writeln('The data can be imported from one of the hosts, or from dump file.');
             writeln('');
 
@@ -76,7 +79,7 @@ task('local:setup', new class() {
             return;
         }
 
-        if (1 === \count($hosts)) {
+        if (1 === count($hosts)) {
             $this->source = $hosts->first();
 
             return;
