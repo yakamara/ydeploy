@@ -25,8 +25,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
         $io->title('YDeploy diff');
 
-        $sql = rex_sql::factory();
-        $tables = $sql->getTables(rex::getTablePrefix());
+        $tables = rex_sql::factory()->getTables(rex::getTablePrefix());
 
         /** @var rex_sql_table[] $tables */
         $tables = array_map('rex_sql_table::get', $tables);
