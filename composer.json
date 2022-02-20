@@ -1,0 +1,30 @@
+{
+    "name": "yakamara/ydeploy",
+
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "friendsofredaxo/linter": "^1.3",
+        "redaxo/php-cs-fixer-config": "^1.0"
+    },
+
+    "autoload": {
+        "classmap": [
+            "lib/"
+        ]
+    },
+
+    "scripts": {
+        "cs": "php-cs-fixer fix -v --ansi"
+    },
+
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "platform": {
+            "php": "7.3.0"
+        },
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
+    }
+}
