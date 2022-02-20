@@ -81,11 +81,11 @@ task('server:clear_cache', new class() {
     private function getPhpClearCacheCode(): string
     {
         return <<<'PHP'
-clearstatcache(true);
+            clearstatcache(true);
 
-if (function_exists('opcache_reset')) {
-    opcache_reset();
-}
-PHP;
+            if (function_exists('opcache_reset')) {
+                opcache_reset();
+            }
+            PHP;
     }
 });

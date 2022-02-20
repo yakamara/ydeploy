@@ -5,7 +5,10 @@ namespace YDeploy;
 use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
-use function Deployer\{cd, download, get, upload};
+use function Deployer\cd;
+use function Deployer\download;
+use function Deployer\get;
+use function Deployer\upload;
 
 function uploadContent(string $destination, string $content): void
 {

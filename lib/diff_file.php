@@ -89,13 +89,13 @@ final class rex_ydeploy_diff_file
         $changes = ltrim($changes);
 
         $content = <<<'EOL'
-<?php
+            <?php
 
-$sql = rex_sql::factory();
-$sql->setQuery('SET FOREIGN_KEY_CHECKS = 0');
+            $sql = rex_sql::factory();
+            $sql->setQuery('SET FOREIGN_KEY_CHECKS = 0');
 
-try {
-EOL;
+            try {
+            EOL;
 
         if ($changes) {
             $content .= "\n    ".$changes;
@@ -105,12 +105,12 @@ EOL;
 
         $content .= <<<'EOL'
 
-} finally {
-    $sql = rex_sql::factory();
-    $sql->setQuery('SET FOREIGN_KEY_CHECKS = 1');
-}
+            } finally {
+                $sql = rex_sql::factory();
+                $sql->setQuery('SET FOREIGN_KEY_CHECKS = 1');
+            }
 
-EOL;
+            EOL;
 
         return $content;
     }
