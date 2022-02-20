@@ -4,7 +4,7 @@ author: Gregor Harlan
 supportpage: https://github.com/yakamara/ydeploy
 
 requires:
-    php: ^7.1
+    php: '>=7.3'
     redaxo: ^5.10
 
 conflicts:

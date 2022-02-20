@@ -314,6 +314,9 @@ EOL;
                 $rows = [];
                 foreach ($changes['ensure'] as $data) {
                     $data = array_map(static function ($value) use ($sql) {
+                        if (null === $value) {
+                            return 'NULL';
+                        }
                         if (is_int($value)) {
                             return $value;
                         }
