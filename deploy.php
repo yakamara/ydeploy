@@ -2,6 +2,7 @@
 
 namespace Deployer;
 
+/** @psalm-suppress MissingFile */
 require 'recipe/common.php';
 
 require __DIR__.'/deployer/config.php';
