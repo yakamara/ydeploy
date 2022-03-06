@@ -72,12 +72,41 @@ final class rex_ydeploy_handler
                 continue;
             }
 
-            foreach ($subpages as $subpage) {
-                $subpage = $page->getSubpage($subpage);
+            $first = true;
+            $allProtected = true;
+            foreach ($page->getSubpages() as $subpage) {
+                $key = $subpage->getKey();
 
-                if ($subpage) {
-                    self::protectPage($subpage);
+                if (!array_key_exists($key, $subpages) && !in_array($key, $subpages, true)) {
+                    if ($allProtected && !$first) {
+                        $page->setHref($subpage->getFirstSubpagesLeaf()->getHref());
+                    }
+
+                    $allProtected = false;
+                    $first = false;
+
+                    continue;
                 }
+
+                $first = false;
+
+                if (!isset($subpages[$key])) {
+                    self::protectPage($subpage);
+
+                    continue;
+                }
+
+                foreach ($subpages[$key] as $subsubpage) {
+                    $subsubpage = $subpage->getSubpage($subsubpage);
+
+                    if ($subsubpage) {
+                        self::protectPage($subsubpage);
+                    }
+                }
+            }
+
+            if ($allProtected) {
+                $page->setHidden(true);
             }
         }
     }
@@ -113,18 +142,6 @@ final class rex_ydeploy_handler
         }
 
         $page->setHidden(true);
-
-        // If page is first subpage of other page, then the other page must be also hidden
-        while ($parent = $page->getParent()) {
-            $subpages = $parent->getSubpages();
-
-            if ($page !== reset($subpages)) {
-                break;
-            }
-
-            $parent->setHidden(true);
-            $page = $parent;
-        }
     }
 
     private static function handleUnlockedPage(rex_be_page $page, ?array $subpages = null): void
@@ -135,9 +152,13 @@ final class rex_ydeploy_handler
 
         if (is_array($subpages)) {
             $subpage = substr(rex_be_controller::getCurrentPage(), strlen($page->getFullKey()) + 1);
-            $subpage = explode('/', $subpage, 2)[0];
+            $parts = explode('/', $subpage, 3);
 
-            if (!in_array($subpage, $subpages, true)) {
+            if (array_key_exists($parts[0], $subpages)) {
+                if (is_array($subpages[$parts[0]]) && !in_array($parts[1], $subpages[$parts[0]], true)) {
+                    return;
+                }
+            } elseif (!in_array($parts[0], $subpages, true)) {
                 return;
             }
         }

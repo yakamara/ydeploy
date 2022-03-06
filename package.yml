@@ -39,7 +39,9 @@ config:
             yform_field: ~
             yform_table: ~
     protected_pages:
-        install: ~
+        install:
+            packages:
+                - add
         markitup: ~
         media_manager: ~
         metainfo: ~
@@ -47,8 +49,11 @@ config:
         packages: ~
         redactor2: ~
         templates: ~
-        yform/manager:
-            - table_edit
-            - table_migrate
-            - tableset_import
-            - table_field
+        yform:
+            setup: ~
+            docs: ~
+            manager:
+                - table_edit
+                - table_migrate
+                - tableset_import
+                - table_field
