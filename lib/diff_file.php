@@ -361,15 +361,15 @@ final class rex_ydeploy_diff_file
                     }
                 }
 
-                $query = '        INSERT INTO '.$sql->escapeIdentifier($tableName);
+                $query = 'INSERT INTO '.$sql->escapeIdentifier($tableName);
                 $query .= ' ('.implode(', ', array_map([$sql, 'escapeIdentifier'], $columns)).')';
-                $query .= "\n        VALUES\n            ";
-                $query .= implode(",\n            ", $rows);
+                $query .= "\nVALUES\n    ";
+                $query .= implode(",\n    ", $rows);
                 if ($updates) {
-                    $query .= "\n        ON DUPLICATE KEY UPDATE ".implode(', ', $updates);
+                    $query .= "\nON DUPLICATE KEY UPDATE ".implode(', ', $updates);
                 }
 
-                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).'    );';
+                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).');';
             }
 
             if (isset($changes['remove'])) {
@@ -382,11 +382,11 @@ final class rex_ydeploy_diff_file
                     $where[] = implode(' AND ', $parts);
                 }
 
-                $query = '        DELETE FROM '.$sql->escapeIdentifier($tableName);
-                $query .= "\n        WHERE\n            ";
-                $query .= implode(" OR\n            ", $where);
+                $query = 'DELETE FROM '.$sql->escapeIdentifier($tableName);
+                $query .= "\nWHERE\n    ";
+                $query .= implode(" OR\n    ", $where);
 
-                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).'    );';
+                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).');';
             }
         }
 
@@ -432,6 +432,8 @@ final class rex_ydeploy_diff_file
 
     private function nowdoc(string $var): string
     {
-        return "<<<'SQL'\n$var\nSQL\n";
+        $var = '        '.preg_replace('/(?<=\\n)(?=.)/', '        ', $var);
+
+        return "<<<'SQL'\n$var\n        SQL";
     }
 }
