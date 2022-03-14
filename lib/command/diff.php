@@ -79,7 +79,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         $views = [];
         foreach ($sql->getViews(rex::getTablePrefix()) as $view) {
             $sql->setQuery('SHOW CREATE VIEW '.$sql->escapeIdentifier($view));
-            $query = $sql->getValue('Create View');
+            $query = (string) $sql->getValue('Create View');
             $query = substr($query, strpos($query, ' AS ') + 4);
             $views[$view] = $query;
         }
