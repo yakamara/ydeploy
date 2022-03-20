@@ -40,9 +40,7 @@ config:
             yform_field: ~
             yform_table: ~
     protected_pages:
-        install:
-            packages:
-                - add
+        install: ~
         markitup: ~
         media_manager: ~
         metainfo: ~
