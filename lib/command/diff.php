@@ -65,7 +65,9 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
      */
     private function handleSchema(array $tables, rex_ydeploy_diff_file $diff): void
     {
-        $charsets = rex_sql::factory()->getArray('
+        $sql = rex_sql::factory();
+
+        $charsets = $sql->getArray('
             SELECT T.TABLE_NAME table_name, CCSA.CHARACTER_SET_NAME charset, CCSA.COLLATION_NAME collation
             FROM INFORMATION_SCHEMA.TABLES T
             INNER JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA ON CCSA.COLLATION_NAME = T.TABLE_COLLATION
@@ -74,14 +76,22 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
         $charsets = array_column($charsets, null, 'table_name');
 
-        $this->addSchemaDiff($diff, $tables, $charsets);
-        $this->createSchema($tables, $charsets);
+        $views = [];
+        foreach ($sql->getViews(rex::getTablePrefix()) as $view) {
+            $sql->setQuery('SHOW CREATE VIEW '.$sql->escapeIdentifier($view));
+            $query = (string) $sql->getValue('Create View');
+            $query = substr($query, strpos($query, ' AS ') + 4);
+            $views[$view] = $query;
+        }
+
+        $this->addSchemaDiff($diff, $tables, $charsets, $views);
+        $this->createSchema($tables, $charsets, $views);
     }
 
     /**
      * @param rex_sql_table[] $tables
      */
-    private function createSchema(array $tables, array $charsets): void
+    private function createSchema(array $tables, array $charsets, array $views): void
     {
         $schema = [];
 
@@ -119,18 +129,30 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             }
         }
 
-        rex_file::putConfig($this->addon->getDataPath('schema.yml'), $schema);
+        $schema = ['tables' => $schema];
+
+        if ($views) {
+            $schema['views'] = $views;
+        }
+
+        rex_file::putConfig($this->addon->getDataPath('schema.yml'), $schema, 4);
     }
 
     /**
      * @param rex_sql_table[] $tables
      */
-    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables, array $charsets): void
+    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables, array $charsets, array $views): void
     {
         $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
 
         if (!$schema) {
             return;
+        }
+
+        $schemaViews = [];
+        if (isset($schema['tables'])) {
+            $schemaViews = $schema['views'] ?? [];
+            $schema = $schema['tables'];
         }
 
         foreach ($tables as $table) {
@@ -262,6 +284,18 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
         foreach ($schema as $tableName => $table) {
             $diff->dropTable($tableName);
+        }
+
+        foreach ($views as $viewName => $query) {
+            if (!isset($schemaViews[$viewName]) || $schemaViews[$viewName] !== $query) {
+                $diff->ensureView($viewName, $query);
+            }
+
+            unset($schemaViews[$viewName]);
+        }
+
+        foreach ($schemaViews as $viewName => $_) {
+            $diff->dropView($viewName);
         }
     }
 

@@ -26,6 +26,12 @@ final class rex_ydeploy_diff_file
     /** @var list<string> */
     private $drop = [];
 
+    /** @var array<string, string> */
+    private $views = [];
+
+    /** @var list<string> */
+    private $dropViews = [];
+
     /** @var array<string, array{ensure?: list<array<?scalar>>, remove?: list<array<string, int|string>>}> */
     private $fixtures = [];
 
@@ -85,6 +91,16 @@ final class rex_ydeploy_diff_file
         $this->alter[$tableName]['removeForeignKey'][] = $foreignKeyName;
     }
 
+    public function ensureView(string $viewName, string $query): void
+    {
+        $this->views[$viewName] = $query;
+    }
+
+    public function dropView(string $viewName): void
+    {
+        $this->dropViews[] = $viewName;
+    }
+
     /** @param array<?scalar> $data */
     public function ensureFixture(string $tableName, array $data): void
     {
@@ -99,14 +115,16 @@ final class rex_ydeploy_diff_file
 
     public function isEmpty(): bool
     {
-        return !$this->create && !$this->alter && !$this->drop && !$this->fixtures;
+        return !$this->create && !$this->alter && !$this->drop && !$this->views && !$this->dropViews && !$this->fixtures;
     }
 
     public function getContent(): string
     {
-        $changes = $this->addCreateTables();
+        $changes = $this->addDropViews();
+        $changes .= $this->addCreateTables();
         $changes .= $this->addAlterTables();
         $changes .= $this->addDropTables();
+        $changes .= $this->addEnsureViews();
         $changes .= $this->addFixtures();
         $changes = ltrim($changes);
 
@@ -326,10 +344,35 @@ final class rex_ydeploy_diff_file
         return $content;
     }
 
+    private function addEnsureViews(): string
+    {
+        $content = '';
+        $sql = rex_sql::factory();
+
+        foreach ($this->views as $viewName => $query) {
+            $statement = 'CREATE OR REPLACE VIEW '.$sql->escapeIdentifier($viewName)." AS\n".$query;
+            $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($statement).');';
+        }
+
+        return $content;
+    }
+
+    private function addDropViews(): string
+    {
+        $content = '';
+        $sql = rex_sql::factory();
+
+        foreach ($this->dropViews as $viewName) {
+            $statement = 'DROP VIEW IF EXISTS '.$sql->escapeIdentifier($viewName);
+            $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($statement).');';
+        }
+
+        return $content;
+    }
+
     private function addFixtures(): string
     {
         $content = '';
-
         $sql = rex_sql::factory();
 
         foreach ($this->fixtures as $tableName => $changes) {
