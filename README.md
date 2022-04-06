@@ -95,3 +95,29 @@ Die folgende `.gitignore` hat sich als Basis bewährt bei Nutzung von deployer:
 ```
 
 Sollte REDAXO nicht direkt im Projekt-Root liegen, müssen die Pfade entsprechend angepasst werden.
+
+### Benutzer- und Gruppen-Dateiberechtigungen auf dem Server
+
+Sollten beim Deployment-Prozess Fehler mit den Schreibrechten auftreten, kann dieses Skript angepasst, auf dem Webserver abgelegt und per SSH mit sudo ausgeführt werden. Zuvor `###user###` und ggf. den Pfad zum Projekt `###example.org###` anpassen.
+
+```
+#!/bin/bash
+
+pushd . > /dev/null
+#cd /home/###user###/htdocs/
+for i in /home/###user###/htdocs/###example.org###/releases/*; do
+	cd $i;
+	chown -R ###user###:www-data src public/media/ public/assets/ var/cache/ var/data/ var/log/;
+	chmod -R u+rw src public/media/ public/assets/ var/cache/ var/data/ var/log;
+	chmod -R g+rw src public/media/ public/assets/ var/cache/ var/data/ var/log;
+	chmod -R o-w src public/media/ public/assets/ var/cache/ var/data/ var/log;
+	chmod -R u+x var/cache/addons var/data/addons/phpmailer var/data/addons/cronjob var/data/addons/yform var/data/core;
+	chmod -R g+x var/cache/addons var/data/addons/phpmailer var/data/addons/cronjob var/data/addons/yform var/data/core;
+done
+
+cd /home/###user###/htdocs/###example.org###/shared/
+chown -R ###user###:www-data var/data/addons/ var/data/core/
+chmod -R u+rw var/data/addons/ var/data/core/
+chmod -R g+rw var/data/addons/ var/data/core/
+popd > /dev/null
+```
