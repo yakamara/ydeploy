@@ -469,7 +469,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
     private function saveDiff(rex_ydeploy_diff_file $diff): DateTime
     {
-        $timestamp = DateTime::createFromFormat('U.u', sprintf('%.f', microtime(true)));
+        $timestamp = new DateTime();
         $timestamp->setTimezone(new DateTimeZone('UTC'));
         $filename = $timestamp->format('Y-m-d H-i-s.u').'.php';
         $path = $this->addon->getDataPath('migrations/'.$filename);
