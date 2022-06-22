@@ -1,21 +1,29 @@
 name: Release
 
 on:
-    release:
-        types:
-            - published
+    push:
+        branches:
+            - main
+        tags:
+            - '*'
+    workflow_dispatch:
 
 jobs:
-    publish:
+    build:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         steps:
-            -   name: Checkout
-                uses: actions/checkout@v2
-
-            -   name: Publish to redaxo.org
-                uses: FriendsOfREDAXO/installer-action@v1
+            -   uses: actions/checkout@v2
+                name: Checkout repository
+            -   name: Set variables
+                id: vars
+                run: echo ::set-output name=release_version::${GITHUB_REF#refs/*/}
+            -   name: Create release ZIP file
+                run: |
+                    git archive "${{ steps.vars.outputs.release_version }}" \
+                    --format=zip --output="${{ steps.vars.outputs.release_version }}.zip"
+            -   uses: ncipollo/release-action@v1
+                name: Upload release to GitHub
                 with:
-                    myredaxo-username: ${{ secrets.MYREDAXO_USERNAME }}
-                    myredaxo-api-key: ${{ secrets.MYREDAXO_API_KEY }}
-                    description: ${{ github.event.release.body }}
-
+                    artifacts: "${{ steps.vars.outputs.release_version }}.zip"
