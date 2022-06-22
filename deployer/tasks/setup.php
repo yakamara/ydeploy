@@ -2,7 +2,7 @@
 
 namespace Deployer;
 
-use Deployer\Exception\RuntimeException;
+use Deployer\Exception\RunException;
 use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
@@ -127,7 +127,7 @@ task('setup', new class() {
             try {
                 run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e ";"');
                 $dbValid = true;
-            } catch (RuntimeException $e) {
+            } catch (RunException $e) {
                 writeln('');
                 writeln('<error>Could not connect to database: '.trim($e->getErrorOutput()).'</error>');
                 writeln('');
@@ -187,7 +187,7 @@ task('setup', new class() {
         try {
             $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
             $data = trim($data);
-        } catch (RuntimeException $exception) {
+        } catch (RunException $exception) {
             if (false !== strpos($exception->getMessage(), 'ERROR 1146')) {
                 // Table does not exist (yrewite not activated)
                 return;
