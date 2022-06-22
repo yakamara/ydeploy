@@ -24,4 +24,4 @@ task('build:info', static function () {
     }
 
     writeln("✂ Building $what on <fg=cyan>{{hostname}}</fg=cyan>");
-})->shallow()->setPrivate();
+})->hidden();

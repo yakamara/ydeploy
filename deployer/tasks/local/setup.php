@@ -38,7 +38,7 @@ task('local:setup', new class() {
             $this->replaceYrewriteDomains();
             $this->copyMedia();
         } finally {
-            run('rm -f '.escapeshellarg($this->mysqlOptions));
+            runLocally('rm -f '.escapeshellarg($this->mysqlOptions));
         }
     }
 
@@ -142,7 +142,7 @@ task('local:setup', new class() {
             ]));
 
             try {
-                run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "CREATE DATABASE IF NOT EXISTS '.escapeshellcmd($db['name']).' CHARACTER SET utf8 COLLATE utf8_general_ci"');
+                runLocally('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "CREATE DATABASE IF NOT EXISTS '.escapeshellcmd($db['name']).' CHARACTER SET utf8 COLLATE utf8_general_ci"');
                 $dbValid = true;
             } catch (ProcessFailedException $e) {
                 writeln('');
@@ -162,7 +162,7 @@ task('local:setup', new class() {
 
         $config = Yaml::dump($config, 3);
 
-        run('mkdir -p {{data_dir}}/core');
+        runLocally('mkdir -p {{data_dir}}/core');
         uploadContent('{{data_dir}}/core/config.yml', $config);
 
         writeln('');
@@ -178,9 +178,9 @@ task('local:setup', new class() {
 
             // export source database
             onHost($this->source, static function () use ($path) {
-                run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
+                runLocally('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
                 download("{{release_path}}/$path", $path);
-                run('rm -f '.escapeshellarg($path));
+                runLocally('rm -f '.escapeshellarg($path));
             });
         } else {
             $this->headline('Import database dump');
@@ -189,9 +189,9 @@ task('local:setup', new class() {
         }
 
         // import the dump
-        run('< '.escapeshellarg($this->mysqlOptions).' xargs sh -c \'{{bin/mysql}} "$0" "$@" < '.escapeshellcmd(escapeshellarg($path)).'\'');
+        runLocally('< '.escapeshellarg($this->mysqlOptions).' xargs sh -c \'{{bin/mysql}} "$0" "$@" < '.escapeshellcmd(escapeshellarg($path)).'\'');
 
-        run('rm -f '.escapeshellarg($path));
+        runLocally('rm -f '.escapeshellarg($path));
 
         $this->ok();
     }
@@ -200,7 +200,7 @@ task('local:setup', new class() {
     {
         $this->headline('Configure developer addon for local usage');
 
-        run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_config SET value = \"true\" WHERE namespace=\"developer\" AND \`key\` IN (\"sync_frontend\", \"sync_backend\", \"rename\", \"dir_suffix\", \"delete\")"');
+        runLocally('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_config SET value = \"true\" WHERE namespace=\"developer\" AND \`key\` IN (\"sync_frontend\", \"sync_backend\", \"rename\", \"dir_suffix\", \"delete\")"');
 
         $this->ok();
     }
@@ -208,7 +208,7 @@ task('local:setup', new class() {
     private function replaceYrewriteDomains(): void
     {
         try {
-            $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
+            $data = runLocally('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
             $data = trim($data);
         } catch (ProcessFailedException $exception) {
             if (false !== strpos($exception->getProcess()->getErrorOutput(), 'ERROR 1146')) {
@@ -229,7 +229,7 @@ task('local:setup', new class() {
             [$id, $domain] = explode("\t", $line, 2);
             $id = (int) $id;
             $domain = ask($domain.':', $this->server ?: get('url'));
-            run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"'.addslashes($domain).'\" WHERE id = '.$id.'"');
+            runLocally('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"'.addslashes($domain).'\" WHERE id = '.$id.'"');
         }
 
         writeln('');
@@ -248,20 +248,20 @@ task('local:setup', new class() {
 
         // create source archive
         onHost($this->source, static function () use ($path) {
-            run('tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
+            runLocally('tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
 
             try {
                 download("{{release_path}}/$path", $path);
             } finally {
-                run('rm -f '.escapeshellarg($path));
+                runLocally('rm -f '.escapeshellarg($path));
             }
         });
 
         try {
-            run('mkdir -p {{media_dir}}');
-            run('tar -zxvf '.escapeshellarg($path).' -C {{media_dir}}/');
+            runLocally('mkdir -p {{media_dir}}');
+            runLocally('tar -zxvf '.escapeshellarg($path).' -C {{media_dir}}/');
         } finally {
-            run('rm -f '.escapeshellarg($path));
+            runLocally('rm -f '.escapeshellarg($path));
         }
 
         $this->ok();
@@ -278,4 +278,4 @@ task('local:setup', new class() {
         writeln('<info>✔</info> Ok');
         writeln('');
     }
-})->local()->shallow();
+})->once(true);

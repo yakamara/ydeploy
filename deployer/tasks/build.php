@@ -15,4 +15,4 @@ task('build', static function () {
     invoke('deploy:clear_paths');
     invoke('deploy:symlink');
     invoke('cleanup');
-})->shallow()->local();
+})->once(true);
