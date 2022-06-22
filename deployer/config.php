@@ -18,6 +18,13 @@ set('cache_dir', '{{base_dir}}redaxo/cache');
 set('data_dir', '{{base_dir}}redaxo/data');
 set('src_dir', '{{base_dir}}redaxo/src');
 
+localhost('local')
+    ->set('deploy_path', '{{base_dir}}.build')
+    ->set('release_path', '{{deploy_path}}/release')
+    ->set('current_path', '{{release_path}}')
+    ->set('labels', ['stage' => 'build']);;
+
+
 set('bin/console', '{{base_dir}}redaxo/bin/console');
 
 set('shared_dirs', [
