@@ -80,7 +80,8 @@ task('local:setup', new class() {
         }
 
         if (1 === count($hosts)) {
-            $this->source = $hosts->first();
+            $allHosts = $hosts->all();
+            $this->source = reset($allHosts);
 
             return;
         }
