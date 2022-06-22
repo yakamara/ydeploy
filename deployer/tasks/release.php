@@ -17,6 +17,6 @@ task('release', [
     'deploy:symlink',
     'server:clear_cache',
     'deploy:unlock',
-    'cleanup',
-    'success',
+    'deploy:cleanup',
+    'deploy:success',
 ]);
