@@ -43,10 +43,7 @@ function downloadContent(string $source): string
 
 function onHost(Host $host, callable $callback)
 {
-    $input = Context::has() ? Context::get()->getInput() : null;
-    $output = Context::has() ? Context::get()->getOutput() : null;
-
-    Context::push(new Context($host, $input, $output));
+    Context::push(new Context($host));
 
     try {
         if (!$host instanceof Localhost) {
