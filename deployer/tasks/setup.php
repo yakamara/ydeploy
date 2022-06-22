@@ -63,7 +63,7 @@ task('setup', new class() {
 
         $hosts->set($localhost->getHostname(), $localhost);
 
-        $hostsArray = $hosts->toArray();
+        $hostsArray = $hosts->all();
         unset($hostsArray[Context::get()->getHost()->getHostname()]);
         $hostsArray = array_keys($hostsArray);
 

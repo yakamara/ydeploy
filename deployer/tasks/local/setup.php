@@ -85,7 +85,7 @@ task('local:setup', new class() {
             return;
         }
 
-        $hostsArray = $hosts->toArray();
+        $hostsArray = $hosts->all();
         $hostsArray = array_keys($hostsArray);
 
         $host = askChoice('Select source host:', $hostsArray);

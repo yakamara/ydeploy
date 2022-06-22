@@ -50,7 +50,7 @@ set('clear_paths', [
 ]);
 
 set('url', static function () {
-    return 'https://'.Context::get()->getHost()->getRealHostname();
+    return 'https://'.Context::get()->getHost()->getHostname();
 });
 
 set('allow_anonymous_stats', false);
@@ -58,9 +58,9 @@ set('allow_anonymous_stats', false);
 after('deploy:failed', 'deploy:unlock');
 
 set('bin/mysql', static function () {
-    return locateBinaryPath('mysql');
+    return which('mysql');
 });
 
 set('bin/mysqldump', static function () {
-    return locateBinaryPath('mysqldump');
+    return which('mysqldump');
 });
