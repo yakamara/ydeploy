@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 1.1.1 – 11.07.2022
+--------------------------
+
+### Bugfixes
+
+* Je nach `setlocale`-Einstellung konnte es zu Fehlern beim `diff`-Command kommen (@alxndr-w)
+* Beim Aufruf von ungültigen Backend-Pages konnte es zu einer Exception kommen (@gharlan)
+
+
 Version 1.1.0 – 20.03.2022
 --------------------------
 
