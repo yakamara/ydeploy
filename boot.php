@@ -19,5 +19,5 @@ if (rex_ydeploy::factory()->isDeployed()) {
         $this->setProperty('config', $config);
     }
 
-    rex_extension::register('PAGES_PREPARED', 'rex_ydeploy_handler::protectPages');
+    rex_extension::register('PAGE_CHECKED', 'rex_ydeploy_handler::protectPages');
 }
