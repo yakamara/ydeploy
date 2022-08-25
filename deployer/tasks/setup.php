@@ -188,7 +188,7 @@ task('setup', new class() {
             $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
             $data = trim($data);
         } catch (RunException $exception) {
-            if (false !== strpos($exception->getMessage(), 'ERROR 1146')) {
+            if (str_contains($exception->getErrorOutput(), 'ERROR 1146')) {
                 // Table does not exist (yrewite not activated)
                 return;
             }
