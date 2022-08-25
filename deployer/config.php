@@ -21,7 +21,7 @@ set('src_dir', '{{base_dir}}redaxo/src');
 localhost('local')
     ->set('deploy_path', '{{base_dir}}.build')
     ->set('release_path', '{{deploy_path}}/release')
-    ->set('current_path', '{{release_path}}')
+    ->set('current_path', '{{deploy_path}}/current')
     ->set('labels', ['stage' => 'build']);;
 
 

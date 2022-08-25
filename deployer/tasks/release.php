@@ -5,7 +5,7 @@ namespace Deployer;
 desc('Release locally prepared release to server');
 task('release', [
     'deploy:info',
-    'deploy:prepare',
+    'deploy:setup',
     'deploy:release',
     'deploy:copy_dirs',
     'upload',
