@@ -22,7 +22,7 @@ localhost('local')
     ->set('deploy_path', '{{base_dir}}.build')
     ->set('release_path', '{{deploy_path}}/release')
     ->set('current_path', '{{deploy_path}}/current')
-    ->set('labels', ['stage' => 'build']);;
+    ->set('labels', ['stage' => 'build']);
 
 
 set('bin/console', '{{base_dir}}redaxo/bin/console');
