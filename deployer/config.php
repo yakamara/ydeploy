@@ -27,34 +27,46 @@ localhost('local')
 
 set('bin/console', '{{base_dir}}redaxo/bin/console');
 
-set('shared_dirs', [
-    '{{media_dir}}',
-    '{{data_dir}}/addons/cronjob',
-    '{{data_dir}}/addons/phpmailer',
-    '{{data_dir}}/addons/yform',
-    '{{data_dir}}/core',
-]);
+set('shared_dirs', array_merge(
+    get('shared_dirs', []),
+    [
+        '{{media_dir}}',
+        '{{data_dir}}/addons/cronjob',
+        '{{data_dir}}/addons/phpmailer',
+        '{{data_dir}}/addons/yform',
+        '{{data_dir}}/core',
+    ]
+));
 
-set('writable_dirs', [
-    '{{base_dir}}assets',
-    '{{media_dir}}',
-    '{{cache_dir}}',
-    '{{data_dir}}',
-]);
+set('writable_dirs', array_merge(
+    get('writable_dirs', []),
+    [
+        '{{base_dir}}assets',
+        '{{media_dir}}',
+        '{{cache_dir}}',
+        '{{data_dir}}',
+    ]
+));
 
-set('copy_dirs', [
-    '{{base_dir}}assets',
-    '{{src_dir}}',
-]);
+set('copy_dirs', array_merge(
+    get('copy_dirs', []),
+    [
+        '{{base_dir}}assets',
+        '{{src_dir}}',
+    ]
+));
 
-set('clear_paths', [
-    'gulpfile.js',
-    'node_modules',
-    '.gitlab-ci.yml',
-    'deploy.php',
-    'package.json',
-    'yarn.lock',
-]);
+set('clear_paths', array_merge(
+    get('clear_paths', []),
+    [
+        'gulpfile.js',
+        'node_modules',
+        '.gitlab-ci.yml',
+        'deploy.php',
+        'package.json',
+        'yarn.lock',
+    ]
+));
 
 set('url', static function () {
     return 'https://'.Context::get()->getHost()->getHostname();
