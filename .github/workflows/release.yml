@@ -1,4 +1,4 @@
-name: Release
+name: Release as ZIP
 
 on:
     push:
@@ -20,8 +20,8 @@ jobs:
             -   name: Create release ZIP file
                 run: |
                     git archive "${{ steps.vars.outputs.release_version }}" \
-                    --format=zip --output="${{ steps.vars.outputs.release_version }}.zip"
+                    --prefix=ydeploy/ --format=zip --output="ydeploy-${{ steps.vars.outputs.release_version }}.zip"
             -   uses: ncipollo/release-action@v1
                 name: Upload release to GitHub
                 with:
-                    artifacts: "${{ steps.vars.outputs.release_version }}.zip"
+                    artifacts: "ydeploy-${{ steps.vars.outputs.release_version }}.zip"
