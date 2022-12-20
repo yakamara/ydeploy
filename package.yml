@@ -35,7 +35,7 @@ config:
             metainfo_field: ~
             metainfo_type: ~
             module_action: ~
-            redactor_profiles: ~
+            redactor_profile: ~
             redactor2_profiles: ~
             yform_field: ~
             yform_table: ~
