@@ -319,7 +319,7 @@ final class rex_ydeploy_diff_file
         /** @var array<rex_sql_foreign_key::*, string> $modes */
         static $modes = [
             rex_sql_foreign_key::RESTRICT => 'rex_sql_foreign_key::RESTRICT',
-            /* rex_sql_foreign_key::NO_ACTION */ 'NO ACTION' => '',
+            /* rex_sql_foreign_key::NO_ACTION */ 'NO ACTION' => "'NO ACTION'",
             rex_sql_foreign_key::CASCADE => 'rex_sql_foreign_key::CASCADE',
             rex_sql_foreign_key::SET_NULL => 'rex_sql_foreign_key::SET_NULL',
         ];
