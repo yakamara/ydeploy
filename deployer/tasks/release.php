@@ -12,6 +12,7 @@ task('release', [
     'deploy:shared',
     'deploy:dump_info',
     'deploy:writable',
+    'deploy:vendors',
     'deploy:redaxo_vendor',
     'setup',
     'database:migration',
