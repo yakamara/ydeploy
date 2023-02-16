@@ -23,5 +23,33 @@
     </plugins>
     <issueHandlers>
         <Trace errorLevel="error"/> <!-- https://psalm.dev/docs/running_psalm/issues/Trace/ -->
+        <UndefinedFunction>
+            <errorLevel type="suppress">
+                <directory name="lib" />
+                <referencedFunction name="Deployer\after" />
+                <referencedFunction name="Deployer\ask" />
+                <referencedFunction name="Deployer\askHiddenResponse" />
+                <referencedFunction name="Deployer\cd" />
+                <referencedFunction name="Deployer\desc" />
+                <referencedFunction name="Deployer\download" />
+                <referencedFunction name="Deployer\get" />
+                <referencedFunction name="Deployer\has" />
+                <referencedFunction name="Deployer\host" />
+                <referencedFunction name="Deployer\input" />
+                <referencedFunction name="Deployer\invoke" />
+                <referencedFunction name="Deployer\localhost" />
+                <referencedFunction name="Deployer\on" />
+                <referencedFunction name="Deployer\parse" />
+                <referencedFunction name="Deployer\run" />
+                <referencedFunction name="Deployer\runLocally" />
+                <referencedFunction name="Deployer\set" />
+                <referencedFunction name="Deployer\task" />
+                <referencedFunction name="Deployer\test" />
+                <referencedFunction name="Deployer\upload" />
+                <referencedFunction name="Deployer\within" />
+                <referencedFunction name="Deployer\which" />
+                <referencedFunction name="Deployer\writeln" />
+            </errorLevel>
+        </UndefinedFunction>
     </issueHandlers>
 </psalm>

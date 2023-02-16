@@ -9,5 +9,5 @@ task('build:start', static function () {
         host('local')
             ->set('branch', get('branch'));
     }
-    on(host('local'), static fn() => invoke('build'));
+    on(host('local'), static fn () => invoke('build'));
 })->once()->hidden();

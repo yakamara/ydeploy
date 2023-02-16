@@ -24,7 +24,6 @@ localhost('local')
     ->set('current_path', '{{deploy_path}}/current')
     ->set('labels', ['stage' => 'build']);
 
-
 set('bin/console', '{{base_dir}}redaxo/bin/console');
 
 set('shared_dirs', array_merge(
