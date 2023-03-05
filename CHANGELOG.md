@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 1.1.2 – 05.03.2023
+--------------------------
+
+### Bugfixes
+
+* Fixtures für redactor-Adddon korrigiert (@tbaddade)
+* Foreign keys: Action-Type `NO ACTION` wurde nicht berücksichtigt (@tyrant88)
+
+
 Version 1.1.1 – 11.07.2022
 --------------------------
 
