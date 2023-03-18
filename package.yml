@@ -28,6 +28,7 @@ config:
                 - { namespace: mblock }
                 - { namespace: media_manager }
                 - { namespace: mform }
+                - { namespace: rexstan }
                 - { namespace: sprog }
             markitup_profiles: ~
             media_manager_type: ~
@@ -48,6 +49,7 @@ config:
         packages: ~
         redactor: ~
         redactor2: ~
+        rexstan: ~
         templates: ~
         yform:
             setup: ~
