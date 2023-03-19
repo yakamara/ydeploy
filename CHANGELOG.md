@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 1.2.0 – 19.03.2023
+--------------------------
+
+### Neu
+
+* Default-Config für rexstan
+* Es wird geprüft, ob die passende Deployer-Version genutzt wird
+
+
 Version 1.1.2 – 05.03.2023
 --------------------------
 
