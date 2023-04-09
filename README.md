@@ -31,6 +31,15 @@ Es ist aber auch geeignet, um Datenbank-Änderungen der anderen Entwickler in di
 
 Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:migrate`.
 
+## Deployment
+
+Führe `dep deploy` aus, um das Deployment auf den Zielserver zu starten. [Dieser Befehl besteht aus zwei Teilen](https://github.com/yakamara/ydeploy/blob/master/deploy.php#L92-L95), die sich auch einzeln ausführen lassen:
+
+1. lokal vorbereiten und aufspielen: `dep build` und 
+2. danach `dep release [host]`
+
+So lässt sich bspw. `dep deploy` auf einen Test- oder Stage-Server gemäß `default_stage` deployen, testen und anschließen mit dem bereits vorliegenden Build auf den Live-/Produktivserver aufspielen: `dep release live`
+
 Setup für deployer
 ------------------
 
@@ -44,7 +53,7 @@ composer global require deployer/deployer
 
 Mehr Infos: https://deployer.org/docs/installation
 
-### Konfiguration
+## Konfiguration
 
 Im Projekt-Root sollte die Konfigurationsdatei `deploy.php`  angelegt werden, die die auf REDAXO abgestimmte 
 [Basis-Konfiguration](https://github.com/yakamara/ydeploy/blob/master/deploy.php) aus diesem Addon einbindet:
@@ -95,3 +104,23 @@ Die folgende `.gitignore` hat sich als Basis bewährt bei Nutzung von deployer:
 ```
 
 Sollte REDAXO nicht direkt im Projekt-Root liegen, müssen die Pfade entsprechend angepasst werden.
+
+### Optional: Stage-Server
+
+Wenn man `dep deploy` aufruft, greift der `default_stage` zuerst.
+
+> **Vorteil:** Man deployed nicht durch Unachtsamkeit auf den Live-Server sondern nur die Testserver. Will man auch live deployen, muss man das immer explizit angeben: `dep deploy live`
+
+Dazu in der `deploy.php` folgende Einstellungen vornehmen.
+
+1. `default_stage` einstellen: `set('default_stage', 'test');`
+
+2. im Host `stage` einstellen (kann mehrfach gesetzt werden): 
+
+```
+host('yakamara')
+    ->stage('test')
+
+host('preview')
+    ->stage('test')
+```
