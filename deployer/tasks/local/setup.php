@@ -179,7 +179,7 @@ task('local:setup', new class() {
 
             // export source database
             onHost($this->source, static function () use ($path) {
-                runLocally('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
+                runLocally('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} -c > '.escapeshellarg($path));
                 download("{{release_path}}/$path", $path);
                 runLocally('rm -f '.escapeshellarg($path));
             });
