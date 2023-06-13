@@ -5,6 +5,7 @@
  */
 final class rex_ydeploy_handler
 {
+    /** @param rex_extension_point<array<mixed>> $ep */
     public static function addBodyClasses(rex_extension_point $ep): array
     {
         $ydeploy = rex_ydeploy::factory();
@@ -24,6 +25,7 @@ final class rex_ydeploy_handler
         return $attr;
     }
 
+    /** @param rex_extension_point<string> $ep */
     public static function addBadge(rex_extension_point $ep): ?string
     {
         $ydeploy = rex_ydeploy::factory();

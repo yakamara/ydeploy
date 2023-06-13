@@ -6,7 +6,7 @@
 final class rex_ydeploy_diff_file
 {
     /** @var array<string, rex_sql_table> */
-    private $create = [];
+    private array $create = [];
 
     /**
      * @var array<string, array{
@@ -21,19 +21,19 @@ final class rex_ydeploy_diff_file
      *          removeForeignKey?: list<string>
      *      }>
      */
-    private $alter = [];
+    private array $alter = [];
 
     /** @var list<string> */
-    private $drop = [];
+    private array $drop = [];
 
     /** @var array<string, string> */
-    private $views = [];
+    private array $views = [];
 
     /** @var list<string> */
-    private $dropViews = [];
+    private array $dropViews = [];
 
     /** @var array<string, array{ensure?: list<array<?scalar>>, remove?: list<array<string, int|string>>}> */
-    private $fixtures = [];
+    private array $fixtures = [];
 
     public function createTable(rex_sql_table $table): void
     {
