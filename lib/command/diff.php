@@ -1,5 +1,6 @@
 <?php
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -9,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('ydeploy:diff')
@@ -19,7 +20,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = $this->getStyle($input, $output);
 
@@ -57,7 +58,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             $io->success('Updated schema and fixtures files, nothing changed.');
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

@@ -5,9 +5,9 @@
  */
 final class rex_api_ydeploy_protected_page extends rex_api_function
 {
-    public function execute()
+    public function execute(): rex_api_result
     {
-        if (!rex::getUser()->isAdmin()) {
+        if (!rex::requireUser()->isAdmin()) {
             throw new rex_api_exception('Protected pages can be (un)locked only by admins.');
         }
 
@@ -50,7 +50,7 @@ final class rex_api_ydeploy_protected_page extends rex_api_function
         return $result;
     }
 
-    protected function requiresCsrfProtection()
+    protected function requiresCsrfProtection(): bool
     {
         return true;
     }

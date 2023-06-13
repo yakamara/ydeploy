@@ -1,5 +1,6 @@
 <?php
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -9,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('ydeploy:migrate')
@@ -18,7 +19,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = $this->getStyle($input, $output);
 
@@ -50,7 +51,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         if (!$paths) {
             $io->success('Nothing to migrate.');
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         $io->text(count($paths) . ' migrations to execute');
@@ -77,12 +78,12 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
             if ($countMigrated === count($paths)) {
                 $io->success(sprintf('%s %d migrations.', $fake ? 'Faked' : 'Executed', $countMigrated));
 
-                return 0;
+                return Command::SUCCESS;
             }
 
             $io->error(sprintf('%s %d of %d migrations, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, count($paths), basename($path)));
 
-            return 1;
+            return Command::FAILURE;
         }
     }
 
