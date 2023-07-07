@@ -4,9 +4,10 @@ namespace Deployer;
 
 use RuntimeException;
 
-$version = ltrim(Deployer::get()->getConsole()->getVersion(), 'v');
-if (6 !== (int) $version) {
-    throw new RuntimeException('YDeploy 1.x requires Deployer 6.x, but Deployer '.$version.' is used');
+preg_match('/(?P<version>(\d+\.?)+)/', Deployer::get()->getConsole()->getVersion(), $matches);
+$version = $matches['version'] ?? 'unknown version';
+if (true !== version_compare($version, '7.0', '>=')) {
+    throw new RuntimeException('YDeploy 2.x requires Deployer 7.x, but Deployer '.$version.' is used');
 }
 
 /** @psalm-suppress MissingFile */
