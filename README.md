@@ -92,6 +92,7 @@ Die folgende `.gitignore` hat sich als Basis bewährt bei Nutzung von deployer:
 !/redaxo/data/addons/mform/*
 !/redaxo/data/addons/ydeploy/*
 /redaxo/data/core/*
+/redaxo/data/log/*
 ```
 
 Sollte REDAXO nicht direkt im Projekt-Root liegen, müssen die Pfade entsprechend angepasst werden.
