@@ -153,7 +153,7 @@ task('setup', new class() {
 
         // export source database
         onHost($this->source, static function () use ($path) {
-            run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} -c > '.escapeshellarg($path));
+            run('{{bin/php}} {{bin/console}} db:connection-options | xargs {{bin/mysqldump}} -c > '.escapeshellarg($path));
 
             if (Context::get()->getHost() instanceof Localhost) {
                 return;
