@@ -1,0 +1,124 @@
+name: Check
+
+on:
+    push:
+        branches: [main, bugfix, temp]
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+    writable: ${{ github.event_name != 'push' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && 1 || 0 }}
+
+jobs:
+    php-cs-fixer:
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.draft == false
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v3
+                if: env.writable == 1
+                with:
+                    ref: ${{ github.head_ref }}
+                    token: ${{ secrets.BOT_TOKEN }}
+            -   name: Checkout fork
+                uses: actions/checkout@v3
+                if: env.writable == 0
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.1
+                    coverage: none # disable xdebug, pcov
+                    tools: cs2pr
+
+            -   name: Composer install
+                uses: ramsey/composer-install@v2
+                with:
+                    composer-options: --ansi --prefer-dist
+
+            -   name: Fix code style
+                if: env.writable == 1
+                run: vendor/bin/php-cs-fixer list-files --config=.php-cs-fixer.dist.php | xargs -n 250 -P 3 vendor/bin/php-cs-fixer fix --diff --config=.php-cs-fixer.dist.php
+
+            -   name: Commit changed files
+                uses: stefanzweifel/git-auto-commit-action@v4
+                if: env.writable == 1
+                with:
+                    commit_message: Apply php-cs-fixer changes
+                    commit_user_name: rex-bot
+                    commit_user_email: rex-bot@users.noreply.github.com
+
+            -   name: Check code style
+                if: env.writable == 0
+                run: vendor/bin/php-cs-fixer fix --ansi --diff --dry-run --format=checkstyle | cs2pr # check whether there are still errors left
+
+    rexstan:
+        runs-on: ubuntu-latest
+        env:
+            ADDON_KEY: ${{ github.event.repository.name }}
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v3
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.2'
+                    extensions: gd, intl, pdo_mysql, iconv
+                    coverage: none # disable xdebug, pcov
+
+            -   name: Composer install
+                uses: ramsey/composer-install@v2
+                with:
+                    composer-options: --ansi --prefer-dist
+
+            # download the latest REDAXO release and unzip it
+            # credits https://blog.markvincze.com/download-artifacts-from-a-latest-github-release-in-sh-and-powershell/
+            -   name: Download latest REDAXO release
+                run: |
+                    LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/redaxo/redaxo/releases/latest)
+                    REDAXO_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+                    echo "Downloaded REDAXO $REDAXO_VERSION"
+                    curl -Ls -o redaxo.zip https://github.com/redaxo/redaxo/releases/download/$REDAXO_VERSION/redaxo_$REDAXO_VERSION.zip
+                    unzip -oq redaxo.zip -d redaxo_cms
+                    rm redaxo.zip
+            # start mysql service, create a database called redaxo5, apply config patch
+            -   name: Init database
+                run: |
+                    sudo /etc/init.d/mysql start
+                    mysql -uroot -h127.0.0.1 -proot -e 'create database redaxo5;'
+            # run REDAXO setup with the following parameters
+            # Language: de
+            # DB password: root
+            # Create DB: no
+            # Admin username: admin
+            # Admin password: adminpassword
+            # Error E-mail: test@redaxo.invalid
+            -   name: Setup REDAXO
+                run: |
+                    php redaxo_cms/redaxo/bin/console setup:run -n --lang=de_de --agree-license --db-host=127.0.0.1 --db-name=redaxo5 --db-password=root --db-createdb=no --db-setup=normal --admin-username=admin --admin-password=adminpassword --error-email=test@redaxo.invalid --ansi
+                    php redaxo_cms/redaxo/bin/console config:set --type boolean debug.enabled true
+                    php redaxo_cms/redaxo/bin/console config:set --type boolean debug.throw_always_exception true
+            # copy Addon files, ignore some directories...
+            # install the addon
+            # if the addon name does not match the repository name, ${{ github.event.repository.name }} must be replaced with the addon name
+            # install latest rexstan
+            # if additional addons are needed, they can be installed via the console commands
+            # see: https://www.redaxo.org/doku/main/basis-addons#console
+            -   name: Copy and install Addons
+                run: |
+                    rsync -av --exclude='.github' --exclude='.git' --exclude='redaxo_cms' './' 'redaxo_cms/redaxo/src/addons/${{ github.event.repository.name }}'
+                    redaxo_cms/redaxo/bin/console install:download 'rexstan' '1.*'
+                    redaxo_cms/redaxo/bin/console package:install 'rexstan'
+                    redaxo_cms/redaxo/bin/console package:install '${{ github.event.repository.name }}'
+            # execute rexstan.php to create the needed user-config.neon
+            -   name: Execute .tools/rexstan.php
+                run: php -f redaxo/src/addons/${{ github.event.repository.name }}/.tools/rexstan.php
+                working-directory: redaxo_cms
+
+            # run rexstan
+            -   id: rexstan
+                name: Run rexstan
+                run: redaxo_cms/redaxo/bin/console rexstan:analyze

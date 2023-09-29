@@ -40,7 +40,7 @@ final class rex_ydeploy_handler
             $badge = 'Development';
         }
 
-        $badge = rex_extension::registerPoint(new rex_extension_point('YDEPLOY_BADGE', $badge));
+        $badge = rex_extension::registerPoint(new rex_extension_point('YDEPLOY_BADGE', $badge)); // @phpstan-ignore-line
 
         if (!$badge) {
             return null;
