@@ -2,19 +2,31 @@
 
 namespace Deployer;
 
-set('yarn', false);
-set('gulp', false);
-set('gulp_options', '');
+set('assets_install', false);
+set('assets_build', false);
 
-desc('Load (yarn) and build (gulp) assets');
+desc('Load and build assets');
 task('build:assets', static function () {
-    cd('{{release_path}}');
+    $install = get('assets_install');
 
-    if (get('yarn')) {
-        run('yarn');
+    if (!$install) {
+        return;
     }
 
-    if (get('gulp')) {
-        run('gulp {{gulp_options}}');
+    cd('{{release_path}}');
+
+    $isLocal = !getenv('CI');
+    if ($isLocal && test('[ -d {{deploy_path}}/.node_modules ]')) {
+        run('mv {{deploy_path}}/.node_modules node_modules');
+    }
+
+    run($install);
+
+    if ($build = get('assets_build')) {
+        run($build);
+    }
+
+    if ($isLocal) {
+        run('mv node_modules {{deploy_path}}/.node_modules');
     }
 });

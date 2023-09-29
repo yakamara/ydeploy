@@ -5,7 +5,8 @@ namespace Deployer;
 desc('Release locally prepared release to server');
 task('release', [
     'deploy:info',
-    'deploy:prepare',
+    'deploy:setup',
+    'deploy:lock',
     'deploy:release',
     'deploy:copy_dirs',
     'upload',
@@ -14,9 +15,7 @@ task('release', [
     'deploy:writable',
     'setup',
     'database:migration',
-    'deploy:symlink',
-    'server:clear_cache',
-    'deploy:unlock',
-    'cleanup',
-    'success',
+    'deploy:publish',
 ]);
+
+before('deploy:cleanup', 'server:clear_cache');

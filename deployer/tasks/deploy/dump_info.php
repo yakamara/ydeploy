@@ -5,7 +5,7 @@ namespace Deployer;
 desc('Dump info about current deployment');
 task('deploy:dump_info', static function () {
     $infos = [
-        'host' => get('hostname'),
+        'host' => get('alias'),
         'stage' => get('stage', false) ?: null,
         'timestamp' => time(),
         'branch' => runLocally('{{bin/git}} -C .build rev-parse --abbrev-ref HEAD'),
