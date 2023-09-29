@@ -4,7 +4,7 @@ $ydeploy = rex_ydeploy::factory();
 
 if ($ydeploy->isDeployed()) {
     $info = [
-        'Deployed' => rex_formatter::strftime($ydeploy->getTimestamp()->getTimestamp(), 'datetime'),
+        'Deployed' => rex_formatter::intlDateTime($ydeploy->getTimestamp()),
         'Host' => $ydeploy->getHost(),
         'Stage' => $ydeploy->getStage(),
         'Branch' => $ydeploy->getBranch(),
