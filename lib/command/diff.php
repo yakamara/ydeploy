@@ -72,13 +72,13 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             FROM INFORMATION_SCHEMA.TABLES T
             INNER JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA ON CCSA.COLLATION_NAME = T.TABLE_COLLATION
             WHERE T.TABLE_SCHEMA = DATABASE() AND T.TABLE_NAME LIKE :prefix
-        ', ['prefix' => rex::getTablePrefix().'%']);
+        ', ['prefix' => rex::getTablePrefix() . '%']);
 
         $charsets = array_column($charsets, null, 'table_name');
 
         $views = [];
         foreach ($sql->getViews(rex::getTablePrefix()) as $view) {
-            $sql->setQuery('SHOW CREATE VIEW '.$sql->escapeIdentifier($view));
+            $sql->setQuery('SHOW CREATE VIEW ' . $sql->escapeIdentifier($view));
             $query = (string) $sql->getValue('Create View');
             $query = substr($query, strpos($query, ' AS ') + 4);
             $views[$view] = $query;
@@ -162,7 +162,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 $diff->createTable($table);
 
                 $defaultCharset = rex::getConfig('utf8mb4') ? 'utf8mb4' : 'utf8';
-                $defaultCollation = $defaultCharset.'_unicode_ci';
+                $defaultCollation = $defaultCharset . '_unicode_ci';
                 if ($defaultCharset !== $charsets[$tableName]['charset'] || $defaultCollation !== $charsets[$tableName]['collation']) {
                     $diff->setCharset($tableName, $charsets[$tableName]['charset'], $charsets[$tableName]['collation']);
                 }
@@ -406,7 +406,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return sha1(json_encode($data));
     }
 
-    private function getData(rex_sql_table $table, array $conditions = null): array
+    private function getData(rex_sql_table $table, ?array $conditions = null): array
     {
         $sql = rex_sql::factory();
 
@@ -419,16 +419,16 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             foreach ($conditions as $condition) {
                 $parts = [];
                 foreach ($condition as $name => $value) {
-                    $parts[] = $sql->escapeIdentifier($name).' = ?';
+                    $parts[] = $sql->escapeIdentifier($name) . ' = ?';
                     $params[] = $value;
                 }
                 $where[] = implode(' AND ', $parts);
             }
 
-            $where = ' WHERE '.implode(' OR ', $where);
+            $where = ' WHERE ' . implode(' OR ', $where);
         }
 
-        $data = $sql->getArray('SELECT * FROM '.$sql->escapeIdentifier($table->getName()).$where, $params);
+        $data = $sql->getArray('SELECT * FROM ' . $sql->escapeIdentifier($table->getName()) . $where, $params);
 
         foreach ($data as &$row) {
             foreach ($row as &$value) {
@@ -471,8 +471,8 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     {
         $timestamp = new DateTime();
         $timestamp->setTimezone(new DateTimeZone('UTC'));
-        $filename = $timestamp->format('Y-m-d H-i-s.u').'.php';
-        $path = $this->addon->getDataPath('migrations/'.$filename);
+        $filename = $timestamp->format('Y-m-d H-i-s.u') . '.php';
+        $path = $this->addon->getDataPath('migrations/' . $filename);
 
         if (file_exists($path)) {
             throw new Exception(sprintf('File "%s" already exists.', $path));

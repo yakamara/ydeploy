@@ -4,7 +4,7 @@ namespace Deployer;
 
 desc('Prepare the next release in local subdir ".build"');
 task('build', static function () {
-    set('deploy_path', getcwd().'/.build');
+    set('deploy_path', getcwd() . '/.build');
     set('keep_releases', 1);
 
     invoke('build:info');

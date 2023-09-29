@@ -55,27 +55,27 @@ task('server:clear_cache', new class() {
         }
 
         $dir = '_clear_cache';
-        $htaccessFile = $dir.'/.htaccess';
-        $phpFile = $dir.'/_clear_cache.php';
+        $htaccessFile = $dir . '/.htaccess';
+        $phpFile = $dir . '/_clear_cache.php';
 
         try {
             foreach ($paths as $path) {
-                run('mkdir -p '.$path.$dir);
-                run('echo "Require all granted" > '.$path.$htaccessFile);
-                run('echo '.escapeshellarg("<?php\n\n".$this->getPhpClearCacheCode()).' > '.$path.$phpFile);
+                run('mkdir -p ' . $path . $dir);
+                run('echo "Require all granted" > ' . $path . $htaccessFile);
+                run('echo ' . escapeshellarg("<?php\n\n" . $this->getPhpClearCacheCode()) . ' > ' . $path . $phpFile);
             }
 
             run("curl -fsS {{url}}/$phpFile");
         } finally {
             foreach ($paths as $path) {
-                run('rm -rf '.$path.$dir);
+                run('rm -rf ' . $path . $dir);
             }
         }
     }
 
     private function clearCliPhpCache(): void
     {
-        run('{{bin/php}} -r '.escapeshellarg($this->getPhpClearCacheCode()));
+        run('{{bin/php}} -r ' . escapeshellarg($this->getPhpClearCacheCode()));
     }
 
     private function getPhpClearCacheCode(): string

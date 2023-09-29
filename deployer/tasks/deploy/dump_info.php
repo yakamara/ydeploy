@@ -15,5 +15,5 @@ task('deploy:dump_info', static function () {
     $infos = json_encode($infos, JSON_PRETTY_PRINT);
 
     run('mkdir -p {{release_path}}/{{data_dir}}/addons/ydeploy');
-    run('echo '.escapeshellarg($infos).' > {{release_path}}/{{data_dir}}/addons/ydeploy/info.json');
+    run('echo ' . escapeshellarg($infos) . ' > {{release_path}}/{{data_dir}}/addons/ydeploy/info.json');
 });
