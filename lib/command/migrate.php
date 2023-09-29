@@ -26,7 +26,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         $io->title('YDeploy migration');
 
         $sql = rex_sql::factory();
-        $migrated = $sql->getArray('SELECT `timestamp` FROM ' . $this->migrationTable);
+        $migrated = $sql->getArray('SELECT `timestamp` FROM ' . $sql->escapeIdentifier($this->migrationTable));
         $migrated = array_column($migrated, 'timestamp', 'timestamp');
 
         $fake = $input->getOption('fake');
