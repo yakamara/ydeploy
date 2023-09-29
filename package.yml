@@ -65,4 +65,3 @@ installer_ignore:
     - .gitignore
     - .php-cs-fixer.cache
     - .php-cs-fixer.dist.php
-    - psalm.xml
