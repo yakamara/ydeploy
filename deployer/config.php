@@ -3,13 +3,14 @@
 namespace Deployer;
 
 use Deployer\Task\Context;
+
 use function dirname;
 use function strlen;
 
 $baseDir = dirname(__DIR__, 5);
-if (0 === strpos($baseDir, getcwd())) {
+if (str_starts_with($baseDir, getcwd())) {
     $baseDir = substr($baseDir, strlen(getcwd()));
-    $baseDir = ltrim($baseDir.'/', '/');
+    $baseDir = ltrim($baseDir . '/', '/');
 }
 
 set('base_dir', $baseDir);
@@ -50,7 +51,7 @@ set('clear_paths', [
 ]);
 
 set('url', static function () {
-    return 'https://'.Context::get()->getHost()->getRealHostname();
+    return 'https://' . Context::get()->getHost()->getRealHostname();
 });
 
 set('allow_anonymous_stats', false);

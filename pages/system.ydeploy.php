@@ -19,11 +19,11 @@ if ($ydeploy->isDeployed()) {
 $content = '';
 
 foreach ($info as $key => $value) {
-    $content .= '<dt>'.rex_escape($key).'</dt>';
-    $content .= '<dd>'.rex_escape($value).'</dd>';
+    $content .= '<dt>' . rex_escape($key) . '</dt>';
+    $content .= '<dd>' . rex_escape($value) . '</dd>';
 }
 
-$content = '<dl class="dl-horizontal">'.$content.'</dl>';
+$content = '<dl class="dl-horizontal">' . $content . '</dl>';
 
 $fragment = new rex_fragment();
 $fragment->setVar('title', 'Info');
@@ -34,7 +34,7 @@ if (!$ydeploy->isDeployed()) {
     return;
 }
 
-$apiUrl = static function (string $action, string $page, string $redirect = null) {
+$apiUrl = static function (string $action, string $page, ?string $redirect = null) {
     $params = rex_api_ydeploy_protected_page::getUrlParams();
     $params['action'] = $action;
     $params['protected_page'] = $page;
@@ -53,8 +53,8 @@ if ('system/ydeploy' !== $calledPage) {
     $url = $apiUrl('unlock', $calledPage, $redirect);
 
     echo rex_view::error('
-        The called page <code>'.rex_escape($calledPage).'</code> is protected in deployed instances because it should be used only in development instances. <br><br>
-        <a href="'.$url.'">Unlock and open it anyway</a>
+        The called page <code>' . rex_escape($calledPage) . '</code> is protected in deployed instances because it should be used only in development instances. <br><br>
+        <a href="' . $url . '">Unlock and open it anyway</a>
     ');
 }
 
@@ -111,31 +111,31 @@ foreach ($navi->getNavigation() as $block) {
     $content .= '
         <tr>
             <td></td>
-            <td colspan="4"><b>'.$block['headline']['title'].'</b></td>
+            <td colspan="4"><b>' . $block['headline']['title'] . '</b></td>
         </tr>
     ';
 
     foreach ($block['navigation'] as $page) {
         if (isset($unlockedPages[$page['href']])) {
             $url = $apiUrl('lock', $page['href']);
-            $action = '<a class="rex-online" href="'.$url.'"><i class="rex-icon fa-unlock-alt"></i> Unlocked</a>';
+            $action = '<a class="rex-online" href="' . $url . '"><i class="rex-icon fa-unlock-alt"></i> Unlocked</a>';
 
-            $action2 = '<a href="'.rex_url::backendPage($page['href']).'">Open</a>';
+            $action2 = '<a href="' . rex_url::backendPage($page['href']) . '">Open</a>';
         } else {
             $url = $apiUrl('unlock', $page['href']);
-            $action = '<a class="rex-offline" href="'.$url.'"><i class="rex-icon fa-lock"></i> Locked</a>';
+            $action = '<a class="rex-offline" href="' . $url . '"><i class="rex-icon fa-lock"></i> Locked</a>';
 
             $url = $apiUrl('unlock', $page['href'], rex_url::backendPage($page['href']));
-            $action2 = '<a href="'.$url.'">Unlock & open</a>';
+            $action2 = '<a href="' . $url . '">Unlock & open</a>';
         }
 
         $content .= '
             <tr>
-                <td class="rex-table-icon"><i class="'.$page['icon'].'"></i></td>
-                <td><code>'.rex_escape($page['href']).'</code></td>
-                <td>'.$page['title'].'</td>
-                <td class="rex-table-action">'.$action.'</td>
-                <td class="rex-table-action">'.$action2.'</td>
+                <td class="rex-table-icon"><i class="' . $page['icon'] . '"></i></td>
+                <td><code>' . rex_escape($page['href']) . '</code></td>
+                <td>' . $page['title'] . '</td>
+                <td class="rex-table-action">' . $action . '</td>
+                <td class="rex-table-action">' . $action2 . '</td>
             </tr>
         ';
     }
@@ -152,7 +152,7 @@ $content = '
             </tr>
         </thead>
         <tbody>
-            '.$content.'
+            ' . $content . '
         </tbody>
     </table>';
 

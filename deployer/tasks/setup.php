@@ -7,6 +7,7 @@ use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
 use Symfony\Component\Yaml\Yaml;
+
 use function count;
 use function YDeploy\downloadContent;
 use function YDeploy\onHost;
@@ -32,7 +33,7 @@ task('setup', new class() {
 
         writeln('');
 
-        $this->mysqlOptions = get('data_dir').'/addons/ydeploy/mysql-options';
+        $this->mysqlOptions = get('data_dir') . '/addons/ydeploy/mysql-options';
 
         $this->source = $this->chooseSource();
 
@@ -43,7 +44,7 @@ task('setup', new class() {
             $this->replaceYrewriteDomains();
             $this->copyMedia();
         } finally {
-            run('rm -f '.escapeshellarg($this->mysqlOptions));
+            run('rm -f ' . escapeshellarg($this->mysqlOptions));
         }
     }
 
@@ -82,7 +83,7 @@ task('setup', new class() {
         $this->headline('Create config.yml for <fg=cyan>{{hostname}}</fg=cyan>');
 
         if ($this->source instanceof Localhost) {
-            $config = file_get_contents(getcwd().'/'.get('data_dir').'/core/config.yml');
+            $config = file_get_contents(getcwd() . '/' . get('data_dir') . '/core/config.yml');
         } else {
             $config = onHost($this->source, static function () {
                 return downloadContent('{{data_dir}}/core/config.yml');
@@ -93,7 +94,7 @@ task('setup', new class() {
 
         $config['setup'] = false;
         $config['debug'] = false;
-        $config['instname'] = 'rex'.date('YmdHis');
+        $config['instname'] = 'rex' . date('YmdHis');
 
         $config['server'] = ask('Server:', get('url'));
         $config['servername'] = ask('Server name:', $config['servername']);
@@ -118,18 +119,18 @@ task('setup', new class() {
             $db['password'] = askHiddenResponse('Database password:');
 
             uploadContent($this->mysqlOptions, implode("\n", [
-                '--host='.escapeshellarg($db['host']),
-                '--user='.escapeshellarg($db['login']),
-                '--password='.escapeshellarg($db['password']),
+                '--host=' . escapeshellarg($db['host']),
+                '--user=' . escapeshellarg($db['login']),
+                '--password=' . escapeshellarg($db['password']),
                 escapeshellarg($db['name']),
             ]));
 
             try {
-                run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e ";"');
+                run('< ' . escapeshellarg($this->mysqlOptions) . ' xargs {{bin/mysql}} -e ";"');
                 $dbValid = true;
             } catch (RuntimeException $e) {
                 writeln('');
-                writeln('<error>Could not connect to database: '.trim($e->getErrorOutput()).'</error>');
+                writeln('<error>Could not connect to database: ' . trim($e->getErrorOutput()) . '</error>');
                 writeln('');
             }
         } while (!$dbValid);
@@ -149,26 +150,26 @@ task('setup', new class() {
     {
         $this->headline("Copy database from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>{{hostname}}</fg=cyan>");
 
-        $path = get('data_dir').'/addons/ydeploy/'.date('YmdHis').'.sql';
+        $path = get('data_dir') . '/addons/ydeploy/' . date('YmdHis') . '.sql';
 
         // export source database
         onHost($this->source, static function () use ($path) {
-            run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > '.escapeshellarg($path));
+            run('{{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > ' . escapeshellarg($path));
 
             if (Context::get()->getHost() instanceof Localhost) {
                 return;
             }
 
             download("{{release_path}}/$path", $path);
-            run('rm -f '.escapeshellarg($path));
+            run('rm -f ' . escapeshellarg($path));
         });
 
         // upload and import the dump
         upload($path, "{{release_path}}/$path");
-        run('< '.escapeshellarg($this->mysqlOptions).' xargs sh -c \'{{bin/mysql}} "$0" "$@" < '.escapeshellcmd(escapeshellarg($path)).'\'');
+        run('< ' . escapeshellarg($this->mysqlOptions) . ' xargs sh -c \'{{bin/mysql}} "$0" "$@" < ' . escapeshellcmd(escapeshellarg($path)) . '\'');
 
-        run('rm -f '.escapeshellarg($path));
-        unlink(getcwd().'/'.$path);
+        run('rm -f ' . escapeshellarg($path));
+        unlink(getcwd() . '/' . $path);
 
         $this->ok();
     }
@@ -177,7 +178,7 @@ task('setup', new class() {
     {
         $this->headline('Configure developer addon for production usage');
 
-        run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_config SET value = \"false\" WHERE namespace=\"developer\" AND \`key\` NOT IN (\"templates\", \"modules\", \"actions\", \"items\")"');
+        run('< ' . escapeshellarg($this->mysqlOptions) . ' xargs {{bin/mysql}} -e "UPDATE rex_config SET value = \"false\" WHERE namespace=\"developer\" AND \`key\` NOT IN (\"templates\", \"modules\", \"actions\", \"items\")"');
 
         $this->ok();
     }
@@ -185,10 +186,10 @@ task('setup', new class() {
     private function replaceYrewriteDomains(): void
     {
         try {
-            $data = run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
+            $data = run('< ' . escapeshellarg($this->mysqlOptions) . ' xargs {{bin/mysql}} --silent --raw --skip-column-names -e "SELECT id, domain FROM rex_yrewrite_domain"');
             $data = trim($data);
         } catch (RuntimeException $exception) {
-            if (false !== strpos($exception->getMessage(), 'ERROR 1146')) {
+            if (str_contains($exception->getMessage(), 'ERROR 1146')) {
                 // Table does not exist (yrewite not activated)
                 return;
             }
@@ -205,8 +206,8 @@ task('setup', new class() {
         foreach (explode("\n", $data) as $line) {
             [$id, $domain] = explode("\t", $line, 2);
             $id = (int) $id;
-            $domain = ask($domain.':', $this->server ?: get('url'));
-            run('< '.escapeshellarg($this->mysqlOptions).' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"'.addslashes($domain).'\" WHERE id = '.$id.'"');
+            $domain = ask($domain . ':', $this->server ?: get('url'));
+            run('< ' . escapeshellarg($this->mysqlOptions) . ' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"' . addslashes($domain) . '\" WHERE id = ' . $id . '"');
         }
 
         writeln('');
@@ -217,11 +218,11 @@ task('setup', new class() {
     {
         $this->headline("Copy media files from <fg=cyan>{$this->source}</fg=cyan> to <fg=cyan>{{hostname}}</fg=cyan>");
 
-        $path = get('data_dir').'/addons/ydeploy/media_'.date('YmdHis').'.tar.gz';
+        $path = get('data_dir') . '/addons/ydeploy/media_' . date('YmdHis') . '.tar.gz';
 
         // create source archive
         onHost($this->source, static function () use ($path) {
-            run('COPYFILE_DISABLE=1 tar -zcvf '.escapeshellarg($path).' -C {{media_dir}} .');
+            run('COPYFILE_DISABLE=1 tar -zcvf ' . escapeshellarg($path) . ' -C {{media_dir}} .');
 
             if (Context::get()->getHost() instanceof Localhost) {
                 return;
@@ -230,16 +231,16 @@ task('setup', new class() {
             try {
                 download("{{release_path}}/$path", $path);
             } finally {
-                run('rm -f '.escapeshellarg($path));
+                run('rm -f ' . escapeshellarg($path));
             }
         });
 
         try {
             upload($path, "{{release_path}}/$path");
-            run('tar -zxvf '.escapeshellarg($path).' -C {{media_dir}}/');
+            run('tar -zxvf ' . escapeshellarg($path) . ' -C {{media_dir}}/');
         } finally {
             unlink($path);
-            run('rm -f '.escapeshellarg($path));
+            run('rm -f ' . escapeshellarg($path));
         }
 
         $this->ok();
@@ -247,7 +248,7 @@ task('setup', new class() {
 
     private function headline(string $headline): void
     {
-        writeln('<comment>'.$headline.'</comment>');
+        writeln('<comment>' . $headline . '</comment>');
         writeln('');
     }
 

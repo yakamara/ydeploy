@@ -25,7 +25,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         $io->title('YDeploy migration');
 
         $sql = rex_sql::factory();
-        $migrated = $sql->getArray('SELECT `timestamp` FROM '.$this->migrationTable);
+        $migrated = $sql->getArray('SELECT `timestamp` FROM ' . $this->migrationTable);
         $migrated = array_column($migrated, 'timestamp', 'timestamp');
 
         $fake = $input->getOption('fake');
@@ -40,7 +40,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
                 continue;
             }
 
-            $timestamp = $match[1].' '.$match[2].':'.$match[3].':'.$match[4];
+            $timestamp = $match[1] . ' ' . $match[2] . ':' . $match[3] . ':' . $match[4];
 
             if (!isset($migrated[$timestamp])) {
                 $paths[$path] = $timestamp;
@@ -53,7 +53,7 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
             return 0;
         }
 
-        $io->text(count($paths).' migrations to execute');
+        $io->text(count($paths) . ' migrations to execute');
 
         $countMigrated = 0;
 

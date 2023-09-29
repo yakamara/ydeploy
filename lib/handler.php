@@ -15,7 +15,7 @@ final class rex_ydeploy_handler
             $attr['class'][] = 'ydeploy-is-deployed';
 
             if ($ydeploy->getStage()) {
-                $attr['class'][] = 'ydeploy-stage-'.rex_string::normalize($ydeploy->getStage(), '-');
+                $attr['class'][] = 'ydeploy-stage-' . rex_string::normalize($ydeploy->getStage(), '-');
             }
         } else {
             $attr['class'][] = 'ydeploy-is-not-deployed';
@@ -32,7 +32,7 @@ final class rex_ydeploy_handler
             $badge = $ydeploy->getHost();
 
             if ($ydeploy->getStage()) {
-                $badge .= ' – '.ucfirst($ydeploy->getStage());
+                $badge .= ' – ' . ucfirst($ydeploy->getStage());
             }
         } else {
             $badge = 'Development';
@@ -44,9 +44,9 @@ final class rex_ydeploy_handler
             return null;
         }
 
-        $badge = '<div class="ydeploy-badge">'.$badge.'</div>';
+        $badge = '<div class="ydeploy-badge">' . $badge . '</div>';
 
-        return str_replace('</body>', $badge.'</body>', $ep->getSubject());
+        return str_replace('</body>', $badge . '</body>', $ep->getSubject());
     }
 
     public static function protectPages(): void
@@ -169,12 +169,12 @@ final class rex_ydeploy_handler
                 'protected_page' => rex_be_controller::getCurrentPage(),
             ]);
             $error = rex_view::error('
-                    The page <code>'.rex_escape(rex_be_controller::getCurrentPage()).'</code> is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
+                    The page <code>' . rex_escape(rex_be_controller::getCurrentPage()) . '</code> is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
 
-                    <a href="'.$url.'">Lock and leave this page</a>
+                    <a href="' . $url . '">Lock and leave this page</a>
                 ');
 
-            return $ep->getSubject().$error;
+            return $ep->getSubject() . $error;
         });
     }
 }

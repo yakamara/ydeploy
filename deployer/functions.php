@@ -5,6 +5,7 @@ namespace YDeploy;
 use Deployer\Host\Host;
 use Deployer\Host\Localhost;
 use Deployer\Task\Context;
+
 use function Deployer\cd;
 use function Deployer\download;
 use function Deployer\get;
@@ -16,7 +17,7 @@ function uploadContent(string $destination, string $content): void
         $destination = "$workingPath/$destination";
     }
 
-    $path = tempnam(getcwd().'/'.get('data_dir').'/addons/ydeploy', 'tmp');
+    $path = tempnam(getcwd() . '/' . get('data_dir') . '/addons/ydeploy', 'tmp');
     file_put_contents($path, $content);
 
     try {
@@ -32,7 +33,7 @@ function downloadContent(string $source): string
         $source = "$workingPath/$source";
     }
 
-    $path = tempnam(getcwd().'/'.get('data_dir').'/addons/ydeploy', 'tmp');
+    $path = tempnam(getcwd() . '/' . get('data_dir') . '/addons/ydeploy', 'tmp');
 
     download($source, $path);
     $content = file_get_contents($path);
