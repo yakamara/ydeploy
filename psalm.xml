@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <psalm
     errorLevel="4"
+    findUnusedCode="false"
     findUnusedPsalmSuppress="true"
+    findUnusedBaselineEntry="false"
     reportInfo="false"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -23,5 +25,6 @@
     </plugins>
     <issueHandlers>
         <Trace errorLevel="error"/> <!-- https://psalm.dev/docs/running_psalm/issues/Trace/ -->
+        <InvalidLiteralArgument errorLevel="info"/>
     </issueHandlers>
 </psalm>
