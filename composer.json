@@ -8,7 +8,6 @@
     "require-dev": {
         "deployer/deployer": "^6.9",
         "friendsofphp/php-cs-fixer": "^3.34.0",
-        "friendsofredaxo/linter": "^1.4",
         "redaxo/php-cs-fixer-config": "^2.2.0",
         "redaxo/psalm-plugin": "^2.0",
         "redaxo/source": "^5.14.3",
