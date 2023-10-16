@@ -62,6 +62,8 @@ config:
 
 installer_ignore:
     - .github
+    - .tools
     - .gitignore
     - .php-cs-fixer.cache
     - .php-cs-fixer.dist.php
+    - vendor

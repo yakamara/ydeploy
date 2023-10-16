@@ -13,7 +13,7 @@ set('kill_process', false);
 set('clear_web_php_cache', false);
 
 set('bin/apachectl', static function () {
-    return locateBinaryPath('apachectl');
+    return which('apachectl');
 });
 
 desc('Clear the server cache');
