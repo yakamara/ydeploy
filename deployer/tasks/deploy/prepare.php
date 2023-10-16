@@ -13,8 +13,13 @@ task('deploy:upgrade', static function () {
         return;
     }
 
+    $releasesString = trim(run('cat .dep/releases');
+    if (!$releasesString) {
+        return;
+    }
+
     $releases = [];
-    foreach (explode("\n", trim(run('cat .dep/releases'))) as $release) {
+    foreach (explode("\n", $releasesString) as $release) {
         $release = explode(',', $release);
 
         $releases[$release[1]] = json_encode([
@@ -23,10 +28,6 @@ task('deploy:upgrade', static function () {
             'user' => 'unknown',
             'target' => 'HEAD',
         ]);
-    }
-
-    if (!$releases) {
-        return;
     }
 
     run('echo ' . escapeshellarg(implode("\n", $releases)) . ' > .dep/releases_log');
