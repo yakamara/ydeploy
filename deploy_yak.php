@@ -2,7 +2,7 @@
 
 namespace Deployer;
 
-require __DIR__.'/deploy.php';
+require __DIR__ . '/deploy.php';
 
 set('base_dir', 'public/');
 set('cache_dir', 'var/cache');

@@ -2,7 +2,7 @@
 
 namespace Deployer;
 
-set('assets_install', function () {
+set('assets_install', static function () {
     if (!test('[ -f {{release_path}}/package.json ]')) {
         return false;
     }
@@ -17,7 +17,7 @@ set('assets_install', function () {
     return false;
 });
 
-set('assets_build', function () {
+set('assets_build', static function () {
     if (!get('assets_install')) {
         return false;
     }

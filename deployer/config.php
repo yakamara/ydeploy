@@ -48,7 +48,7 @@ if (in_array($command, ['build', 'setup', 'worker'], true)) {
     host('local');
 }
 
-set('branch', fn () => runLocally('{{bin/git}} rev-parse --abbrev-ref HEAD'));
+set('branch', static fn () => runLocally('{{bin/git}} rev-parse --abbrev-ref HEAD'));
 
 $baseDir = $rootPath;
 if (str_starts_with($baseDir, getcwd())) {
