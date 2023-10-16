@@ -2,6 +2,7 @@
 
 namespace Deployer;
 
+use function in_array;
 use function YDeploy\onHost;
 
 desc('Dump info about current deployment');
