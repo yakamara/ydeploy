@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 2.0.0 – XX.XX.2024
+--------------------------
+
+### Neu
+
+* Neue PHP-Mindestversion 8.1
+* Neue REDAXO-Mindestversion 5.13
+* Neue Deployer-Mindestversion 7.0
+* Anpassungen für Deployer v7 und für die einfachere Nutzung über GitLab-CI
+* Dazu separate [Upgrade-Anleitung](https://github.com/yakamara/ydeploy/blob/main/UPGRADE.md) beachten
+
+
 Version 1.2.0 – 19.03.2023
 --------------------------
 
