@@ -5,6 +5,7 @@
  */
 final class rex_ydeploy_handler
 {
+    /** @param rex_extension_point<array<mixed>> $ep */
     public static function addBodyClasses(rex_extension_point $ep): array
     {
         $ydeploy = rex_ydeploy::factory();
@@ -15,7 +16,7 @@ final class rex_ydeploy_handler
             $attr['class'][] = 'ydeploy-is-deployed';
 
             if ($ydeploy->getStage()) {
-                $attr['class'][] = 'ydeploy-stage-'.rex_string::normalize($ydeploy->getStage(), '-');
+                $attr['class'][] = 'ydeploy-stage-' . rex_string::normalize($ydeploy->getStage(), '-');
             }
         } else {
             $attr['class'][] = 'ydeploy-is-not-deployed';
@@ -24,29 +25,32 @@ final class rex_ydeploy_handler
         return $attr;
     }
 
+    /** @param rex_extension_point<string> $ep */
     public static function addBadge(rex_extension_point $ep): ?string
     {
         $ydeploy = rex_ydeploy::factory();
 
         if ($ydeploy->isDeployed()) {
-            $badge = $ydeploy->getHost();
+            $host = $ydeploy->getHost();
+            $stage = $ydeploy->getStage();
 
-            if ($ydeploy->getStage()) {
-                $badge .= ' – '.ucfirst($ydeploy->getStage());
+            $badge = ucfirst($stage);
+            if ($host !== $stage) {
+                $badge = $host . ' – ' . $badge;
             }
         } else {
             $badge = 'Development';
         }
 
-        $badge = rex_extension::registerPoint(new rex_extension_point('YDEPLOY_BADGE', $badge));
+        $badge = rex_extension::registerPoint(new rex_extension_point('YDEPLOY_BADGE', $badge)); // @phpstan-ignore-line
 
         if (!$badge) {
             return null;
         }
 
-        $badge = '<div class="ydeploy-badge">'.$badge.'</div>';
+        $badge = '<div class="ydeploy-badge">' . $badge . '</div>';
 
-        return str_replace('</body>', $badge.'</body>', $ep->getSubject());
+        return str_replace('</body>', $badge . '</body>', $ep->getSubject());
     }
 
     public static function protectPages(): void
@@ -169,12 +173,12 @@ final class rex_ydeploy_handler
                 'protected_page' => rex_be_controller::getCurrentPage(),
             ]);
             $error = rex_view::error('
-                    The page <code>'.rex_escape(rex_be_controller::getCurrentPage()).'</code> is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
+                    The page <code>' . rex_escape(rex_be_controller::getCurrentPage()) . '</code> is protected in deployed instances, but currently unlocked. Changes via this page should be made in development instances only! <br><br>
 
-                    <a href="'.$url.'">Lock and leave this page</a>
+                    <a href="' . $url . '">Lock and leave this page</a>
                 ');
 
-            return $ep->getSubject().$error;
+            return $ep->getSubject() . $error;
         });
     }
 }

@@ -1,0 +1,3 @@
+parameters:
+	bootstrapFiles:
+		- ../vendor/deployer/deployer/src/functions.php

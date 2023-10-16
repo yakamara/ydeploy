@@ -3,13 +3,57 @@
 namespace Deployer;
 
 use Deployer\Task\Context;
+
+use Symfony\Component\Console\Input\ArgvInput;
+
 use function dirname;
+use function in_array;
 use function strlen;
 
-$baseDir = dirname(__DIR__, 5);
-if (0 === strpos($baseDir, getcwd())) {
+$rootPath = dirname(DEPLOYER_DEPLOY_FILE); /** @phpstan-ignore-line */
+$command = (new ArgvInput())->getFirstArgument();
+$localBuildDir = 'setup' !== $command && !getenv('CI');
+
+Deployer::get()->hosts = new class($rootPath, $localBuildDir) extends Host\HostCollection {
+    public function __construct(
+        private readonly string $rootPath,
+        private readonly bool $buildDir,
+    ) {}
+
+    public function has(string $name): bool
+    {
+        if ('local' === $name) {
+            return true;
+        }
+
+        return parent::has($name);
+    }
+
+    public function get(string $name): Host\Host
+    {
+        if ('local' === $name && !parent::has($name)) {
+            localhost('local')
+                ->set('root_path', $this->rootPath)
+                ->set('deploy_path', $this->rootPath . ($this->buildDir ? '/.build' : ''))
+                ->set('release_path', $this->rootPath . ($this->buildDir ? '/.build/release' : ''))
+                ->set('current_path', '{{release_path}}')
+            ;
+        }
+
+        return parent::get($name);
+    }
+};
+
+if (in_array($command, ['build', 'setup', 'worker'], true)) {
+    host('local');
+}
+
+set('branch', static fn () => runLocally('{{bin/git}} rev-parse --abbrev-ref HEAD'));
+
+$baseDir = $rootPath;
+if (str_starts_with($baseDir, getcwd())) {
     $baseDir = substr($baseDir, strlen(getcwd()));
-    $baseDir = ltrim($baseDir.'/', '/');
+    $baseDir = ltrim($baseDir . '/', '/');
 }
 
 set('base_dir', $baseDir);
@@ -41,26 +85,31 @@ set('copy_dirs', [
 ]);
 
 set('clear_paths', [
+    '.github',
+    '.idea',
     'gulpfile.js',
-    'node_modules',
+    '.gitignore',
     '.gitlab-ci.yml',
-    'deploy.php',
+    '.php-cs-fixer.dist.php',
     'package.json',
+    'README.md',
+    'webpack.config.js',
     'yarn.lock',
+    'REVISION',
 ]);
 
-set('url', static function () {
-    return 'https://'.Context::get()->getHost()->getRealHostname();
-});
+set('keep_releases', 5);
 
-set('allow_anonymous_stats', false);
+set('url', static function () {
+    return 'https://' . Context::get()->getHost()->getHostname();
+});
 
 after('deploy:failed', 'deploy:unlock');
 
 set('bin/mysql', static function () {
-    return locateBinaryPath('mysql');
+    return which('mysql');
 });
 
 set('bin/mysqldump', static function () {
-    return locateBinaryPath('mysqldump');
+    return which('mysqldump');
 });

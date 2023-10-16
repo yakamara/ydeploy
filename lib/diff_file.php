@@ -6,7 +6,7 @@
 final class rex_ydeploy_diff_file
 {
     /** @var array<string, rex_sql_table> */
-    private $create = [];
+    private array $create = [];
 
     /**
      * @var array<string, array{
@@ -21,19 +21,19 @@ final class rex_ydeploy_diff_file
      *          removeForeignKey?: list<string>
      *      }>
      */
-    private $alter = [];
+    private array $alter = [];
 
     /** @var list<string> */
-    private $drop = [];
+    private array $drop = [];
 
     /** @var array<string, string> */
-    private $views = [];
+    private array $views = [];
 
     /** @var list<string> */
-    private $dropViews = [];
+    private array $dropViews = [];
 
     /** @var array<string, array{ensure?: list<array<?scalar>>, remove?: list<array<string, int|string>>}> */
-    private $fixtures = [];
+    private array $fixtures = [];
 
     public function createTable(rex_sql_table $table): void
     {
@@ -138,7 +138,7 @@ final class rex_ydeploy_diff_file
             EOL;
 
         if ($changes) {
-            $content .= "\n    ".$changes;
+            $content .= "\n    " . $changes;
         } else {
             $content .= "\n    // Add migration stuff here";
         }
@@ -284,7 +284,7 @@ final class rex_ydeploy_diff_file
             $column->getType(),
             $column->isNullable(),
             $column->getDefault(),
-            $column->getExtra()
+            $column->getExtra(),
         );
     }
 
@@ -303,14 +303,14 @@ final class rex_ydeploy_diff_file
 
         $add = '';
         if (rex_sql_index::INDEX !== $index->getType()) {
-            $add .= ', '.$types[$index->getType()];
+            $add .= ', ' . $types[$index->getType()];
         }
 
         return $this->sprintf(
             "\n        ->ensureIndex(new rex_sql_index(%s, %s$add))",
             $index->getName(),
             $index->getColumns(),
-            $index->getType()
+            $index->getType(),
         );
     }
 
@@ -324,13 +324,13 @@ final class rex_ydeploy_diff_file
             rex_sql_foreign_key::SET_NULL => 'rex_sql_foreign_key::SET_NULL',
         ];
 
-        $add = $modes[$foreignKey->getOnUpdate()].', '.$modes[$foreignKey->getOnDelete()];
+        $add = $modes[$foreignKey->getOnUpdate()] . ', ' . $modes[$foreignKey->getOnDelete()];
 
         return $this->sprintf(
             "\n        ->ensureForeignKey(new rex_sql_foreign_key(%s, %s, %s, $add))",
             $foreignKey->getName(),
             $foreignKey->getTable(),
-            $foreignKey->getColumns()
+            $foreignKey->getColumns(),
         );
     }
 
@@ -351,8 +351,8 @@ final class rex_ydeploy_diff_file
         $sql = rex_sql::factory();
 
         foreach ($this->views as $viewName => $query) {
-            $statement = 'CREATE OR REPLACE VIEW '.$sql->escapeIdentifier($viewName)." AS\n".$query;
-            $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($statement).');';
+            $statement = 'CREATE OR REPLACE VIEW ' . $sql->escapeIdentifier($viewName) . " AS\n" . $query;
+            $content .= "\n\n    \$sql->setQuery(" . $this->nowdoc($statement) . ');';
         }
 
         return $content;
@@ -364,8 +364,8 @@ final class rex_ydeploy_diff_file
         $sql = rex_sql::factory();
 
         foreach ($this->dropViews as $viewName) {
-            $statement = 'DROP VIEW IF EXISTS '.$sql->escapeIdentifier($viewName);
-            $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($statement).');';
+            $statement = 'DROP VIEW IF EXISTS ' . $sql->escapeIdentifier($viewName);
+            $content .= "\n\n    \$sql->setQuery(" . $this->nowdoc($statement) . ');';
         }
 
         return $content;
@@ -391,7 +391,7 @@ final class rex_ydeploy_diff_file
                         return $sql->escape((string) $value);
                     }, $data);
 
-                    $rows[] = '('.implode(', ', $data).')';
+                    $rows[] = '(' . implode(', ', $data) . ')';
                 }
 
                 $columns = array_keys($changes['ensure'][0]);
@@ -401,19 +401,19 @@ final class rex_ydeploy_diff_file
                 foreach ($columns as $column) {
                     if (!in_array($column, $primaryKey)) {
                         $column = $sql->escapeIdentifier($column);
-                        $updates[] = $column.' = VALUES('.$column.')';
+                        $updates[] = $column . ' = VALUES(' . $column . ')';
                     }
                 }
 
-                $query = 'INSERT INTO '.$sql->escapeIdentifier($tableName);
-                $query .= ' ('.implode(', ', array_map([$sql, 'escapeIdentifier'], $columns)).')';
+                $query = 'INSERT INTO ' . $sql->escapeIdentifier($tableName);
+                $query .= ' (' . implode(', ', array_map([$sql, 'escapeIdentifier'], $columns)) . ')';
                 $query .= "\nVALUES\n    ";
                 $query .= implode(",\n    ", $rows);
                 if ($updates) {
-                    $query .= "\nON DUPLICATE KEY UPDATE ".implode(', ', $updates);
+                    $query .= "\nON DUPLICATE KEY UPDATE " . implode(', ', $updates);
                 }
 
-                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).');';
+                $content .= "\n\n    \$sql->setQuery(" . $this->nowdoc($query) . ');';
             }
 
             if (isset($changes['remove'])) {
@@ -421,16 +421,16 @@ final class rex_ydeploy_diff_file
                 foreach ($changes['remove'] as $key) {
                     $parts = [];
                     foreach ($key as $name => $value) {
-                        $parts[] = $sql->escapeIdentifier($name).' = '.(is_int($value) ? $value : $sql->escape((string) $value));
+                        $parts[] = $sql->escapeIdentifier($name) . ' = ' . (is_int($value) ? $value : $sql->escape((string) $value));
                     }
                     $where[] = implode(' AND ', $parts);
                 }
 
-                $query = 'DELETE FROM '.$sql->escapeIdentifier($tableName);
+                $query = 'DELETE FROM ' . $sql->escapeIdentifier($tableName);
                 $query .= "\nWHERE\n    ";
                 $query .= implode(" OR\n    ", $where);
 
-                $content .= "\n\n    \$sql->setQuery(".$this->nowdoc($query).');';
+                $content .= "\n\n    \$sql->setQuery(" . $this->nowdoc($query) . ');';
             }
         }
 
@@ -468,15 +468,15 @@ final class rex_ydeploy_diff_file
                 $i = $key + 1;
             }
 
-            $elements[] = $this->quote($key).' => '.$value;
+            $elements[] = $this->quote($key) . ' => ' . $value;
         }
 
-        return '['.implode(', ', $elements).']';
+        return '[' . implode(', ', $elements) . ']';
     }
 
     private function nowdoc(string $var): string
     {
-        $var = '        '.preg_replace('/(?<=\\n)(?=.)/', '        ', $var);
+        $var = '        ' . preg_replace('/(?<=\\n)(?=.)/', '        ', $var);
 
         return "<<<'SQL'\n$var\n        SQL";
     }
