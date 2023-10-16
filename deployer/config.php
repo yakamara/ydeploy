@@ -48,6 +48,8 @@ if (in_array($command, ['build', 'setup', 'worker'], true)) {
     host('local');
 }
 
+set('branch', fn () => runLocally('{{bin/git}} rev-parse --abbrev-ref HEAD'));
+
 $baseDir = $rootPath;
 if (str_starts_with($baseDir, getcwd())) {
     $baseDir = substr($baseDir, strlen(getcwd()));
@@ -83,6 +85,7 @@ set('copy_dirs', [
 ]);
 
 set('clear_paths', [
+    '.github',
     '.idea',
     'gulpfile.js',
     '.gitignore',
@@ -94,6 +97,8 @@ set('clear_paths', [
     'yarn.lock',
     'REVISION',
 ]);
+
+set('keep_releases', 5);
 
 set('url', static function () {
     return 'https://' . Context::get()->getHost()->getHostname();

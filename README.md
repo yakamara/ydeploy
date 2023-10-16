@@ -64,17 +64,17 @@ require __DIR__.'/redaxo/src/addons/ydeploy/deploy.php';
 set('repository', 'git@github.com:user/repo.git');
 
 host('servername')
-    ->hostname('example.com')
-    ->set('deploy_path', '/var/www/com.example')
+    ->setHostname('example.com')
+    ->setDeployPath('/var/www/com.example')
 ;
 ```
 
 In dieser Datei kann die Konfiguration individuell auf das Projekt abgestimmt werden, sowie durch eigene weitere Tasks
 ergänzt werden.
 Siehe dazu: 
-* https://deployer.org/docs/configuration 
-* https://deployer.org/docs/hosts
-* https://deployer.org/docs/tasks
+* https://deployer.org/docs/7.x/basics
+* https://deployer.org/docs/7.x/hosts
+* https://deployer.org/docs/7.x/tasks
 
 ### .gitignore
 

@@ -3,8 +3,8 @@
 namespace Deployer;
 
 desc('Upload locally prepared release to server');
-task('upload', static function () {
-    $source = host('local')->get(getenv('CI') ? 'root_dir' : 'release_path');
+task('deploy:upload', static function () {
+    $source = host('local')->get('release_path');
 
     upload($source . '/', '{{release_path}}', [
         'flags' => '-az',
