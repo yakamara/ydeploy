@@ -20,7 +20,7 @@ Von 1.x auf 2.x
   -    ->set('user', 'ssh-12345')
   +    ->setRemoteUser('ssh-12345')
   -    ->stage('production')
-  +    ->setLabels(['stage' => 'production') // oder ganz weglassen, wenn der Host-Name dem Stage-Namen entspricht 
+  +    ->setLabels(['stage' => 'production']) // oder ganz weglassen, wenn der Host-Name dem Stage-Namen entspricht 
   ```
 * Die `default_stage`-Konfiguration ist entfallen. Stattdessen immer den Host angeben beim Deployen, falls es mehrere Server gibt.   
   Dazu auch https://deployer.org/docs/7.x/selector beachten.
@@ -55,3 +55,5 @@ Von 1.x auf 2.x
 * Neue Command-Namen nutzen:
   - `dep build` -> `dep build local`
   - `dep local:setup` -> `dep setup local`
+* Bei Problemen ggf. weitere Anpassungen gemäß [Upgrade-Guide](https://deployer.org/docs/7.x/UPGRADE) von deployer vornehmen.  
+  Viele Anpassungen sind jedoch automatisch in YDeploy 2 enthalten. Insbesondere "Step 2" muss nicht beachtet werden, da sich YDeploy automatisch um die Fortführung der Release-Nummerierung kümmert.
