@@ -31,10 +31,12 @@ final class rex_ydeploy_handler
         $ydeploy = rex_ydeploy::factory();
 
         if ($ydeploy->isDeployed()) {
-            $badge = $ydeploy->getHost();
+            $host = $ydeploy->getHost();
+            $stage = $ydeploy->getStage();
 
-            if ($ydeploy->getStage()) {
-                $badge .= ' – ' . ucfirst($ydeploy->getStage());
+            $badge = ucfirst($stage);
+            if ($host !== $stage) {
+                $badge = $host . ' – ' . $badge;
             }
         } else {
             $badge = 'Development';
