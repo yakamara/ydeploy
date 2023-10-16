@@ -36,13 +36,11 @@ Deployment über deployer
 
 Zunächst sollte man sich mit den Grundlagen von deployer vertraut machen: https://deployer.org
 
-Das Addon liefert deployer selbst nicht mit, es sollte vorzugsweise global mittels Composer installiert werden:
+Das Addon liefert deployer selbst nicht mit. Es kann über verschiedene Wege instaliert werden:
 
-```
-composer global require deployer/deployer
-```
-
-Mehr Infos: https://deployer.org/docs/installation
+* Lokal im Projekt (ggf. in separatem `.tools`-Ordner: `composer require deployer/deployer`
+* Global über composer: `composer global require deployer/deployer`
+* Als Phar-Archive: https://deployer.org/download
 
 ### Konfiguration
 
