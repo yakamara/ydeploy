@@ -13,7 +13,7 @@ task('deploy:upgrade', static function () {
         return;
     }
 
-    $releasesString = trim(run('cat .dep/releases');
+    $releasesString = trim(run('cat .dep/releases'));
     if (!$releasesString) {
         return;
     }
