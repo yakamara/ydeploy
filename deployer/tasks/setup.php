@@ -102,7 +102,7 @@ task('setup', new class() {
     {
         writeln('');
 
-        do {
+        while (true) {
             $file = ask('Dump file', getcwd() . '/dump.sql');
             writeln('');
 
@@ -112,7 +112,7 @@ task('setup', new class() {
 
             writeln('<error>The file does not exist: ' . $file . '</error>');
             writeln('');
-        } while (true);
+        }
     }
 
     private function setConfigYml(): void

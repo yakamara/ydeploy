@@ -5,6 +5,8 @@ namespace Deployer;
 use function in_array;
 use function YDeploy\onHost;
 
+use const JSON_PRETTY_PRINT;
+
 desc('Dump info about current deployment');
 task('deploy:dump_info', static function () {
     $host = get('alias');
