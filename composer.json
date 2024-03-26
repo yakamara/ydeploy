@@ -7,8 +7,7 @@
 
     "require-dev": {
         "deployer/deployer": "^7.3.1",
-        "friendsofphp/php-cs-fixer": "^3.34.0",
-        "redaxo/php-cs-fixer-config": "^2.2.0"
+        "redaxo/php-cs-fixer-config": "^2.8.0"
     },
 
     "autoload": {
