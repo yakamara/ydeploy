@@ -3,7 +3,6 @@
 namespace Deployer;
 
 use Deployer\Task\Context;
-
 use Symfony\Component\Console\Input\ArgvInput;
 
 use function dirname;
