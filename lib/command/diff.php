@@ -28,7 +28,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
         $tables = rex_sql::factory()->getTables(rex::getTablePrefix());
 
-        /** @var rex_sql_table[] $tables */
+        /** @var list<rex_sql_table> $tables */
         $tables = array_map('rex_sql_table::get', $tables);
 
         $schemaExists = file_exists($this->addon->getDataPath('schema.yml'));
@@ -62,7 +62,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param rex_sql_table[] $tables
+     * @param list<rex_sql_table> $tables
      */
     private function handleSchema(array $tables, rex_ydeploy_diff_file $diff): void
     {
@@ -90,7 +90,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param rex_sql_table[] $tables
+     * @param list<rex_sql_table> $tables
      */
     private function createSchema(array $tables, array $charsets, array $views): void
     {
@@ -140,7 +140,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     }
 
     /**
-     * @param rex_sql_table[] $tables
+     * @param list<rex_sql_table> $tables
      */
     private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables, array $charsets, array $views): void
     {
@@ -174,8 +174,8 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             $tableSchema = &$schema[$tableName];
 
             if (
-                !isset($tableSchema['charset']) || $tableSchema['charset'] !== $charsets[$tableName]['charset'] ||
-                !isset($tableSchema['collation']) || $tableSchema['collation'] !== $charsets[$tableName]['collation']
+                !isset($tableSchema['charset']) || $tableSchema['charset'] !== $charsets[$tableName]['charset']
+                || !isset($tableSchema['collation']) || $tableSchema['collation'] !== $charsets[$tableName]['collation']
             ) {
                 $diff->setCharset($tableName, $charsets[$tableName]['charset'], $charsets[$tableName]['collation']);
             }
@@ -216,8 +216,8 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
             $after = rex_sql_table::FIRST;
             foreach ($columns as $columnName => $column) {
                 if (
-                    !isset($tableSchema['columns'][$columnName]) && !isset($renamed[$columnName]) ||
-                    !isset($currentOrder[$after]) || $columnName !== $currentOrder[$after]
+                    !isset($tableSchema['columns'][$columnName]) && !isset($renamed[$columnName])
+                    || !isset($currentOrder[$after]) || $columnName !== $currentOrder[$after]
                 ) {
                     $diff->ensureColumn($tableName, $column, $after);
 
@@ -303,30 +303,30 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     private function columnEqualsSchema(rex_sql_column $column, array $schema): bool
     {
         return
-            $column->getType() === $schema['type'] &&
-            $column->isNullable() === $schema['nullable'] &&
-            $column->getDefault() === $schema['default'] &&
-            $column->getExtra() === $schema['extra'];
+            $column->getType() === $schema['type']
+            && $column->isNullable() === $schema['nullable']
+            && $column->getDefault() === $schema['default']
+            && $column->getExtra() === $schema['extra'];
     }
 
     private function indexEqualsSchema(rex_sql_index $index, array $schema): bool
     {
         return
-            $index->getType() === $schema['type'] &&
-            $index->getColumns() === $schema['columns'];
+            $index->getType() === $schema['type']
+            && $index->getColumns() === $schema['columns'];
     }
 
     private function foreignKeyEqualsSchema(rex_sql_foreign_key $foreignKey, array $schema): bool
     {
         return
-            $foreignKey->getTable() === $schema['table'] &&
-            $foreignKey->getColumns() === $schema['columns'] &&
-            $foreignKey->getOnUpdate() === $schema['onUpdate'] &&
-            $foreignKey->getOnDelete() === $schema['onDelete'];
+            $foreignKey->getTable() === $schema['table']
+            && $foreignKey->getColumns() === $schema['columns']
+            && $foreignKey->getOnUpdate() === $schema['onUpdate']
+            && $foreignKey->getOnDelete() === $schema['onDelete'];
     }
 
     /**
-     * @param rex_sql_table[] $tables
+     * @param list<rex_sql_table> $tables
      */
     private function handleFixtures(array $tables, rex_ydeploy_diff_file $diff): void
     {
