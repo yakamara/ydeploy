@@ -26,7 +26,7 @@ final class rex_ydeploy
         $info = rex_file::getCache($path);
 
         $this->host = rex_type::string($info['host']);
-        $this->stage = rex_type::string($info['stage']);
+        $this->stage = rex_type::nullOrString($info['stage']);
         $this->branch = rex_type::string($info['branch']);
         $this->commit = rex_type::string($info['commit']);
         $this->timestamp = rex_type::instanceOf(DateTimeImmutable::createFromFormat('U', $info['timestamp']), DateTimeImmutable::class)
