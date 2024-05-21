@@ -68,7 +68,7 @@ task('setup', new class() {
             writeln('The data can be imported from one of the hosts, or from dump file.');
             writeln('');
 
-            if (!askConfirmation('Import from host')) {
+            if (!askConfirmation('Import from host', true)) {
                 return $this->chooseSourceFile();
             }
 
