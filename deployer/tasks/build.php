@@ -4,7 +4,7 @@ namespace Deployer;
 
 desc('Prepare the next release locally');
 task('build', [
-    'deploy:info',
+    'build:info',
     'build:setup',
     'build:vendors',
     'build:assets',
