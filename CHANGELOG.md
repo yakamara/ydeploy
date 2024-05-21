@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Version 2.0.1 – 21.05.2024
+--------------------------
+
+### Bugfixes
+
+* Migration: Fehlermeldungen wurden nicht ausgegeben, wodurch Fehler nicht analysierbar waren
+* Erstes Deployment: Upload der lokalen Datenbank schlug fehl
+* Wenn Stage nicht gesetzt, kam es zum Fehler
+* Build-Step-Info enthielt verwirrende Releasenummer "1"
+
+
 Version 2.0.0 – 05.01.2024
 --------------------------
 
