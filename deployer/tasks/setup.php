@@ -208,7 +208,10 @@ task('setup', new class() {
 
             // export source database
             onHost($this->source, function () use ($path) {
-                cd('{{current_path}}');
+                if (!$this->source instanceof Localhost) {
+                    cd('{{current_path}}');
+                }
+
                 run('{{bin/php}} {{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > ' . escapeshellarg($path));
 
                 if ($this->source instanceof Localhost) {
