@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 2.0.2 – 23.05.2024
+--------------------------
+
+### Bugfixes
+
+* git-cli nicht auf Remote-Server suchen
+
+
 Version 2.0.1 – 21.05.2024
 --------------------------
 
