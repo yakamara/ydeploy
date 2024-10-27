@@ -9,7 +9,7 @@ use function dirname;
 use function in_array;
 use function strlen;
 
-$rootPath = dirname(DEPLOYER_DEPLOY_FILE); /** @phpstan-ignore-line */
+$rootPath = str_replace('\\', '/', dirname(DEPLOYER_DEPLOY_FILE)); /** @phpstan-ignore-line */
 $command = (new ArgvInput())->getFirstArgument();
 $localBuildDir = 'setup' !== $command && !getenv('CI');
 
