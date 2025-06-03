@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,7 +63,13 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         try {
             foreach ($paths as $path => $timestamp) {
                 if (!$fake) {
+                    $name = basename($path);
+                    $time = time();
+                    $io->text(sprintf('Migration "<comment>%s</comment>" started at <comment>%s</comment>', $name, date('H:i:s', $time)));
+
                     $this->migrate($path);
+
+                    $io->text(sprintf('Migration "<comment>%s</comment>" finished in <comment>%s</comment>', $name, Helper::formatTime(time() - $time)));
                 }
 
                 rex_sql::factory()
