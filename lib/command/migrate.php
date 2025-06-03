@@ -55,9 +55,11 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
             return Command::SUCCESS;
         }
 
-        $io->text(count($paths) . ' migrations to execute');
-
+        $countMigrations = count($paths);
+        $countMigrationsText = 1 === $countMigrations ? '1 migration' : $countMigrations . ' migrations';
         $countMigrated = 0;
+
+        $io->text($countMigrationsText . ' to execute');
 
         $path = null;
         try {
@@ -82,13 +84,13 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         } finally {
             rex_delete_cache();
 
-            if ($countMigrated === count($paths)) {
-                $io->success(sprintf('%s %d migrations.', $fake ? 'Faked' : 'Executed', $countMigrated));
+            if ($countMigrated === $countMigrations) {
+                $io->success(sprintf('%s %s.', $fake ? 'Faked' : 'Executed', $countMigrationsText));
 
                 return Command::SUCCESS;
             }
 
-            $io->error(sprintf('%s %d of %d migrations, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, count($paths), basename($path)));
+            $io->error(sprintf('%s %d of %s, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, $countMigrationsText, basename($path)));
         }
 
         return Command::FAILURE;
