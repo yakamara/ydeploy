@@ -15,7 +15,7 @@ use function YDeploy\onHost;
 use function YDeploy\uploadContent;
 
 desc('Setup redaxo instance');
-task('setup', new class() {
+task('setup', new class {
     private Host $target;
     private bool $local;
     private Host|string $source;
