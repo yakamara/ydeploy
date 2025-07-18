@@ -23,7 +23,7 @@ set('assets_build', static function () {
     }
 
     if (!test('[ -f {{release_path}}/webpack.config.js ]') && test('[ -d {{release_path}}/gulpfile.js ]')) {
-        return 'APP_ENV=prod gulp build';
+        return 'APP_ENV=prod node_modules/.bin/gulp build';
     }
 
     if (commandExist('yarn')) {
