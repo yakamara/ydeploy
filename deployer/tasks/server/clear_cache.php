@@ -17,7 +17,7 @@ set('bin/apachectl', static function () {
 });
 
 desc('Clear the server cache');
-task('server:clear_cache', new class() {
+task('server:clear_cache', new class {
     public function __invoke(): void
     {
         if (get('restart_apache')) {
