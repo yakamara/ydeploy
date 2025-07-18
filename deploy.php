@@ -11,7 +11,7 @@ if (7 !== (int) $version) {
     throw new RuntimeException('YDeploy 2.x requires Deployer 7.x, but Deployer ' . $version . ' is used');
 }
 
-require 'recipe/common.php';
+require 'recipe/common.php'; // @phpstan-ignore require.fileNotFound
 
 require __DIR__ . '/deployer/config.php';
 require __DIR__ . '/deployer/functions.php';
