@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -54,15 +55,23 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
             return Command::SUCCESS;
         }
 
-        $io->text(count($paths) . ' migrations to execute');
-
+        $countMigrations = count($paths);
+        $countMigrationsText = 1 === $countMigrations ? '1 migration' : $countMigrations . ' migrations';
         $countMigrated = 0;
+
+        $io->text($countMigrationsText . ' to execute');
 
         $path = null;
         try {
             foreach ($paths as $path => $timestamp) {
                 if (!$fake) {
+                    $name = basename($path);
+                    $time = time();
+                    $io->text(sprintf('Migration "<comment>%s</comment>" started at <comment>%s</comment>', $name, date('H:i:s', $time)));
+
                     $this->migrate($path);
+
+                    $io->text(sprintf('Migration "<comment>%s</comment>" finished in <comment>%s</comment>', $name, Helper::formatTime(time() - $time)));
                 }
 
                 rex_sql::factory()
@@ -75,13 +84,13 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         } finally {
             rex_delete_cache();
 
-            if ($countMigrated === count($paths)) {
-                $io->success(sprintf('%s %d migrations.', $fake ? 'Faked' : 'Executed', $countMigrated));
+            if ($countMigrated === $countMigrations) {
+                $io->success(sprintf('%s %s.', $fake ? 'Faked' : 'Executed', $countMigrationsText));
 
                 return Command::SUCCESS;
             }
 
-            $io->error(sprintf('%s %d of %d migrations, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, count($paths), basename($path)));
+            $io->error(sprintf('%s %d of %s, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, $countMigrationsText, basename($path)));
         }
 
         return Command::FAILURE;
