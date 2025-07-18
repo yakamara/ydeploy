@@ -65,7 +65,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '8.2'
+                    php-version: '8.3'
                     extensions: gd, intl, pdo_mysql, iconv
                     coverage: none # disable xdebug, pcov
 
@@ -110,7 +110,7 @@ jobs:
             -   name: Copy and install Addons
                 run: |
                     rsync -av --exclude='.github' --exclude='.git' --exclude='redaxo_cms' './' 'redaxo_cms/redaxo/src/addons/${{ github.event.repository.name }}'
-                    redaxo_cms/redaxo/bin/console install:download 'rexstan' '1.*'
+                    redaxo_cms/redaxo/bin/console install:download 'rexstan' '1.0.193'
                     redaxo_cms/redaxo/bin/console package:install 'rexstan'
                     redaxo_cms/redaxo/bin/console package:install '${{ github.event.repository.name }}'
             # execute rexstan.php to create the needed user-config.neon
@@ -121,4 +121,4 @@ jobs:
             # run rexstan
             -   id: rexstan
                 name: Run rexstan
-                run: redaxo_cms/redaxo/bin/console rexstan:analyze
+                run: php redaxo_cms/redaxo/bin/console rexstan:analyze -vvv --debug
