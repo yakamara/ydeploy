@@ -2,11 +2,16 @@
 
 namespace YDeploy;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Deployer\Host\Host;
 
+use function Deployer\cd;
 use function Deployer\download;
 use function Deployer\get;
 use function Deployer\on;
+use function Deployer\run;
+use function Deployer\test;
 use function Deployer\upload;
 
 function uploadContent(string $destination, string $content): void
@@ -53,4 +58,33 @@ function onHost(Host $host, callable $callback)
     });
 
     return $return;
+}
+
+function upgradeReleasesList(): void
+{
+    cd('{{deploy_path}}');
+
+    if (test('[ -f .dep/releases_log ]') || !test('[ -f .dep/releases ]')) {
+        return;
+    }
+
+    $releasesString = trim(run('cat .dep/releases'));
+    if (!$releasesString) {
+        return;
+    }
+
+    $releases = [];
+    foreach (explode("\n", $releasesString) as $release) {
+        $release = explode(',', $release);
+
+        $releases[$release[1]] = json_encode([
+            'created_at' => DateTimeImmutable::createFromFormat('YmdHis', $release[0])->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:sO'),
+            'release_name' => $release[1],
+            'user' => 'unknown',
+            'target' => 'HEAD',
+        ]);
+    }
+
+    run('echo ' . escapeshellarg(implode("\n", $releases)) . ' > .dep/releases_log');
+    run('echo ' . escapeshellarg(array_key_last($releases)) . ' > .dep/latest_release');
 }
