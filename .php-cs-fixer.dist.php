@@ -1,9 +1,13 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__)
-;
+use PhpCsFixer\Finder;
+use Redaxo\PhpCsFixerConfig\Config;
 
-return Redaxo\PhpCsFixerConfig\Config::redaxo5()
-    ->setFinder($finder)
+return Config::redaxo5()
+    ->setFinder(Finder::create()
+        ->in(__DIR__)
+        ->append([
+            __FILE__,
+        ]),
+    )
 ;

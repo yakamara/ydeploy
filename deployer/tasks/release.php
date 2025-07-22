@@ -7,7 +7,6 @@ task('release', [
     'deploy:info',
     'deploy:setup',
     'deploy:lock',
-    'deploy:upgrade',
     'deploy:release',
     'deploy:copy_dirs',
     'deploy:upload',

@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use function dirname;
 use function in_array;
 use function strlen;
+use function YDeploy\upgradeReleasesList;
 
 $rootPath = dirname(DEPLOYER_DEPLOY_FILE); /** @phpstan-ignore-line */
 $command = (new ArgvInput())->getFirstArgument();
@@ -54,6 +55,18 @@ set('branch', static function () {
     });
 
     return $branch;
+});
+
+$releaseName = Deployer::get()->config->fetch('release_name');
+set('release_name', static function () use ($releaseName) {
+    upgradeReleasesList();
+    return $releaseName();
+});
+
+$releasesList = Deployer::get()->config->fetch('releases_list');
+set('releases_list', static function () use ($releasesList) {
+    upgradeReleasesList();
+    return $releasesList();
 });
 
 $baseDir = $rootPath;
