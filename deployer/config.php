@@ -58,13 +58,13 @@ set('branch', static function () {
 });
 
 $releaseName = Deployer::get()->config->fetch('release_name');
-set('release_name', function () use ($releaseName) {
+set('release_name', static function () use ($releaseName) {
     upgradeReleasesList();
     return $releaseName();
 });
 
 $releasesList = Deployer::get()->config->fetch('releases_list');
-set('releases_list', function () use ($releasesList) {
+set('releases_list', static function () use ($releasesList) {
     upgradeReleasesList();
     return $releasesList();
 });
