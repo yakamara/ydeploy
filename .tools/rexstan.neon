@@ -8,6 +8,7 @@ parameters:
             identifiers:
                 - class.extendsInternalClass
                 - method.internalClass
+                - new.internalClass
                 - parameter.internalClass
                 - property.internalClass
                 - staticMethod.internalClass
