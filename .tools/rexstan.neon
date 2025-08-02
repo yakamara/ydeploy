@@ -1,3 +1,13 @@
 parameters:
-	bootstrapFiles:
-		- ../vendor/deployer/deployer/src/functions.php
+    bootstrapFiles:
+        - ../vendor/deployer/deployer/src/functions.php
+
+    ignoreErrors:
+        -
+            message: '#internal class rex_(api_)?ydeploy#'
+            identifiers:
+                - class.extendsInternalClass
+                - method.internalClass
+                - parameter.internalClass
+                - property.internalClass
+                - staticMethod.internalClass
