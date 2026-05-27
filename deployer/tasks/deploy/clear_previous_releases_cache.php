@@ -22,8 +22,8 @@ task('deploy:clear_previous_releases_cache', static function (): void {
             continue;
         }
 
-        run("mkdir -p $addonsPathArg $corePathArg");
-        run("find $addonsPathArg $corePathArg -mindepth 1 -delete");
+        run("mkdir -p $addonsPathArg $corePathArg 2>/dev/null || true");
+        run("find $addonsPathArg $corePathArg -mindepth 1 -delete 2>/dev/null || true");
     }
 });
 
