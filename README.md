@@ -126,6 +126,16 @@ Führe `dep deploy` aus, um das Deployment auf den Zielserver zu starten. Dieser
 
 So lässt sich bspw. über `dep deploy staging` auf den `staging`-Server deployen, testen und anschließend mit dem bereits vorliegenden Build auf den Produktivserver aufspielen: `dep release production`.
 
+Im Release-Ablauf wird vor den Datenbank-Migrationen automatisch der Task `database:backup` ausgeführt und ein Datenbank-Backup auf dem Zielhost unter `redaxo/data/addons/ydeploy/backup-<timestamp>.sql` abgelegt. Beim allerersten Deployment (es gibt noch kein `current`-Release) wird das Backup übersprungen.
+
+### Datenbank-Backup auf einem Host (`dep database:backup`)
+
+Mit `dep database:backup <host>` lässt sich jederzeit manuell ein Datenbank-Backup eines konfigurierten Hosts anlegen. Der Befehl
+
+1. verbindet sich mit dem ausgewählten Host,
+2. nutzt die Datenbank-Einstellungen des dort installierten REDAXO,
+3. legt das Backup unter `redaxo/data/addons/ydeploy/backup-<timestamp>.sql` ab.
+
 ### Live-Daten lokal einspielen (`dep pull`)
 
 Mit `dep pull` lassen sich Datenbank und Medien-Dateien eines konfigurierten Hosts in die lokale Installation übernehmen, z. B. um lokal mit echten Inhalten zu arbeiten.
