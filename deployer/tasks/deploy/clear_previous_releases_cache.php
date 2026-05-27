@@ -12,7 +12,8 @@ task('deploy:clear_previous_releases_cache', static function (): void {
             continue;
         }
 
-        $cachePath = "{{deploy_path}}/releases/$release/{{cache_dir}}";
+        $releaseArg = escapeshellarg($release);
+        $cachePath = "{{deploy_path}}/releases/$releaseArg/{{cache_dir}}";
 
         // Only clear if the cache directory exists in the previous release
         if (!test("[ -d $cachePath ]")) {
