@@ -93,6 +93,7 @@ set('bin/console', '{{base_dir}}redaxo/bin/console');
 set('shared_dirs', [
     '{{media_dir}}',
     '{{data_dir}}/addons/cronjob',
+    '{{data_dir}}/addons/media_manager',
     '{{data_dir}}/addons/phpmailer',
     '{{data_dir}}/addons/yform',
     '{{data_dir}}/core',
