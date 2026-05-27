@@ -33,28 +33,29 @@ task('deploy:update_code', static function () {
         throw new ConfigurationException("Missing 'repository' configuration.");
     }
 
-    $targetWithDir = $target;
-    if (!empty(get('sub_directory'))) {
-        $targetWithDir .= ':{{sub_directory}}';
-    }
-
     $bare = parse('{{deploy_path}}/.dep/repo');
+    $bareArg = escapeshellarg($bare);
+    $bareHeadArg = escapeshellarg("$bare/HEAD");
+    $repositoryArg = escapeshellarg($repository);
+    $targetArg = escapeshellarg($target);
     $env = [
         'GIT_TERMINAL_PROMPT' => '0',
-        'GIT_SSH_COMMAND' => get('git_ssh_command'),
     ];
+    if (has('git_ssh_command')) {
+        $env['GIT_SSH_COMMAND'] = get('git_ssh_command', '');
+    }
 
     start:
     // Clone the repository to a bare repo.
-    run("[ -d $bare ] || mkdir -p $bare");
-    run("[ -f $bare/HEAD ] || $git clone --mirror --recurse-submodules $repository $bare 2>&1", env: $env);
+    run("[ -d $bareArg ] || mkdir -p $bareArg");
+    run("[ -f $bareHeadArg ] || $git clone --mirror --recurse-submodules $repositoryArg $bareArg 2>&1", env: $env);
 
     cd($bare);
 
     // If remote url changed, drop `.dep/repo` and reinstall.
-    if (run("$git config --get remote.origin.url") !== $repository) {
+    if (trim(run("$git config --get remote.origin.url")) !== $repository) {
         cd('{{deploy_path}}');
-        run("rm -rf $bare");
+        run("rm -rf $bareArg");
         goto start;
     }
 
@@ -62,13 +63,13 @@ task('deploy:update_code', static function () {
 
     // Copy to release_path.
     cd('{{release_path}}');
-    run("$git clone -l $bare .");
-    run("$git remote set-url origin $repository", env: $env);
-    run("$git checkout --force $target");
-    run("$git submodule init", env: $env);
-    run("$git submodule update --recursive --remote", env: $env);
+    run("$git clone -l $bareArg .");
+    run("$git remote set-url origin $repositoryArg", env: $env);
+    run("$git checkout --force $targetArg");
+    run("$git submodule sync --recursive", env: $env);
+    run("$git submodule update --init --recursive", env: $env);
 
     // Save git revision in REVISION file.
-    $rev = escapeshellarg(run("$git rev-list $target -1"));
+    $rev = escapeshellarg(run("$git rev-list $targetArg -1"));
     run("echo $rev > {{release_path}}/REVISION");
 });
