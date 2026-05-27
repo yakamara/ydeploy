@@ -44,9 +44,16 @@ Deployer::get()->hosts = new class($rootPath, $localBuildDir) extends Host\HostC
     }
 };
 
-if (in_array($command, ['build', 'setup', 'worker'], true)) {
+if (in_array($command, ['build', 'setup', 'worker', 'pull'], true)) {
     host('local');
 }
+
+set('pull_exclude_tables', [
+    'rex_ydeploy_migration',
+]);
+set('pull_include_tables', []);
+set('pull_skip_database', false);
+set('pull_skip_media', false);
 
 set('branch', static function () {
     $branch = null;
