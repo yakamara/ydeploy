@@ -42,7 +42,7 @@ task('deploy:update_code', static function () {
         'GIT_TERMINAL_PROMPT' => '0',
     ];
     if (has('git_ssh_command')) {
-        $env['GIT_SSH_COMMAND'] = get('git_ssh_command', '');
+        $env['GIT_SSH_COMMAND'] = get('git_ssh_command');
     }
 
     start:
