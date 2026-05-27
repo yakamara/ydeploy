@@ -210,8 +210,9 @@ task('pull', new class {
     }
 
     private function ok(): void
+    private function ok(): void
     {
         writeln('<info>✔</info> Ok');
         writeln('');
     }
-});
+})->once();
