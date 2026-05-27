@@ -20,7 +20,8 @@ task('deploy:clear_previous_releases_cache', static function (): void {
             continue;
         }
 
-        run("rm -rf $cachePath/addons/* $cachePath/core/* 2>/dev/null || true");
+        run("mkdir -p $cachePath/addons $cachePath/core");
+        run("find $cachePath/addons $cachePath/core -mindepth 1 -exec rm -rf -- {} +");
     }
 });
 
