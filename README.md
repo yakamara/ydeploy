@@ -29,9 +29,11 @@ Beim **ersten Aufruf** legt der Befehl in `redaxo/data/addons/ydeploy/` zwei Dat
 * `fixtures.yml` – enthält die Datensätze aller Tabellen, deren Inhalte mit synchronisiert werden
   sollen. Welche Tabellen das sind, wird in der [`package.yml`](package.yml) unter
   `config.fixtures.tables` festgelegt. Standardmäßig sind das u. a.:
-  * `rex_config` – nur ausgewählte Namespaces (`core`, `mblock`, `media_manager`, `mform`,
-    `rexstan`, `sprog`, `media_manager_responsive`, `bloecks`, `2factor_auth`, `easymde`,
-    `slice_select`, `googleplaces`, `yform_spam_protection`, `yform_usability` …).
+  * `rex_config` – nur ausgewählte Namespaces (standardmäßig u. a. `core`, `mblock`,
+    `media_manager`, `mform`, `rexstan`, `sprog`, `media_manager_responsive`, `bloecks`,
+    `2factor_auth`, `easymde`, `slice_select`, `googleplaces`, `yform_spam_protection`,
+    `yform_usability`). Die vollständige, projekt-spezifisch erweiterbare Liste steht in
+    [`package.yml`](package.yml) unter `config.fixtures.tables.config`.
   * Metainfo: `rex_metainfo_field`, `rex_metainfo_type`.
   * MediaManager: `rex_media_manager_type`, `rex_media_manager_type_effect`,
     `rex_media_manager_type_group`, sowie `…_type_meta` für `media_manager_responsive`.
@@ -197,7 +199,7 @@ Für den automatischen Backup-Schritt muss auf den Zielhosts ein MySQL/MariaDB-C
 Der `build`-Task bereitet auf dem **lokalen** Host (genauer: im Verzeichnis `.build/release` im Projekt-Root) ein vollständiges Release-Paket vor, das anschließend per `dep release` auf den Zielserver übertragen wird. Er besteht aus folgenden Unter-Tasks (siehe [`deployer/tasks/build.php`](deployer/tasks/build.php)):
 
 1. **`build:info`** – gibt eine kurze Statusausgabe „building <target>“ aus.
-2. **`build:setup`** – stellt sicher, dass der Task auf dem `local`-Host läuft, leert `.build/release/` und checkt den konfigurierten Branch/Tag (`target`) frisch aus dem Git-Repository aus. Im CI-Kontext (`getenv('CI')`) wird dieser Schritt übersprungen, weil das Repository dort bereits ausgecheckt ist.
+2. **`build:setup`** – stellt sicher, dass der Task auf dem `local`-Host läuft, leert `.build/release/` und checkt den konfigurierten Branch/Tag (`target`) frisch aus dem Git-Repository aus. Im CI-Kontext (`getenv('CI')`) wird der gesamte Schritt übersprungen – weder das Aufräumen von `.build/release/` noch der Git-Checkout finden statt, weil das Repository im CI bereits in den Workspace ausgecheckt ist und direkt verwendet wird.
 3. **`build:vendors`** – leerer Platzhalter, der im Projekt durch eigene Logik überschrieben werden sollte (typischerweise `composer install --no-dev --optimize-autoloader` o. Ä.).
 4. **`build:assets`** – installiert per `yarn install` bzw. `npm install` Frontend-Dependencies und ruft `yarn build` / `npm run build` bzw. `gulp build` auf, falls eine entsprechende Konfiguration im Repository liegt. `node_modules/` werden zwischen Builds in `.build/.node_modules` zwischengelagert, damit sie nicht jedes Mal neu installiert werden müssen.
 5. **`deploy:clear_paths`** – entfernt Pfade aus dem Build, die im Projekt unter `clear_paths` gelistet sind (z. B. Entwicklungs-Dateien, die nicht aufs Live-System sollen).
