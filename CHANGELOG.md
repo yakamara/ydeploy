@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+### Neu
+
+* Cache-Dateien (`{{cache_dir}}/addons/*` und `{{cache_dir}}/core/*`) der vorherigen Releases werden nach einem erfolgreichen Release automatisch gelöscht, um Speicherplatz zu sparen (z. B. durch den MediaManager-Cache)
+
+
 Version 2.1.1 – 22.07.2025
 --------------------------
 
