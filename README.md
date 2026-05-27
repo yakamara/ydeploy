@@ -31,6 +31,26 @@ Es ist aber auch geeignet, um Datenbank-Änderungen der anderen Entwickler in di
 
 Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:migrate`.
 
+### Ausstehende Migrations im Backend
+
+Solange noch nicht ausgeführte Migrationsdateien in `redaxo/data/addons/ydeploy/migrations/` existieren, wird im Backend (nur für Admins) ein Warnhinweis mit der Liste der ausstehenden Migrations ausgegeben. Damit wird verhindert, dass `ydeploy:migrate` versehentlich vergessen wird.
+
+Die Liste der ausstehenden Migrations liegt zusätzlich als Addon-Property `pending_migrations` vor und kann programmatisch abgefragt werden, z.B. für eine eigene Ausgabe im Footer:
+
+```php
+$pending = rex_addon::get('ydeploy')->getProperty('pending_migrations');
+
+if (is_array($pending) && $pending) {
+    foreach ($pending as $timestamp => $path) {
+        // $timestamp z.B. "2024-01-15 12:34:56.789123"
+        // $path absoluter Pfad zur Migrationsdatei
+        echo basename($path) . ' (' . $timestamp . ')';
+    }
+}
+```
+
+Alternativ kann auch direkt `rex_ydeploy::getPendingMigrations()` aufgerufen werden, um die Liste neu zu ermitteln.
+
 Deployment über deployer
 ------------------------
 

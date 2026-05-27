@@ -89,4 +89,47 @@ final class rex_ydeploy
     {
         return $this->timestamp;
     }
+
+    /**
+     * Returns all migrations that have not yet been executed.
+     *
+     * The returned array is keyed by the migration timestamp (`Y-m-d H:i:s.u`)
+     * and contains the absolute file path of the migration as value.
+     *
+     * @return array<string, string> Map of `timestamp => path`
+     */
+    public static function getPendingMigrations(): array
+    {
+        $addon = rex_addon::get('ydeploy');
+        $migrationTable = rex::getTable('ydeploy_migration');
+
+        try {
+            $sql = rex_sql::factory();
+            $migrated = $sql->getArray('SELECT `timestamp` FROM ' . $sql->escapeIdentifier($migrationTable));
+            $migrated = array_column($migrated, 'timestamp', 'timestamp');
+        } catch (rex_sql_exception) {
+            return [];
+        }
+
+        $glob = glob($addon->getDataPath('migrations/*-*-* *.*.php')) ?: [];
+        $pending = [];
+
+        foreach ($glob as $path) {
+            $timestamp = substr(basename($path), 0, -4);
+
+            if (!preg_match('/^(\d{4}-\d{2}-\d{2}) (\d{2})[-:](\d{2})[-:](\d{2}\.\d+)$/', $timestamp, $match)) {
+                continue;
+            }
+
+            $timestamp = $match[1] . ' ' . $match[2] . ':' . $match[3] . ':' . $match[4];
+
+            if (!isset($migrated[$timestamp])) {
+                $pending[$timestamp] = $path;
+            }
+        }
+
+        ksort($pending);
+
+        return $pending;
+    }
 }

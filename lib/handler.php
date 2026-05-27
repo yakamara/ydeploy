@@ -5,6 +5,33 @@
  */
 final class rex_ydeploy_handler
 {
+    /** @param rex_extension_point<string> $ep */
+    public static function addPendingMigrationsWarning(rex_extension_point $ep): string
+    {
+        $pending = rex_addon::get('ydeploy')->getProperty('pending_migrations');
+
+        if (!is_array($pending) || !$pending) {
+            return $ep->getSubject();
+        }
+
+        $user = rex::getUser();
+        if (!$user || !$user->isAdmin()) {
+            return $ep->getSubject();
+        }
+
+        $count = count($pending);
+        $items = [];
+        foreach ($pending as $timestamp => $path) {
+            $items[] = '<li><code>' . rex_escape(basename($path)) . '</code> <small>(' . rex_escape($timestamp) . ')</small></li>';
+        }
+
+        $message = '<strong>' . sprintf('YDeploy: %d ausstehende Migration(en)', $count) . '</strong>'
+            . '<p>Bitte führe <code>redaxo/bin/console ydeploy:migrate</code> aus, um Datenverlust zu vermeiden.</p>'
+            . '<ul>' . implode('', $items) . '</ul>';
+
+        return $ep->getSubject() . rex_view::warning($message);
+    }
+
     /** @param rex_extension_point<array<mixed>> $ep */
     public static function addBodyClasses(rex_extension_point $ep): array
     {
