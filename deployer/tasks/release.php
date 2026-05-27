@@ -24,6 +24,10 @@ task('setup:wait_for_symlink', static function () {
         return;
     }
 
+    if (!get('clear_web_php_cache')) {
+        return;
+    }
+
     writeln('');
     writeln('<comment>Initial deployment detected.</comment>');
     writeln('The <info>current</info> symlink has just been created at <info>{{current_path}}</info>.');
