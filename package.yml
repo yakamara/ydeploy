@@ -1,11 +1,11 @@
 package: ydeploy
 version: '2.1.1'
-author: Gregor Harlan
-supportpage: https://github.com/yakamara/ydeploy
+author: Gregor Harlan, Alexander Walther
+supportpage: https://github.com/alexplusde/ydeploy
 
 requires:
-    php: '>=8.1'
-    redaxo: ^5.13
+    php: '>=8.4'
+    redaxo: ^5.20
 
 conflicts:
     packages:

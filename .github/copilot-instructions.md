@@ -13,8 +13,8 @@ passen.
   liefert.
 * Dieses Repository (`alexplusde/ydeploy`) ist ein **Fork** des
   Upstream-Addons [`yakamara/ydeploy`](https://github.com/yakamara/ydeploy).
-* Mindestanforderungen (siehe `package.yml`): PHP `>= 8.1`,
-  REDAXO `^5.13`.
+* Mindestanforderungen (siehe `package.yml`): PHP `>= 8.4`,
+  REDAXO `^5.20`.
 
 ## Verzeichnisstruktur (Auszug)
 
