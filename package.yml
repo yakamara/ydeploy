@@ -24,23 +24,43 @@ config:
     fixtures:
         tables:
             config:
+                # Standard
                 - { namespace: core }
                 - { namespace: mblock }
                 - { namespace: media_manager }
                 - { namespace: mform }
                 - { namespace: rexstan }
-                - { namespace: sprog }
+                - { namespace: sprog }                    # physionatura.de
+                # - { namespace: translation }            # kreativzentrum-heilbronn.de (statt sprog)
+
+                # Ergänzungen
+                - { namespace: media_manager_responsive }
+                - { namespace: bloecks }
+                - { namespace: '2factor_auth' }
+                - { namespace: easymde }
+                - { namespace: slice_select }
+                - { namespace: googleplaces }
+                - { namespace: yform_spam_protection }
+                - { namespace: yform_usability }
+
             markitup_profiles: ~
             media_manager_type: ~
             media_manager_type_effect: ~
+            media_manager_type_group: ~          # media_manager_responsive
+            media_manager_type_meta: ~           # media_manager_responsive
             metainfo_field: ~
             metainfo_type: ~
             module_action: ~
             redactor_profile: ~
             redactor2_profiles: ~
+            url_generator_profile: ~             # nur Profile, keine generierten URLs
+            easymde_profile: ~
+            wenns_sein_muss_iframe: ~            # nur iframes, nicht domain/entry/group
             yform_field: ~
             yform_table: ~
+
     protected_pages:
+        # Standard
         install: ~
         markitup: ~
         media_manager: ~
@@ -60,6 +80,12 @@ config:
                 - tableset_import
                 - table_field
 
+        # Ergänzungen
+        media_manager_responsive: ~
+        bloecks: ~
+        easymde: ~
+        wenns_sein_muss:
+            - iframe                              # nur iframe-Verwaltung sperren
 installer_ignore:
     - .github
     - .tools
