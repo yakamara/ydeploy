@@ -126,6 +126,42 @@ Führe `dep deploy` aus, um das Deployment auf den Zielserver zu starten. Dieser
 
 So lässt sich bspw. über `dep deploy staging` auf den `staging`-Server deployen, testen und anschließend mit dem bereits vorliegenden Build auf den Produktivserver aufspielen: `dep release production`.
 
+### Live-Daten lokal einspielen (`dep pull`)
+
+Mit `dep pull` lassen sich Datenbank und Medien-Dateien eines konfigurierten Hosts in die lokale Installation übernehmen, z. B. um lokal mit echten Inhalten zu arbeiten.
+
+Der Befehl
+
+1. wählt den Quell-Host aus (interaktiv, wenn mehrere konfiguriert sind),
+2. legt automatisch ein Backup der lokalen Datenbank unter `redaxo/data/addons/ydeploy/backup-<timestamp>.sql` an,
+3. dumpt die Datenbank des Quell-Hosts (mit optionalem Tabellen-Filter), lädt den Dump herunter und importiert ihn lokal,
+4. lädt den Medien-Ordner als Tar-Archiv vom Quell-Host und entpackt ihn ins lokale `media/`-Verzeichnis.
+
+Über folgende Optionen lässt sich der Vorgang in der `deploy.php` projektspezifisch anpassen:
+
+```php
+// Diese Tabellen werden beim Datenbank-Pull ausgelassen
+set('pull_exclude_tables', [
+    'rex_ydeploy_migration', // Standard: lokalen Migrations-Stand nicht überschreiben
+    // 'rex_config',
+    // 'rex_yrewrite_domain',
+]);
+
+// Alternativ: NUR diese Tabellen pullen (überschreibt 'pull_exclude_tables')
+set('pull_include_tables', [
+    // 'rex_article',
+    // 'rex_article_slice',
+    // 'rex_media',
+    // 'rex_media_category',
+]);
+
+// Komplett überspringen
+set('pull_skip_database', false);
+set('pull_skip_media', false);
+```
+
+Der Befehl muss auf dem `local`-Host laufen, was beim Aufruf von `dep pull` (ohne weiteren Host) automatisch geschieht.
+
 Lizenz
 ------
 

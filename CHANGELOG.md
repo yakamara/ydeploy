@@ -6,6 +6,7 @@ Unreleased
 
 ### Neu
 
+* Neuer Deployer-Task `pull`: Lokale Datenbank und Medien können von einem konfigurierten Host übernommen werden (`dep pull`). Vor dem Import wird automatisch ein lokales Datenbank-Backup unter `redaxo/data/addons/ydeploy/backup-<timestamp>.sql` angelegt. Tabellen können projektspezifisch per `pull_exclude_tables`/`pull_include_tables` gesteuert werden; mit `pull_skip_database` / `pull_skip_media` lässt sich der jeweilige Teil überspringen.
 * Cache-Dateien (`{{cache_dir}}/addons/*` und `{{cache_dir}}/core/*`) der vorherigen Releases werden nach einem erfolgreichen Release automatisch gelöscht, um Speicherplatz zu sparen (z. B. durch den MediaManager-Cache)
 * `deploy:update_code` wurde überschrieben und holt Git-Submodule (auch private Repos via SSH) automatisch. Die bisher nötige Einstellung `set('update_code_strategy', 'clone_plus_submodules');` in der `deploy.php` des Projekts ist nicht mehr erforderlich und sollte entfernt werden; falls sie noch gesetzt ist, wird in der Konsole ein entsprechender Hinweis ausgegeben.
 
