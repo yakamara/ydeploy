@@ -118,6 +118,7 @@ set('clear_paths', [
 ]);
 
 set('keep_releases', 5);
+set('default_timeout', 3000);
 
 set('url', static function () {
     return 'https://' . Context::get()->getHost()->getHostname();
