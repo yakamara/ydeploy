@@ -133,7 +133,7 @@ set('bin/mysqldump', static function () {
     while (!test('command -v mysqldump >/dev/null 2>&1')) {
         writeln('');
         writeln('<error>The "mysqldump" command was not found on host {{hostname}}.</error>');
-        writeln('Please install mysqldump (e.g. "apt install mariadb-client" or "apt install mysql-client") on the host.');
+        writeln('Please install mysqldump on the host (e.g. via "apt install mariadb-client", "yum install mariadb", or "brew install mysql-client").');
         ask(' Press <comment>Enter</comment> to retry once mysqldump has been installed (or abort with Ctrl+C)', '');
     }
 
