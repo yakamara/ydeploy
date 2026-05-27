@@ -6,7 +6,9 @@
 // addon data directory, so the (expensive) generated images survive deployments
 // and full cache clears. The directory should be configured as a shared
 // directory in deployer/config.php so it persists across releases.
-rex_media_manager::setCacheDirectory(rex_path::addonData('media_manager', 'cache'));
+if (rex_addon::get('media_manager')->isAvailable()) {
+    rex_media_manager::setCacheDirectory(rex_path::addonData('media_manager', 'cache'));
+}
 
 if (!rex::isBackend() || !rex::getUser()) {
     return;
