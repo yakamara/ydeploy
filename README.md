@@ -42,7 +42,7 @@ $pending = rex_addon::get('ydeploy')->getProperty('pending_migrations');
 
 if (is_array($pending) && $pending) {
     foreach ($pending as $timestamp => $path) {
-        // $timestamp z.B. "2024-01-15 12:34:56.789"
+        // $timestamp z.B. "2024-01-15 12:34:56.789123"
         // $path absoluter Pfad zur Migrationsdatei
         echo basename($path) . ' (' . $timestamp . ')';
     }
