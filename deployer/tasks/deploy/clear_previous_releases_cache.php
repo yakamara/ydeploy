@@ -12,16 +12,18 @@ task('deploy:clear_previous_releases_cache', static function (): void {
             continue;
         }
 
-        $releaseArg = escapeshellarg($release);
-        $cachePath = "{{deploy_path}}/releases/$releaseArg/{{cache_dir}}";
+        $cachePath = parse("{{deploy_path}}/releases/$release/{{cache_dir}}");
+        $cachePathArg = escapeshellarg($cachePath);
+        $addonsPathArg = escapeshellarg("$cachePath/addons");
+        $corePathArg = escapeshellarg("$cachePath/core");
 
         // Only clear if the cache directory exists in the previous release
-        if (!test("[ -d $cachePath ]")) {
+        if (!test("[ -d $cachePathArg ]")) {
             continue;
         }
 
-        run("mkdir -p $cachePath/addons $cachePath/core");
-        run("find $cachePath/addons $cachePath/core -mindepth 1 -exec rm -rf -- {} +");
+        run("mkdir -p $addonsPathArg $corePathArg");
+        run("find $addonsPathArg $corePathArg -mindepth 1 -delete");
     }
 });
 
