@@ -11,7 +11,7 @@ task('database:backup', static function () {
 
     cd('{{current_path}}');
 
-    $path = get('data_dir') . '/addons/ydeploy/backup-' . date('YmdHis') . '.sql';
+    $path = get('shared_path') . '/' . get('data_dir') . '/addons/backup/backup-data/ydeploy/backup-' . date('YmdHis') . '.sql';
 
     run('mkdir -p ' . escapeshellarg(dirname($path)));
     run('{{bin/php}} {{bin/console}} db:connection-options | xargs {{bin/mysqldump}} > ' . escapeshellarg($path));
