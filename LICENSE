@@ -1,21 +1,84 @@
-MIT License
+Lizenzbedingungen / License Terms
+=================================
 
-Copyright (c) Yakamara Media GmbH & Co. KG
+Dieses Repository ist ein Fork des Addons „ydeploy“ von Yakamara Media
+GmbH & Co. KG (https://github.com/yakamara/ydeploy) und steht unter
+einer gemischten Lizenzierung:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This repository is a fork of the “ydeploy” addon by Yakamara Media
+GmbH & Co. KG (https://github.com/yakamara/ydeploy) and is provided
+under mixed licensing terms:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1. Bestehender Code / Existing code (MIT)
+-----------------------------------------
+
+Der gesamte Code, der aus dem Upstream-Repository
+https://github.com/yakamara/ydeploy übernommen wurde – einschließlich
+sämtlicher Beiträge bis einschließlich des Forkpunktes sowie aller
+Änderungen, die zukünftig aus dem Upstream übernommen werden – steht
+weiterhin unter der MIT-Lizenz. Der vollständige Lizenztext liegt
+unverändert in der Datei `LICENSE-MIT` bei und ist Bestandteil dieses
+Repositories.
+
+All code originating from the upstream repository
+https://github.com/yakamara/ydeploy – including every contribution up
+to and including the point of the fork as well as any future
+modifications adopted from upstream – remains licensed under the MIT
+License. The unmodified MIT License text is included in this
+repository in the file `LICENSE-MIT`.
+
+
+2. Neue Beiträge im Fork / New contributions in this fork (proprietär)
+----------------------------------------------------------------------
+
+Alle Änderungen, Ergänzungen und neuen Dateien, die nach dem Fork
+durch Alexander Walther bzw. im Auftrag von Alexander Walther in
+diesem Repository hinzugefügt wurden bzw. zukünftig hinzugefügt
+werden, unterliegen folgenden Bedingungen:
+
+    Copyright (c) 2026 Alexander Walther. Alle Rechte vorbehalten.
+
+    Die Nutzung, Vervielfältigung, Verbreitung oder Modifikation
+    dieser Software ist ohne ausdrückliche schriftliche Genehmigung
+    des Urhebers untersagt.
+
+    HAFTUNGSAUSSCHLUSS: Diese Software wird ohne jegliche
+    ausdrückliche oder stillschweigende Gewährleistung bereitgestellt.
+    Der Urheber haftet in keinem Fall für Schäden, die aus der
+    Nutzung entstehen.
+
+All modifications, additions and new files contributed to this
+repository by or on behalf of Alexander Walther after the fork are
+subject to the following terms:
+
+    Copyright (c) 2026 Alexander Walther. All rights reserved.
+
+    Use, reproduction, distribution or modification of this software
+    is prohibited without the express written permission of the
+    author.
+
+    DISCLAIMER: This software is provided without any express or
+    implied warranty. In no event shall the author be liable for any
+    damages arising from its use.
+
+
+Hinweise / Notes
+----------------
+
+* Die MIT-Lizenz für den bestehenden Code kann nicht widerrufen
+  werden; Nutzer dieses Codes behalten alle Rechte, die ihnen die
+  MIT-Lizenz einräumt.
+* Im Zweifel über die Herkunft einer Codezeile ist die Git-Historie
+  (`git blame`, `git log`) maßgeblich.
+* Bei Fragen zu Nutzung, Lizenzierung oder kommerziellen Lizenzen für
+  die proprietären Bestandteile wenden Sie sich bitte an Alexander
+  Walther.
+
+* The MIT License granted for the existing code cannot be revoked;
+  recipients of that code retain all rights granted by the MIT
+  License.
+* In case of doubt about the origin of a particular line of code, the
+  Git history (`git blame`, `git log`) is authoritative.
+* For questions regarding usage, licensing or commercial licenses for
+  the proprietary parts, please contact Alexander Walther.

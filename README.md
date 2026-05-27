@@ -105,3 +105,16 @@ Führe `dep deploy` aus, um das Deployment auf den Zielserver zu starten. Dieser
 2. Vorbereitetes Paket auf den Server spielen: `dep release [host]`
 
 So lässt sich bspw. über `dep deploy staging` auf den `staging`-Server deployen, testen und anschließend mit dem bereits vorliegenden Build auf den Produktivserver aufspielen: `dep release production`.
+
+Lizenz
+------
+
+Dieses Repository ist ein Fork von [yakamara/ydeploy](https://github.com/yakamara/ydeploy)
+und steht unter einer gemischten Lizenzierung:
+
+* Der bereits bestehende Code aus dem Upstream-Repository bleibt unverändert unter der
+  MIT-Lizenz (siehe [`LICENSE-MIT`](LICENSE-MIT)).
+* Alle Änderungen und Erweiterungen, die nach dem Fork durch Alexander Walther in diesem
+  Repository hinzugefügt wurden, stehen unter einer proprietären Lizenz.
+
+Die vollständigen Lizenzbedingungen sind in der Datei [`LICENSE`](LICENSE) hinterlegt.
