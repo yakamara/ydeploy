@@ -14,6 +14,7 @@ task('release', [
     'deploy:dump_info',
     'deploy:writable',
     'setup',
+    'database:backup',
     'database:migration',
     'deploy:publish',
 ]);
