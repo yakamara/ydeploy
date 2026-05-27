@@ -1,6 +1,6 @@
 package: ydeploy
 version: '2.1.1'
-author: Gregor Harlan, Alexander Walther
+author: 'Alexander Walther, ehem. Autor: Gregor Harlan`
 supportpage: https://github.com/alexplusde/ydeploy
 
 requires:
