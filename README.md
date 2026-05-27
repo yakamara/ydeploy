@@ -197,7 +197,7 @@ Der Befehl muss auf dem `local`-Host laufen, was beim Aufruf von `dep pull` (ohn
 
 ### Cache-Warmup nach dem Deployment
 
-Das Addon stellt einen Deployer-Task `deploy:warmup` bereit, der nach `deploy:publish` ausgeführt wird und
+Das Addon stellt einen Deployer-Task `deploy:warmup` bereit, der nach `server:clear_cache` ausgeführt wird und
 den `ydeploy:warmup`-Konsolen-Befehl auf dem Ziel-Host startet (siehe oben). Das initiale Deployment wird
 übersprungen, da die Domain in diesem Fall i.d.R. noch nicht auf das `current`-Symlink zeigt.
 

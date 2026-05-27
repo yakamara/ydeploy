@@ -43,4 +43,4 @@ task('deploy:warmup', static function () {
     run('{{bin/php}} {{bin/console}} ydeploy:warmup -v' . $options);
 });
 
-after('deploy:publish', 'deploy:warmup');
+after('server:clear_cache', 'deploy:warmup');

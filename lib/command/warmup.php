@@ -40,6 +40,12 @@ final class rex_ydeploy_command_warmup extends rex_ydeploy_command_abstract
 
         $io->title('YDeploy warmup');
 
+        if (!function_exists('curl_init') || !function_exists('curl_multi_init')) {
+            $io->warning('cURL extension is not available. Skipping warmup.');
+
+            return Command::SUCCESS;
+        }
+
         $concurrency = max(1, (int) $input->getOption('concurrency'));
         $timeout = max(1, (int) $input->getOption('timeout'));
         $useSitemap = !$input->getOption('no-sitemap');
@@ -248,7 +254,7 @@ final class rex_ydeploy_command_warmup extends rex_ydeploy_command_abstract
                     CURLOPT_USERAGENT => 'ydeploy-warmup',
                 ]);
                 curl_multi_add_handle($mh, $ch);
-                $handles[(int) $ch] = ['handle' => $ch, 'url' => $url];
+                $handles[] = ['handle' => $ch, 'url' => $url];
             }
 
             do {
