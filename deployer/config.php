@@ -135,7 +135,8 @@ set('bin/mysqldump', static function () {
         writeln('<error>The "mysqldump" command was not found on host {{hostname}}.</error>');
         writeln('Please install mysqldump on the host (e.g. via "apt install mariadb-client", "yum install mariadb", or "brew install mysql-client").');
         if (!input()->isInteractive()) {
-            throw error('Cannot retry without interaction. Please install mysqldump on the host and rerun the deployment command.');
+            writeln(error('Cannot retry without interaction. Please install mysqldump on the host and rerun the deployment command.'));
+            throw new \RuntimeException('Cannot retry without interaction.');
         }
         ask(' Press <comment>Enter</comment> to retry once mysqldump has been installed (or abort with Ctrl+C)', '');
     }
