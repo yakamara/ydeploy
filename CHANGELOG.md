@@ -7,6 +7,7 @@ Unreleased
 ### Neu
 
 * Cache-Dateien (`{{cache_dir}}/addons/*` und `{{cache_dir}}/core/*`) der vorherigen Releases werden nach einem erfolgreichen Release automatisch gelöscht, um Speicherplatz zu sparen (z. B. durch den MediaManager-Cache)
+* `deploy:update_code` wurde überschrieben und holt Git-Submodule (auch private Repos via SSH) automatisch. Die bisher nötige Einstellung `set('update_code_strategy', 'clone_plus_submodules');` in der `deploy.php` des Projekts ist nicht mehr erforderlich und sollte entfernt werden; falls sie noch gesetzt ist, wird in der Konsole ein entsprechender Hinweis ausgegeben.
 
 
 Version 2.1.1 – 22.07.2025
