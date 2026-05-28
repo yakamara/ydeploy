@@ -1,8 +1,8 @@
-YDeploy
-=======
+# YDeploy für REDAXO 5 (Fork)
 
-Das Addon bietet Tools für die Datenbank-Migration während des Deployments von REDAXO-Projekten.
- Zusätzlich bietet es eine auf REDAXO abgestimmte Konfiguration für [deployer](https://deployer.org).
+Das Addon bietet Tools für die Daten-Migration während des Deployments von REDAXO-Projekten (Datenbank, Medien, Quellcode). Zusätzlich bietet es eine auf REDAXO abgestimmte Konfiguration für [deployer](https://deployer.org).
+
+Fork von <https://github.com/yakamara/ydeploy/>, das leider seit Ende 2025 nicht mehr aktiv weiter entwickelt wurde und wesentliche Funktionen/Abläufe fehlen.
 
 Migration
 ---------
