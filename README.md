@@ -7,29 +7,99 @@ Das Addon bietet Tools für die Datenbank-Migration während des Deployments von
 Migration
 ---------
 
-Das Addon bietet zwei Konsolen-Befehle für die Migration:
+Das Addon bietet zwei Konsolen-Befehle für die Migration. Sie bilden ein Gegensatzpaar:
+`ydeploy:diff` wird **lokal beim Entwickeln** verwendet, um Datenbank-Änderungen in versionierbare
+Dateien zu schreiben; `ydeploy:migrate` wird **auf dem Zielsystem (oder lokal nach einem `git pull`)**
+verwendet, um genau diese Änderungen anzuwenden.
 
 ### `redaxo/bin/console ydeploy:diff`
 
-Beim ersten Aufruf dieses Kommandos werden in `redaxo/data/addons/ydeploy` zwei Dateien angelegt:
+**Wann benutzen?** Immer dann, wenn lokal Änderungen an der Datenbank-Struktur (Tabellen, Spalten,
+Indizes, Fremdschlüssel) oder an synchronisierten Stamm-Daten (z. B. YForm-Tabellen, Metainfo-Felder,
+MediaManager-Typen, bestimmte `rex_config`-Namespaces) vorgenommen wurden und diese in andere
+Umgebungen (Staging/Live) übertragen werden sollen. Der Befehl ist das Gegenstück zu
+`ydeploy:migrate` und gehört in den Entwicklungs-Workflow vor jedem `git commit`/`git push`.
 
-* `schema.yml` mit den Tabellendefinitionen der Datenbank
-* `fixtures.yml` mit allen Datensätzen der Tabellen, deren Daten mit synchronisiert werden sollen (Metainfo-Definitionen, MediaManager-Typen, YForm-Manager-Defintionen etc.)
+**Was passiert konkret?**
 
-Beim erneuten Aufruf wird dann die aktuelle Datenbank-Struktur mit der aus der `schema.yml` verglichen, und die relevanten Daten mit der `fixtures.yml`. Sollte es Abweichungen geben, werden die beiden Dateien aktualisiert und eine Migrationsdatei in `redaxo/data/addons/ydeploy/migrations/` erstellt, die alle Änderungen enthält.
+Beim **ersten Aufruf** legt der Befehl in `redaxo/data/addons/ydeploy/` zwei Dateien an:
+
+* `schema.yml` – enthält den aktuellen Stand des Datenbank-Schemas (alle Tabellen mit
+  Spalten, Datentypen, Indizes und Fremdschlüsseln, soweit sie zum REDAXO-Tabellen-Prefix passen).
+* `fixtures.yml` – enthält die Datensätze aller Tabellen, deren Inhalte mit synchronisiert werden
+  sollen. Welche Tabellen das sind, wird in der [`package.yml`](package.yml) unter
+  `config.fixtures.tables` festgelegt. Standardmäßig sind das u. a.:
+  * `rex_config` – nur ausgewählte Namespaces (standardmäßig u. a. `core`, `mblock`,
+    `media_manager`, `mform`, `rexstan`, `sprog`, `media_manager_responsive`, `bloecks`,
+    `2factor_auth`, `easymde`, `slice_select`, `googleplaces`, `yform_spam_protection`,
+    `yform_usability`). Die vollständige, projekt-spezifisch erweiterbare Liste steht in
+    [`package.yml`](package.yml) unter `config.fixtures.tables.config`.
+  * Metainfo: `rex_metainfo_field`, `rex_metainfo_type`.
+  * MediaManager: `rex_media_manager_type`, `rex_media_manager_type_effect`,
+    `rex_media_manager_type_group`, sowie `…_type_meta` für `media_manager_responsive`.
+  * **YForm-Manager-Definitionen**: `rex_yform_table` (Tabellen-Definitionen) und
+    `rex_yform_field` (Feld-Definitionen). Damit werden YForm-Tabellen mitsamt ihren Feldern
+    voll mit-deployt.
+  * Weitere optionale Ergänzungen (Redactor-Profile, URL-Generator-Profile, easymde-Profile,
+    markitup-Profile, „wenns_sein_muss“ iframes …).
+
+  Die Liste lässt sich in der eigenen `package.yml` oder in einer Projekt-Konfiguration erweitern.
+
+Bei **jedem weiteren Aufruf** vergleicht der Befehl:
+
+1. den aktuellen Stand der Datenbank-Struktur mit dem in `schema.yml` festgehaltenen Zustand,
+2. die Datensätze der in der `package.yml` definierten Fixture-Tabellen mit dem Stand in
+   `fixtures.yml`.
+
+Gibt es Unterschiede, werden:
+
+* `schema.yml` und `fixtures.yml` mit dem aktuellen Stand überschrieben (so sind beide Dateien
+  immer das „Soll“ für den nächsten Vergleich),
+* in `redaxo/data/addons/ydeploy/migrations/` eine neue Migrationsdatei mit Zeitstempel-Namen
+  (z. B. `2024-01-15 12-34-56.123456.php`) erzeugt, die direkt ausführbaren PHP-Code mit allen
+  notwendigen SQL- bzw. Fixture-Operationen enthält,
+* die Migration in der Tabelle `rex_ydeploy_migration` direkt als ausgeführt markiert (damit
+  `ydeploy:migrate` lokal nicht versucht, die eben erst erzeugte Änderung erneut anzuwenden).
+
+Optionen:
+
+* `--empty` – erzeugt auch dann eine (leere) Migrationsdatei, wenn keine Änderungen erkannt
+  wurden. Nützlich, um z. B. eine manuell zu pflegende Migration zu erstellen.
+* `--unmarked` – markiert die neue Migration **nicht** als bereits ausgeführt. Sinnvoll, wenn die
+  Migration nach dem Erzeugen lokal nochmal mit `ydeploy:migrate` getestet werden soll.
 
 Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:diff`.
 
-Templates, Module und Actions werden nicht über die `fixtures.yml` synchronisiert, sondern dafür sollte das [Developer-Addon](https://github.com/FriendsOfREDAXO/developer) genutzt werden.
+Templates, Module und Actions werden bewusst **nicht** über die `fixtures.yml` synchronisiert,
+da sie häufig in den eigentlichen `*.php`/`*.html`-Dateien gepflegt werden. Dafür sollte das
+[Developer-Addon](https://github.com/FriendsOfREDAXO/developer) genutzt werden, das diese
+Inhalte als Dateien im Repository ablegt.
 
 ### `redaxo/bin/console ydeploy:migrate`
 
-Dieses Kommando führt alle noch ausstehenden Migrationsdateien aus.
+**Wann benutzen?** Auf dem Zielsystem (Staging/Live) im Rahmen des Deployments – dort wird der
+Befehl von YDeploy ohnehin automatisch im Task `database:migration` aufgerufen. Lokal eignet
+sich der Befehl, um Migrations-Dateien, die andere Entwickler:innen per `git pull` mitgebracht
+haben, in die eigene Datenbank einzuspielen, ohne diese komplett neu aufzubauen.
 
-Bei Nutzung von deployer (siehe unten) wird dieses Kommando automatisch während des Deployments ausgeführt.
-Es ist aber auch geeignet, um Datenbank-Änderungen der anderen Entwickler in die lokale Entwicklungsumgebung zu übernehmen.
+**Was passiert konkret?**
+
+* Es werden alle `*.php`-Dateien aus `redaxo/data/addons/ydeploy/migrations/` ausgeführt, deren
+  Zeitstempel (aus dem Dateinamen) noch nicht in der Tabelle `rex_ydeploy_migration` als
+  „ausgeführt“ markiert ist – und zwar in chronologischer Reihenfolge.
+* Nach erfolgreichem Durchlauf einer Migration wird ihr Zeitstempel in
+  `rex_ydeploy_migration` eingetragen, sodass sie kein zweites Mal ausgeführt wird.
+* Bei Nutzung von deployer (siehe unten) wird zusätzlich – sofern das
+  [Developer-Addon](https://github.com/FriendsOfREDAXO/developer) installiert ist – im selben
+  Schritt `developer:sync --force-files` aufgerufen, damit Templates/Module/Actions aus den
+  Dateien in die Datenbank übernommen werden.
 
 Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:migrate`.
+
+Optionen:
+
+* `--fake` – markiert alle ausstehenden Migrationen als ausgeführt, ohne die
+  Migrationsdateien tatsächlich auszuführen.
 
 ### `redaxo/bin/console ydeploy:warmup`
 
@@ -150,6 +220,68 @@ So lässt sich bspw. über `dep deploy staging` auf den `staging`-Server deploye
 
 Im Release-Ablauf wird vor den Datenbank-Migrationen automatisch der Task `database:backup` ausgeführt und ein Datenbank-Backup auf dem Zielhost unter `{{shared_path}}/{{data_dir}}/addons/backup/backup-data/ydeploy/backup-<timestamp>.sql` abgelegt. Beim allerersten Deployment (es gibt noch kein `current`-Release) wird das Backup übersprungen.
 Für den automatischen Backup-Schritt muss auf den Zielhosts ein MySQL/MariaDB-Client inklusive `mysqldump` installiert sein.
+
+#### Was macht `dep build [local]`?
+
+Der `build`-Task bereitet auf dem **lokalen** Host (genauer: im Verzeichnis `.build/release` im Projekt-Root) ein vollständiges Release-Paket vor, das anschließend per `dep release` auf den Zielserver übertragen wird. Er besteht aus folgenden Unter-Tasks (siehe [`deployer/tasks/build.php`](deployer/tasks/build.php)):
+
+1. **`build:info`** – gibt eine kurze Statusausgabe „building <target>“ aus.
+2. **`build:setup`** – stellt sicher, dass der Task auf dem `local`-Host läuft, leert `.build/release/` und checkt den konfigurierten Branch/Tag (`target`) frisch aus dem Git-Repository aus. Im CI-Kontext (`getenv('CI')`) wird der gesamte Schritt übersprungen – weder das Aufräumen von `.build/release/` noch der Git-Checkout finden statt, weil das Repository im CI bereits in den Workspace ausgecheckt ist und direkt verwendet wird.
+3. **`build:vendors`** – leerer Platzhalter, der im Projekt durch eigene Logik überschrieben werden sollte (typischerweise `composer install --no-dev --optimize-autoloader` o. Ä.).
+4. **`build:assets`** – installiert per `yarn install` bzw. `npm install` Frontend-Dependencies und ruft `yarn build` / `npm run build` bzw. `gulp build` auf, falls eine entsprechende Konfiguration im Repository liegt. `node_modules/` werden zwischen Builds in `.build/.node_modules` zwischengelagert, damit sie nicht jedes Mal neu installiert werden müssen.
+5. **`deploy:clear_paths`** – entfernt Pfade aus dem Build, die im Projekt unter `clear_paths` gelistet sind (z. B. Entwicklungs-Dateien, die nicht aufs Live-System sollen).
+
+Das Ergebnis ist ein „bereinigtes“ Release im Ordner `.build/release/`, das exakt dem entspricht, was anschließend auf den Server hochgeladen wird.
+
+#### Was macht `dep release [host]`?
+
+Der `release`-Task spielt das bereits per `build` lokal vorbereitete Paket auf einem Ziel-Host aus. Definiert ist die Reihenfolge in [`deployer/tasks/release.php`](deployer/tasks/release.php):
+
+1. **`deploy:info`** – Statusausgabe „deploying <host>“.
+2. **`deploy:setup`** – legt auf dem Server (falls noch nicht vorhanden) die Standard-Struktur `releases/`, `shared/` und `.dep/` an.
+3. **`deploy:lock`** – setzt eine Lock-Datei (`.dep/deploy.lock`), damit kein zweites Deployment parallel läuft. Wird das Deployment unterbrochen, muss der Lock ggf. mit `dep deploy:unlock <host>` manuell entfernt werden.
+4. **`deploy:release`** – legt einen neuen, mit Zeitstempel versehenen Release-Ordner unter `releases/` an.
+5. **`deploy:copy_dirs`** – kopiert in der Projekt-`deploy.php` unter `copy_dirs` konfigurierte Verzeichnisse aus dem vorherigen Release in den neuen (z. B. `node_modules`).
+6. **`deploy:upload`** – synchronisiert per `rsync` den Inhalt von `.build/release/` (vom `local`-Host) in den neuen Release-Ordner auf dem Zielserver. Ausgenommen werden u. a. `.git/`, `.cache/`, `.tools/`, `node_modules/` und die Projekt-eigene `deploy.php`.
+7. **`deploy:shared`** – verlinkt geteilte Verzeichnisse/Dateien aus `shared/` ins neue Release (z. B. `media/`, `redaxo/data/`, `redaxo/cache/` – konfiguriert über `shared_dirs`/`shared_files`).
+8. **`deploy:dump_info`** – schreibt unter `redaxo/data/addons/ydeploy/info.json` Meta-Informationen zum Deployment (Host, Stage, Branch, Commit-SHA, Timestamp). Das wird im Backend angezeigt und ist hilfreich für die Nachvollziehbarkeit.
+9. **`deploy:writable`** – setzt die Schreibrechte auf konfigurierte Verzeichnisse (`writable_dirs`).
+10. **`setup`** – nur beim allerersten Deployment relevant: legt interaktiv `redaxo/data/core/config.yml` an, kopiert Datenbank und Medien von einem Quell-Host oder Dump-File auf den Ziel-Host, konfiguriert das Developer-Addon und ersetzt YRewrite-Domains. Existiert bereits eine `config.yml` auf dem Host, ist dieser Schritt ein No-Op.
+11. **`database:backup`** – legt vor den Migrationen ein `mysqldump`-Backup unter `{{shared_path}}/{{data_dir}}/addons/backup/backup-data/ydeploy/backup-<timestamp>.sql` ab. Beim allerersten Deployment (noch kein `current`-Release) wird das Backup übersprungen.
+12. **`database:migration`** – ruft im neuen Release `redaxo/bin/console ydeploy:migrate -v` auf und – falls vorhanden – `developer:sync --force-files -v`, damit Schema, Fixtures und Developer-Files in Einklang gebracht werden.
+13. **`deploy:publish`** – schaltet das neue Release per `current`-Symlink scharf. Dieser Schritt umfasst intern auch `deploy:symlink`, `deploy:unlock`, `deploy:cleanup` und `deploy:success`.
+
+Zusätzlich sind folgende Hooks aktiv:
+
+* Vor `server:clear_cache` läuft beim **ersten** Deployment der Task `setup:wait_for_symlink`, der pausiert, bis bestätigt wurde, dass der Webserver die Domain auf `{{current_path}}/{{base_dir}}` zeigt. Damit wird verhindert, dass `clear_web_php_cache` ins Leere läuft.
+* Vor `deploy:cleanup` läuft `deploy:clear_previous_releases_cache`, der die Cache-Verzeichnisse (`redaxo/cache/addons/*`, `redaxo/cache/core/*`) **älterer** Releases leert. So bleibt das `current`-Release voll funktionsfähig, alte Releases belegen aber keinen unnötigen Platz mehr.
+* `server:clear_cache` selbst kann via `restart_apache`, `kill_process` (z. B. `'fcgi'`) und `clear_web_php_cache` projektspezifisch konfiguriert werden, um nach dem Symlink-Wechsel den PHP-OPcache zu leeren.
+
+#### Was macht `dep deploy [host]`?
+
+`dep deploy` (siehe [`deployer/tasks/deploy.php`](deployer/tasks/deploy.php)) ist eine reine Komfort-Verkettung: zuerst wird auf dem `local`-Host `build` aufgerufen, anschließend `release` auf dem angegebenen Zielhost. In CI-Setups bietet es sich oft an, `build` und `release` getrennt aufzurufen (Build im CI-Container, anschließend `dep release <host>` von einem Bastion-/Deployment-Host).
+
+#### Deployment entsperren: `dep deploy:unlock [host]`
+
+Bricht ein Deployment unerwartet ab (z. B. SSH-Verbindungsabbruch, Strg+C, Fehler in einem Task), bleibt der Lock aus `deploy:lock` bestehen und der nächste `dep deploy`/`dep release` schlägt mit „Deploy is locked“ fehl. In diesem Fall mit
+
+```
+dep deploy:unlock <host>
+```
+
+den Lock manuell entfernen. Vorher prüfen, dass kein paralleles Deployment tatsächlich noch läuft, und ggf. den Zustand des letzten Release-Ordners aufräumen.
+
+#### Weitere nützliche Deployer-Befehle
+
+Deployer bringt von Haus aus weitere Befehle mit, die in Kombination mit YDeploy oft praktisch sind:
+
+* **`dep rollback <host>`** – schaltet den `current`-Symlink wieder auf das vorherige Release zurück. **Wichtig:** ein Rollback gibt nur den **Code** auf den vorherigen Stand zurück – Datenbank-Migrationen werden nicht rückgängig gemacht. Für ein vollständiges Rollback muss zusätzlich das vor dem Deployment angelegte `database:backup`-SQL-File eingespielt werden.
+* **`dep ssh <host>`** – öffnet eine SSH-Session im `current`-Release-Verzeichnis des Hosts. Nützlich, um schnell `redaxo/bin/console …` direkt auf dem Server auszuführen.
+* **`dep config:hosts`** / **`dep config:current`** – zeigt die konfigurierten Hosts bzw. den Stand des aktuellen Release-Symlinks.
+* **`dep run '<command>' <host>`** – führt ein beliebiges Shell-Kommando im `current`-Release des Hosts aus.
+* **`dep setup <host>`** – läuft im normalen `release`-Flow ohnehin automatisch und richtet einen frischen Host (config.yml, Datenbank, Medien) ein. Lokal kann `dep setup` genutzt werden, um den Entwickler-Arbeitsplatz aus einem Dump oder von einem Host zu befüllen.
+
+Eine vollständige Übersicht aller verfügbaren Tasks liefert `dep list`, Details zu einem Task `dep help <task>`.
 
 ### Datenbank-Backup auf einem Host (`dep database:backup`)
 
