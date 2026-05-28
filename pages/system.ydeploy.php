@@ -1,6 +1,6 @@
 <?php
 
-$ydeploy = rex_ydeploy::factory();
+$ydeploy = \Alexplusde\Deploy\YDeploy::factory();
 
 if ($ydeploy->isDeployed()) {
     $info = [
@@ -35,7 +35,7 @@ if (!$ydeploy->isDeployed()) {
 }
 
 $apiUrl = static function (string $action, string $page, ?string $redirect = null) {
-    $params = rex_api_ydeploy_protected_page::getUrlParams();
+    $params = \Alexplusde\Deploy\Api\ProtectedPage::getUrlParams();
     $params['action'] = $action;
     $params['protected_page'] = $page;
 
@@ -62,7 +62,7 @@ $content = '';
 
 $pages = [];
 
-foreach (rex_ydeploy_handler::getProtectedPages() as $page => $subpages) {
+foreach (\Alexplusde\Deploy\Handler::getProtectedPages() as $page => $subpages) {
     $page = rex_be_controller::getPageObject($page);
 
     if (!$page) {
@@ -105,7 +105,7 @@ foreach (rex_be_controller::getPages() as $key => $page) {
     }
 }
 
-$unlockedPages = rex_ydeploy_handler::getUnlockedPages();
+$unlockedPages = \Alexplusde\Deploy\Handler::getUnlockedPages();
 
 foreach ($navi->getNavigation() as $block) {
     $content .= '

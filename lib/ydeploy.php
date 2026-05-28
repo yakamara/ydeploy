@@ -1,6 +1,18 @@
 <?php
 
-final class rex_ydeploy
+namespace Alexplusde\Deploy;
+
+use DateTimeImmutable;
+use DateTimeZone;
+use rex;
+use rex_addon;
+use rex_file;
+use rex_path;
+use rex_sql;
+use rex_sql_exception;
+use rex_type;
+
+final class YDeploy
 {
     private static ?self $instance = null;
 
@@ -133,3 +145,5 @@ final class rex_ydeploy
         return $pending;
     }
 }
+
+\class_alias(YDeploy::class, 'rex_ydeploy');

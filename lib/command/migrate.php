@@ -1,15 +1,20 @@
 <?php
 
+namespace Alexplusde\Deploy\Command;
+
+use rex_sql;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function rex_delete_cache;
+
 /**
  * @internal
  */
-final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
+final class Migrate extends AbstractCommand
 {
     protected function configure(): void
     {
@@ -101,3 +106,5 @@ final class rex_ydeploy_command_migrate extends rex_ydeploy_command_abstract
         require $path;
     }
 }
+
+\class_alias(Migrate::class, 'rex_ydeploy_command_migrate');

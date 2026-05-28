@@ -1,9 +1,25 @@
 <?php
 
+namespace Alexplusde\Deploy;
+
+use Alexplusde\Deploy\Api\ProtectedPage;
+use rex;
+use rex_addon;
+use rex_be_controller;
+use rex_be_page;
+use rex_extension;
+use rex_extension_point;
+use rex_string;
+use rex_url;
+use rex_view;
+
+use function rex_escape;
+use function rex_session;
+
 /**
  * @internal
  */
-final class rex_ydeploy_handler
+final class Handler
 {
     /** @param rex_extension_point<string> $ep */
     public static function addPendingMigrationsWarning(rex_extension_point $ep): string
@@ -35,7 +51,7 @@ final class rex_ydeploy_handler
     /** @param rex_extension_point<array<mixed>> $ep */
     public static function addBodyClasses(rex_extension_point $ep): array
     {
-        $ydeploy = rex_ydeploy::factory();
+        $ydeploy = YDeploy::factory();
 
         $attr = $ep->getSubject();
 
@@ -55,7 +71,7 @@ final class rex_ydeploy_handler
     /** @param rex_extension_point<string> $ep */
     public static function addBadge(rex_extension_point $ep): ?string
     {
-        $ydeploy = rex_ydeploy::factory();
+        $ydeploy = YDeploy::factory();
 
         if ($ydeploy->isDeployed()) {
             $host = $ydeploy->getHost();
@@ -156,14 +172,14 @@ final class rex_ydeploy_handler
     {
         $unlockedPages = self::getUnlockedPages();
         $unlockedPages[$page] = true;
-        rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
+        \rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
     }
 
     public static function lockPage(string $page): void
     {
         $unlockedPages = self::getUnlockedPages();
         unset($unlockedPages[$page]);
-        rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
+        \rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
     }
 
     private static function protectPage(rex_be_page $page): void
@@ -195,7 +211,7 @@ final class rex_ydeploy_handler
         }
 
         rex_extension::register('PAGE_TITLE_SHOWN', static function (rex_extension_point $ep) {
-            $url = rex_url::backendPage('system/ydeploy', rex_api_ydeploy_protected_page::getUrlParams() + [
+            $url = rex_url::backendPage('system/ydeploy', ProtectedPage::getUrlParams() + [
                 'action' => 'lock',
                 'protected_page' => rex_be_controller::getCurrentPage(),
             ]);
@@ -209,3 +225,5 @@ final class rex_ydeploy_handler
         });
     }
 }
+
+\class_alias(Handler::class, 'rex_ydeploy_handler');

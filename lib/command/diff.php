@@ -1,5 +1,18 @@
 <?php
 
+namespace Alexplusde\Deploy\Command;
+
+use Alexplusde\Deploy\DiffFile;
+use DateTime;
+use DateTimeZone;
+use Exception;
+use rex;
+use rex_file;
+use rex_sql;
+use rex_sql_column;
+use rex_sql_foreign_key;
+use rex_sql_index;
+use rex_sql_table;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -8,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
-final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
+final class Diff extends AbstractCommand
 {
     protected function configure(): void
     {
@@ -33,7 +46,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
 
         $schemaExists = file_exists($this->addon->getDataPath('schema.yml'));
 
-        $diff = new rex_ydeploy_diff_file();
+        $diff = new DiffFile();
 
         $this->handleSchema($tables, $diff);
         $this->handleFixtures($tables, $diff);
@@ -64,7 +77,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     /**
      * @param list<rex_sql_table> $tables
      */
-    private function handleSchema(array $tables, rex_ydeploy_diff_file $diff): void
+    private function handleSchema(array $tables, DiffFile $diff): void
     {
         $sql = rex_sql::factory();
 
@@ -142,7 +155,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     /**
      * @param list<rex_sql_table> $tables
      */
-    private function addSchemaDiff(rex_ydeploy_diff_file $diff, array $tables, array $charsets, array $views): void
+    private function addSchemaDiff(DiffFile $diff, array $tables, array $charsets, array $views): void
     {
         $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
 
@@ -328,7 +341,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
     /**
      * @param list<rex_sql_table> $tables
      */
-    private function handleFixtures(array $tables, rex_ydeploy_diff_file $diff): void
+    private function handleFixtures(array $tables, DiffFile $diff): void
     {
         $fixtureTables = [];
         foreach ($this->addon->getProperty('config')['fixtures']['tables'] as $name => $config) {
@@ -468,7 +481,7 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return false;
     }
 
-    private function saveDiff(rex_ydeploy_diff_file $diff): DateTime
+    private function saveDiff(DiffFile $diff): DateTime
     {
         $timestamp = new DateTime();
         $timestamp->setTimezone(new DateTimeZone('UTC'));
@@ -484,3 +497,5 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
         return $timestamp;
     }
 }
+
+\class_alias(Diff::class, 'rex_ydeploy_command_diff');
