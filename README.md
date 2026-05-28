@@ -56,7 +56,7 @@ Gibt es Unterschiede, werden:
 * `schema.yml` und `fixtures.yml` mit dem aktuellen Stand überschrieben (so sind beide Dateien
   immer das „Soll“ für den nächsten Vergleich),
 * in `redaxo/data/addons/ydeploy/migrations/` eine neue Migrationsdatei mit Zeitstempel-Namen
-  (z. B. `2024-01-15 12-34-56.123456.php`) erzeugt, die einen `up()`-Aufruf mit allen
+  (z. B. `2024-01-15 12-34-56.123456.php`) erzeugt, die direkt ausführbaren PHP-Code mit allen
   notwendigen SQL- bzw. Fixture-Operationen enthält,
 * die Migration in der Tabelle `rex_ydeploy_migration` direkt als ausgeführt markiert (damit
   `ydeploy:migrate` lokal nicht versucht, die eben erst erzeugte Änderung erneut anzuwenden).
