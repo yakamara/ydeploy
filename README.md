@@ -87,8 +87,8 @@ haben, in die eigene Datenbank einzuspielen, ohne diese komplett neu aufzubauen.
 * Es werden alle `*.php`-Dateien aus `redaxo/data/addons/ydeploy/migrations/` ausgeführt, deren
   Zeitstempel (aus dem Dateinamen) noch nicht in der Tabelle `rex_ydeploy_migration` als
   „ausgeführt“ markiert ist – und zwar in chronologischer Reihenfolge.
-* Jede Migration läuft in einer Transaktion. Nach erfolgreichem Durchlauf wird der Zeitstempel
-  in `rex_ydeploy_migration` eingetragen, sodass die Migration kein zweites Mal ausgeführt wird.
+* Nach erfolgreichem Durchlauf einer Migration wird ihr Zeitstempel in
+  `rex_ydeploy_migration` eingetragen, sodass sie kein zweites Mal ausgeführt wird.
 * Bei Nutzung von deployer (siehe unten) wird zusätzlich – sofern das
   [Developer-Addon](https://github.com/FriendsOfREDAXO/developer) installiert ist – im selben
   Schritt `developer:sync --force-files` aufgerufen, damit Templates/Module/Actions aus den
