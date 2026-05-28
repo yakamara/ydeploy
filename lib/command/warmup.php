@@ -40,10 +40,9 @@ final class rex_ydeploy_command_warmup extends rex_ydeploy_command_abstract
 
         $io->title('YDeploy warmup');
 
-        if (!function_exists('curl_init') || !function_exists('curl_multi_init')) {
-            $io->warning('cURL extension is not available. Skipping warmup.');
-
-            return Command::SUCCESS;
+        $canWarmupUrls = function_exists('curl_init') && function_exists('curl_multi_init');
+        if (!$canWarmupUrls) {
+            $io->warning('cURL extension is not available. Skipping URL warmup.');
         }
 
         $concurrency = max(1, (int) $input->getOption('concurrency'));
@@ -55,54 +54,51 @@ final class rex_ydeploy_command_warmup extends rex_ydeploy_command_abstract
 
         $urls = [];
 
-        if ($urlOption) {
-            foreach ($urlOption as $url) {
-                $urls[] = $url;
-            }
-        } else {
-            $baseUrls = $this->getBaseUrls();
+        if ($canWarmupUrls) {
+            if ($urlOption) {
+                foreach ($urlOption as $url) {
+                    $urls[] = $url;
+                }
+            } else {
+                $baseUrls = $this->getBaseUrls();
 
-            if (!$baseUrls) {
-                $io->warning('No base URL could be determined for warmup. Use --url to specify URLs explicitly.');
+                if (!$baseUrls) {
+                    $io->warning('No base URL could be determined for warmup. Use --url to specify URLs explicitly.');
+                } elseif ($useSitemap) {
+                    foreach ($baseUrls as $baseUrl) {
+                        $sitemapUrl = rtrim($baseUrl, '/') . '/sitemap.xml';
+                        $io->text(sprintf('Discovering URLs from <info>%s</info>', $sitemapUrl));
 
-                return Command::SUCCESS;
-            }
-
-            if ($useSitemap) {
-                foreach ($baseUrls as $baseUrl) {
-                    $sitemapUrl = rtrim($baseUrl, '/') . '/sitemap.xml';
-                    $io->text(sprintf('Discovering URLs from <info>%s</info>', $sitemapUrl));
-
-                    $discovered = $this->fetchSitemapUrls($sitemapUrl, $timeout);
-                    if (!$discovered) {
-                        $io->text(sprintf('  No URLs found, falling back to <info>%s</info>', $baseUrl));
+                        $discovered = $this->fetchSitemapUrls($sitemapUrl, $timeout);
+                        if (!$discovered) {
+                            $io->text(sprintf('  No URLs found, falling back to <info>%s</info>', $baseUrl));
+                            $urls[] = $baseUrl;
+                            continue;
+                        }
+                        $io->text(sprintf('  Found <info>%d</info> URL(s)', count($discovered)));
+                        foreach ($discovered as $u) {
+                            $urls[] = $u;
+                        }
+                    }
+                } else {
+                    foreach ($baseUrls as $baseUrl) {
                         $urls[] = $baseUrl;
-                        continue;
                     }
-                    $io->text(sprintf('  Found <info>%d</info> URL(s)', count($discovered)));
-                    foreach ($discovered as $u) {
-                        $urls[] = $u;
-                    }
-                }
-            } else {
-                foreach ($baseUrls as $baseUrl) {
-                    $urls[] = $baseUrl;
                 }
             }
-        }
+            $urls = array_values(array_unique($urls));
 
-        $urls = array_values(array_unique($urls));
-
-        if (!$urls) {
-            $io->warning('No URLs to warm up.');
-        } else {
-            $io->section(sprintf('Warming up %d URL(s) (concurrency: %d)', count($urls), $concurrency));
-            [$success, $failed] = $this->warmupUrls($urls, $concurrency, $timeout, $io);
-
-            if ($failed) {
-                $io->warning(sprintf('%d URL(s) warmed up, %d failed.', $success, $failed));
+            if (!$urls) {
+                $io->warning('No URLs to warm up.');
             } else {
-                $io->success(sprintf('%d URL(s) warmed up successfully.', $success));
+                $io->section(sprintf('Warming up %d URL(s) (concurrency: %d)', count($urls), $concurrency));
+                [$success, $failed] = $this->warmupUrls($urls, $concurrency, $timeout, $io);
+
+                if ($failed) {
+                    $io->warning(sprintf('%d URL(s) warmed up, %d failed.', $success, $failed));
+                } else {
+                    $io->success(sprintf('%d URL(s) warmed up successfully.', $success));
+                }
             }
         }
 

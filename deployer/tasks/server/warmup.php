@@ -2,7 +2,7 @@
 
 namespace Deployer;
 
-// Whether to run the warmup task automatically after deploy:publish.
+// Whether to run the warmup task automatically after server:clear_cache.
 // When false (default), the task can still be invoked manually via
 // `dep deploy:warmup [hostname]`.
 set('warmup_after_deploy', false);
@@ -12,9 +12,9 @@ set('warmup_after_deploy', false);
 // the new symlink.
 set('warmup_skip_initial', true);
 
-// Additional options that are passed to `bin/console ydeploy:warmup`.
-// Examples: '--no-sitemap', '--skip-search-it', '--concurrency=10'.
-set('warmup_console_options', '');
+// Additional option arguments that are passed to `bin/console ydeploy:warmup`.
+// Examples: ['--no-sitemap', '--skip-search-it', '--concurrency=10'].
+set('warmup_console_options', []);
 
 desc('Warm up the cache (crawl sitemap.xml and rebuild search indexes)');
 task('deploy:warmup', static function () {
@@ -37,10 +37,25 @@ task('deploy:warmup', static function () {
 
     cd('{{release_path}}');
 
-    $options = (string) get('warmup_console_options');
-    $options = '' === trim($options) ? '' : ' ' . trim($options);
+    $options = get('warmup_console_options');
+    if (is_string($options)) {
+        $options = '' === trim($options) ? [] : preg_split('/\s+/', trim($options));
+    }
 
-    run('{{bin/php}} {{bin/console}} ydeploy:warmup -v' . $options);
+    if (!is_array($options)) {
+        $options = [];
+    }
+
+    $escapedOptions = '';
+    foreach ($options as $option) {
+        $option = trim((string) $option);
+        if ('' === $option) {
+            continue;
+        }
+        $escapedOptions .= ' ' . escapeshellarg($option);
+    }
+
+    run('{{bin/php}} {{bin/console}} ydeploy:warmup -v' . $escapedOptions);
 });
 
 after('server:clear_cache', 'deploy:warmup');
