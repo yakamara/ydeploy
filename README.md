@@ -101,6 +101,28 @@ Optionen:
 * `--fake` – markiert alle ausstehenden Migrationen als ausgeführt, ohne die
   Migrationsdateien tatsächlich auszuführen.
 
+### `redaxo/bin/console ydeploy:warmup`
+
+Dieses Kommando wärmt den Cache nach einem Deployment auf, indem es URLs per Multi-cURL parallel abruft.
+Dabei werden — sofern verfügbar — die `sitemap.xml`-Dateien aller im yrewrite-Addon konfigurierten Domains
+ausgewertet und alle darin enthaltenen URLs abgerufen. Steht das yrewrite-Addon nicht zur Verfügung,
+wird die in REDAXO konfigurierte Server-URL verwendet.
+
+Ist das Addon [search_it](https://github.com/FriendsOfREDAXO/search_it) installiert, wird zusätzlich der
+Suchindex neu aufgebaut. Der URL-Addon-Index baut sich beim ersten Frontend-Aufruf automatisch wieder auf
+und wird damit ebenfalls indirekt durch das Warmup erzeugt.
+
+Optionen:
+
+* `--url=URL` (mehrfach möglich): Konkrete URL(s), die aufgewärmt werden sollen. Überspringt die automatische
+  Erkennung über `sitemap.xml`.
+* `--no-sitemap`: Lädt nur die jeweilige Domain-Root, ohne `sitemap.xml` auszuwerten.
+* `--skip-search-it`: Überspringt den Neuaufbau des `search_it`-Index.
+* `--concurrency=N`: Anzahl paralleler HTTP-Requests (Standard `5`).
+* `--timeout=N`: Timeout pro Request in Sekunden (Standard `30`).
+
+Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:warmup`.
+
 ### Ausstehende Migrations im Backend
 
 Solange noch nicht ausgeführte Migrationsdateien in `redaxo/data/addons/ydeploy/migrations/` existieren, wird im Backend (nur für Admins) ein Warnhinweis mit der Liste der ausstehenden Migrations ausgegeben. Damit wird verhindert, dass `ydeploy:migrate` versehentlich vergessen wird.
@@ -304,6 +326,27 @@ set('pull_skip_media', false);
 ```
 
 Der Befehl muss auf dem `local`-Host laufen, was beim Aufruf von `dep pull` (ohne weiteren Host) automatisch geschieht.
+
+### Cache-Warmup nach dem Deployment
+
+Das Addon stellt einen Deployer-Task `deploy:warmup` bereit, der nach `server:clear_cache` ausgeführt wird und
+den `ydeploy:warmup`-Konsolen-Befehl auf dem Ziel-Host startet (siehe oben). Das initiale Deployment wird
+übersprungen, da die Domain in diesem Fall i.d.R. noch nicht auf das `current`-Symlink zeigt.
+
+Standardmäßig fragt der Task im interaktiven Modus per Y/N-Abfrage, ob das Warmup laufen soll. Über die
+folgenden Optionen lässt sich das Verhalten anpassen:
+
+```php
+// true: ohne Rückfrage immer ausführen; false (Standard): interaktiv fragen bzw. im
+// nicht-interaktiven Modus überspringen
+set('warmup_after_deploy', false);
+
+// Beim initialen Deployment überspringen (Standard true)
+set('warmup_skip_initial', true);
+
+// Zusätzliche CLI-Optionen, die an `ydeploy:warmup` durchgereicht werden
+set('warmup_console_options', ['--concurrency=10']);
+```
 
 Lizenz
 ------
