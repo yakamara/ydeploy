@@ -1,42 +1,8 @@
 # rexstan Analyse: deploy
 # Level: 8 | PHP: 80400 | Extensions: deprecation, dead-code, superglobals, strict, bleeding-edge
-# Gesamt: 13 Fehler in 12 Kategorien
-# Datum: 2026-05-28 08:16:36
-
-### Casting to string something that's already string. (2x)
-  - src/addons/deploy/lib/api/protected_page.php:51: Casting to string something that's already string.
-  - src/addons/deploy/lib/api/protected_page.php:53: Casting to string something that's already string.
+# Gesamt: 1 Fehler in 1 Kategorien
+# Datum: 2026-05-28 08:20:27
 
 ### Anonymous class extends unknown class Deployer\Host\HostCollection. (1x)
   - src/addons/deploy/deployer/config.php:17: Anonymous class extends unknown class Deployer\Host\HostCollection.
-
-### Parameter #1 $name of static method rex_sql_table::get() expects non-empty-string, string given. (1x)
-  - src/addons/deploy/lib/command/diff.php:45: Parameter #1 $name of static method rex_sql_table::get() expects non-empty-string, string given.
-
-### Parameter #3 $charsets of method Alexplusde\Deploy\Command\Diff::addSchemaDiff() expects array<string, array{charset: string, collation: string}>, array<int|string, array<string, bool|float|int|string|null>> given. (1x)
-  - src/addons/deploy/lib/command/diff.php:104: Parameter #3 $charsets of method Alexplusde\Deploy\Command\Diff::addSchemaDiff() expects array<string, array{charset: string, collation: string}>, array<int|string, array<string, bool|float|int|string|null>> given.
-
-### Parameter #2 $charsets of method Alexplusde\Deploy\Command\Diff::createSchema() expects array<string, array{charset: string, collation: string}>, array<int|string, array<string, bool|float|int|string|null>> given. (1x)
-  - src/addons/deploy/lib/command/diff.php:105: Parameter #2 $charsets of method Alexplusde\Deploy\Command\Diff::createSchema() expects array<string, array{charset: string, collation: string}>, array<int|string, array<string, bool|float|int|string|null>> given.
-
-### Method Alexplusde\Deploy\Command\Diff::indexEqualsSchema() never returns true so the return type can be changed to false. (1x)
-  - src/addons/deploy/lib/command/diff.php:346: Method Alexplusde\Deploy\Command\Diff::indexEqualsSchema() never returns true so the return type can be changed to false.
-
-### Result of && is always false. (1x)
-  - src/addons/deploy/lib/command/diff.php:349: Result of && is always false.
-
-### Strict comparison using === between 'FULLTEXT'|'INDEX'|'UNIQUE' and int will always evaluate to false. (1x)
-  - src/addons/deploy/lib/command/diff.php:349: Strict comparison using === between 'FULLTEXT'|'INDEX'|'UNIQUE' and int will always evaluate to false.
-
-### Parameter #2 $conditions of method Alexplusde\Deploy\Command\Diff::rowMatchesConditions() expects list<array<string, mixed>>, array<mixed, mixed> given. (1x)
-  - src/addons/deploy/lib/command/diff.php:424: Parameter #2 $conditions of method Alexplusde\Deploy\Command\Diff::rowMatchesConditions() expects list<array<string, mixed>>, array<mixed, mixed> given.
-
-### Variable $path on left side of ?? always exists and is not nullable. (1x)
-  - src/addons/deploy/lib/command/migrate.php:102: Variable $path on left side of ?? always exists and is not nullable.
-
-### Strict comparison using !== between non-empty-list<string> and array{} will always evaluate to true. (1x)
-  - src/addons/deploy/lib/diff_file.php:177: Strict comparison using !== between non-empty-list<string> and array{} will always evaluate to true.
-
-### Argument of an invalid type list<string>|string supplied for foreach, only iterables are supported. (1x)
-  - src/addons/deploy/lib/handler.php:151: Argument of an invalid type list<string>|string supplied for foreach, only iterables are supported.
 

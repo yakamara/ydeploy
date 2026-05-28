@@ -345,7 +345,7 @@ final class Diff extends AbstractCommand
     }
 
     /**
-     * @param array{type: string, columns: list<string>} $schema
+     * @param array{type: mixed, columns: list<string>} $schema
      */
     private function indexEqualsSchema(rex_sql_index $index, array $schema): bool
     {

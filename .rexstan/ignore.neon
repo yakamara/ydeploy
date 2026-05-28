@@ -23,8 +23,8 @@ parameters:
             path: ../*
         # Anonyme Klasse erweitert Deployer\Host\HostCollection
         -
-            message: '#Anonymous class extends unknown class Deployer\\Host\\HostCollection\.$#'
-            path: ../*
+            message: '#^Anonymous class extends unknown class Deployer\\Host\\HostCollection\.$#'
+            path: ../deployer/config.php
         # parent::has()/parent::get() Aufrufe in der anonymen HostCollection
         -
             message: '#HostCollection@anonymous/deployer/config\.php:17::(has|get)\(\) calls parent::(has|get)\(\) but .* does not extend any class\.$#'
