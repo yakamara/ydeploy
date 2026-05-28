@@ -15,6 +15,7 @@ use rex_view;
 
 use function rex_escape;
 use function rex_session;
+use function rex_set_session;
 
 /**
  * @internal
@@ -172,14 +173,14 @@ final class Handler
     {
         $unlockedPages = self::getUnlockedPages();
         $unlockedPages[$page] = true;
-        \rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
+        rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
     }
 
     public static function lockPage(string $page): void
     {
         $unlockedPages = self::getUnlockedPages();
         unset($unlockedPages[$page]);
-        \rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
+        rex_set_session('ydeploy_unlocked_pages', $unlockedPages);
     }
 
     private static function protectPage(rex_be_page $page): void
