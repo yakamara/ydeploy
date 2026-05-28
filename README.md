@@ -96,6 +96,11 @@ haben, in die eigene Datenbank einzuspielen, ohne diese komplett neu aufzubauen.
 
 Details des Kommandos erhält man über `redaxo/bin/console help ydeploy:migrate`.
 
+Optionen:
+
+* `--fake` – markiert alle ausstehenden Migrationen als ausgeführt, ohne die
+  Migrationsdateien tatsächlich auszuführen.
+
 ### Ausstehende Migrations im Backend
 
 Solange noch nicht ausgeführte Migrationsdateien in `redaxo/data/addons/ydeploy/migrations/` existieren, wird im Backend (nur für Admins) ein Warnhinweis mit der Liste der ausstehenden Migrations ausgegeben. Damit wird verhindert, dass `ydeploy:migrate` versehentlich vergessen wird.
