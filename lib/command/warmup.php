@@ -8,8 +8,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Warms up the post-deployment cache by crawling URLs (typically from
- * sitemap.xml of each yrewrite domain) via multi-cURL, and optionally
- * rebuilds the search_it index.
+ * sitemap.xml of each yrewrite domain) via multi-cURL, and rebuilds the
+ * search_it index unless `--skip-search-it` is used.
  *
  * @internal
  */

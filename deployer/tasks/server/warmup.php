@@ -2,8 +2,9 @@
 
 namespace Deployer;
 
-// Whether to run the warmup task automatically after server:clear_cache.
-// When false (default), the task can still be invoked manually via
+// Whether to execute warmup automatically when the post-deploy hook runs.
+// When false (default), interactive deployments ask for confirmation and
+// non-interactive deployments skip warmup. The task can still be invoked manually via
 // `dep deploy:warmup [hostname]`.
 set('warmup_after_deploy', false);
 

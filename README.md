@@ -213,7 +213,7 @@ set('warmup_after_deploy', false);
 set('warmup_skip_initial', true);
 
 // Zusätzliche CLI-Optionen, die an `ydeploy:warmup` durchgereicht werden
-set('warmup_console_options', '--concurrency=10');
+set('warmup_console_options', ['--concurrency=10']);
 ```
 
 Lizenz
