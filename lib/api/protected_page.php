@@ -1,9 +1,22 @@
 <?php
 
+namespace Alexplusde\Deploy\Api;
+
+use Alexplusde\Deploy\Handler;
+use rex;
+use rex_api_exception;
+use rex_api_function;
+use rex_api_result;
+use rex_csrf_token;
+use rex_response;
+
+use function rex_escape;
+use function rex_get;
+
 /**
  * @internal
  */
-final class rex_api_ydeploy_protected_page extends rex_api_function
+final class ProtectedPage extends rex_api_function
 {
     public function execute(): rex_api_result
     {
@@ -20,7 +33,7 @@ final class rex_api_ydeploy_protected_page extends rex_api_function
         $protectedPage = rex_get('protected_page', 'string');
 
         $foundPage = null;
-        foreach (rex_ydeploy_handler::getProtectedPages() as $page => $subpages) {
+        foreach (Handler::getProtectedPages() as $page => $subpages) {
             // `yform/manager/table_edit` must not match `yform/man`
             // so we add slashes to avoid this
             if (str_starts_with($protectedPage . '/', $page . '/')) {
@@ -35,9 +48,9 @@ final class rex_api_ydeploy_protected_page extends rex_api_function
         }
 
         if ('unlock' === $action) {
-            rex_ydeploy_handler::unlockPage($foundPage);
+            Handler::unlockPage($foundPage);
         } else {
-            rex_ydeploy_handler::lockPage($foundPage);
+            Handler::lockPage($foundPage);
         }
 
         if ($redirect = rex_get('redirect', 'string')) {
@@ -50,8 +63,34 @@ final class rex_api_ydeploy_protected_page extends rex_api_function
         return $result;
     }
 
+    /**
+     * Ensure URLs continue to reference the legacy `ydeploy_protected_page`
+     * API name (mapped to `rex_api_ydeploy_protected_page` via class alias)
+     * so existing backend URLs remain backwards-compatible.
+     *
+     * @return array<string, string>
+     */
+    public static function getUrlParams(): array
+    {
+        return [
+            rex_api_function::REQ_CALL_PARAM => 'ydeploy_protected_page',
+            rex_csrf_token::PARAM => rex_csrf_token::factory(static::class)->getValue(),
+        ];
+    }
+
+    public static function getHiddenFields(): string
+    {
+        return sprintf(
+            '<input type="hidden" name="%s" value="%s"/>',
+            rex_api_function::REQ_CALL_PARAM,
+            rex_escape('ydeploy_protected_page'),
+        ) . rex_csrf_token::factory(static::class)->getHiddenField();
+    }
+
     protected function requiresCsrfProtection(): bool
     {
         return true;
     }
 }
+
+\class_alias(ProtectedPage::class, 'rex_api_ydeploy_protected_page');

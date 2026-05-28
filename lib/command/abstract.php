@@ -1,9 +1,15 @@
 <?php
 
+namespace Alexplusde\Deploy\Command;
+
+use rex;
+use rex_addon;
+use rex_console_command;
+
 /**
  * @internal
  */
-abstract class rex_ydeploy_command_abstract extends rex_console_command
+abstract class AbstractCommand extends rex_console_command
 {
     protected readonly rex_addon $addon;
     protected readonly string $migrationTable;
@@ -16,3 +22,5 @@ abstract class rex_ydeploy_command_abstract extends rex_console_command
         parent::__construct();
     }
 }
+
+\class_alias(AbstractCommand::class, 'rex_ydeploy_command_abstract');

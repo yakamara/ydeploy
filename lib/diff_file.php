@@ -1,9 +1,17 @@
 <?php
 
+namespace Alexplusde\Deploy;
+
+use rex_sql;
+use rex_sql_column;
+use rex_sql_foreign_key;
+use rex_sql_index;
+use rex_sql_table;
+
 /**
  * @internal
  */
-final class rex_ydeploy_diff_file
+final class DiffFile
 {
     /** @var array<string, rex_sql_table> */
     private array $create = [];
@@ -481,3 +489,5 @@ final class rex_ydeploy_diff_file
         return "<<<'SQL'\n$var\n        SQL";
     }
 }
+
+\class_alias(DiffFile::class, 'rex_ydeploy_diff_file');

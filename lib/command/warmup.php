@@ -1,10 +1,17 @@
 <?php
 
+namespace Alexplusde\Deploy\Command;
+
+use rex;
+use rex_addon;
+use rex_search_it;
+use rex_yrewrite;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 /**
  * Warms up the post-deployment cache by crawling URLs (typically from
@@ -13,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @internal
  */
-final class rex_ydeploy_command_warmup extends rex_ydeploy_command_abstract
+final class Warmup extends AbstractCommand
 {
     /** @var int default per-request timeout in seconds */
     private const DEFAULT_TIMEOUT = 30;
@@ -317,3 +324,5 @@ final class rex_ydeploy_command_warmup extends rex_ydeploy_command_abstract
         }
     }
 }
+
+\class_alias(Warmup::class, 'rex_ydeploy_command_warmup');

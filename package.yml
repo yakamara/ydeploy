@@ -12,9 +12,9 @@ conflicts:
         developer: '<3.7'
 
 console_commands:
-    ydeploy:diff: rex_ydeploy_command_diff
-    ydeploy:migrate: rex_ydeploy_command_migrate
-    ydeploy:warmup: rex_ydeploy_command_warmup
+    ydeploy:diff: 'Alexplusde\Deploy\Command\Diff'
+    ydeploy:migrate: 'Alexplusde\Deploy\Command\Migrate'
+    ydeploy:warmup: 'Alexplusde\Deploy\Command\Warmup'
 
 pages:
     system/ydeploy:
