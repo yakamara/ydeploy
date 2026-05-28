@@ -120,6 +120,10 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                 ];
             }
 
+            if (isset($schema[$tableName]['indexes'])) {
+                ksort($schema[$tableName]['indexes']);
+            }
+
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $schema[$tableName]['foreignKeys'][$foreignKey->getName()] = [
                     'table' => $foreignKey->getTable(),
@@ -127,6 +131,10 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                     'onUpdate' => $foreignKey->getOnUpdate(),
                     'onDelete' => $foreignKey->getOnDelete(),
                 ];
+            }
+
+            if (isset($schema[$tableName]['foreignKeys'])) {
+                ksort($schema[$tableName]['foreignKeys']);
             }
         }
 
