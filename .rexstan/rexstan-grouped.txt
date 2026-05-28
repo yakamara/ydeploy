@@ -1,8 +1,246 @@
 # rexstan Analyse: deploy
-# Level: 8 | PHP: 80400 | Extensions: deprecation, dead-code, superglobals, strict, bleeding-edge
-# Gesamt: 1 Fehler in 1 Kategorien
-# Datum: 2026-05-28 08:20:27
+# Level: 9 | PHP: 80400 | Extensions: deprecation, dead-code, superglobals, strict, bleeding-edge
+# Gesamt: 121 Fehler in 60 Kategorien
+# Datum: 2026-05-28 08:21:21
+
+### Cannot access offset string on mixed. (10x)
+  - src/addons/deploy/lib/command/diff.php:194: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:229: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:251: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:274: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:288: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:292: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:302: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:306: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:323: Cannot access offset string on mixed.
+  - src/addons/deploy/lib/command/diff.php:327: Cannot access offset string on mixed.
+
+### Argument of an invalid type mixed supplied for foreach, only iterables are supported. (8x)
+  - src/addons/deploy/lib/command/diff.php:220: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:296: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:310: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:318: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:330: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:375: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:406: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+  - src/addons/deploy/lib/command/diff.php:480: Argument of an invalid type mixed supplied for foreach, only iterables are supported.
+
+### Cannot access offset 'name' on mixed. (6x)
+  - src/addons/deploy/deployer/tasks/setup.php:148: Cannot access offset 'name' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:156: Cannot access offset 'name' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:156: Cannot access offset 'name' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:164: Cannot access offset 'name' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:168: Cannot access offset 'name' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:183: Cannot access offset 'name' on mixed.
+
+### Parameter #1 $arg of function escapeshellarg expects string, mixed given. (6x)
+  - src/addons/deploy/deployer/tasks/setup.php:161: Parameter #1 $arg of function escapeshellarg expects string, mixed given.
+  - src/addons/deploy/deployer/tasks/setup.php:162: Parameter #1 $arg of function escapeshellarg expects string, mixed given.
+  - src/addons/deploy/deployer/tasks/setup.php:164: Parameter #1 $arg of function escapeshellarg expects string, mixed given.
+  - src/addons/deploy/deployer/tasks/setup.php:180: Parameter #1 $arg of function escapeshellarg expects string, mixed given.
+  - src/addons/deploy/deployer/tasks/setup.php:181: Parameter #1 $arg of function escapeshellarg expects string, mixed given.
+  - src/addons/deploy/deployer/tasks/setup.php:183: Parameter #1 $arg of function escapeshellarg expects string, mixed given.
+
+### Cannot access offset 'host' on mixed. (5x)
+  - src/addons/deploy/deployer/tasks/setup.php:147: Cannot access offset 'host' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:155: Cannot access offset 'host' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:155: Cannot access offset 'host' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:161: Cannot access offset 'host' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:180: Cannot access offset 'host' on mixed.
+
+### Cannot access offset 'login' on mixed. (5x)
+  - src/addons/deploy/deployer/tasks/setup.php:149: Cannot access offset 'login' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:157: Cannot access offset 'login' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:157: Cannot access offset 'login' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:162: Cannot access offset 'login' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:181: Cannot access offset 'login' on mixed.
+
+### Cannot access offset 'columns' on mixed. (4x)
+  - src/addons/deploy/lib/command/diff.php:220: Cannot access offset 'columns' on mixed.
+  - src/addons/deploy/lib/command/diff.php:229: Cannot access offset 'columns' on mixed.
+  - src/addons/deploy/lib/command/diff.php:251: Cannot access offset 'columns' on mixed.
+  - src/addons/deploy/lib/command/diff.php:274: Cannot access offset 'columns' on mixed.
+
+### Possibly invalid array key type mixed. (4x)
+  - src/addons/deploy/lib/command/diff.php:221: Possibly invalid array key type mixed.
+  - src/addons/deploy/lib/command/diff.php:222: Possibly invalid array key type mixed.
+  - src/addons/deploy/lib/command/diff.php:239: Possibly invalid array key type mixed.
+  - src/addons/deploy/pages/system.ydeploy.php:119: Possibly invalid array key type mixed.
+
+### Cannot access offset 'indexes' on mixed. (3x)
+  - src/addons/deploy/lib/command/diff.php:288: Cannot access offset 'indexes' on mixed.
+  - src/addons/deploy/lib/command/diff.php:292: Cannot access offset 'indexes' on mixed.
+  - src/addons/deploy/lib/command/diff.php:295: Cannot access offset 'indexes' on mixed.
+
+### Cannot access offset 'foreignKeys' on mixed. (3x)
+  - src/addons/deploy/lib/command/diff.php:302: Cannot access offset 'foreignKeys' on mixed.
+  - src/addons/deploy/lib/command/diff.php:306: Cannot access offset 'foreignKeys' on mixed.
+  - src/addons/deploy/lib/command/diff.php:309: Cannot access offset 'foreignKeys' on mixed.
+
+### Cannot cast mixed to int. (3x)
+  - src/addons/deploy/lib/command/warmup.php:55: Cannot cast mixed to int.
+  - src/addons/deploy/lib/command/warmup.php:56: Cannot cast mixed to int.
+  - src/addons/deploy/lib/command/warmup.php:315: Cannot cast mixed to int.
+
+### Cannot access an offset on mixed. (3x)
+  - src/addons/deploy/lib/handler.php:63: Cannot access an offset on mixed.
+  - src/addons/deploy/lib/handler.php:67: Cannot access an offset on mixed.
+  - src/addons/deploy/lib/handler.php:70: Cannot access an offset on mixed.
+
+### Parameter #2 $page of closure expects string, mixed given. (3x)
+  - src/addons/deploy/pages/system.ydeploy.php:120: Parameter #2 $page of closure expects string, mixed given.
+  - src/addons/deploy/pages/system.ydeploy.php:125: Parameter #2 $page of closure expects string, mixed given.
+  - src/addons/deploy/pages/system.ydeploy.php:128: Parameter #2 $page of closure expects string, mixed given.
+
+### Cannot access offset 'protected_pages' on mixed. (2x)
+  - src/addons/deploy/boot.php:56: Cannot access offset 'protected_pages' on mixed.
+  - src/addons/deploy/lib/handler.php:171: Cannot access offset 'protected_pages' on mixed.
+
+### Cannot access offset 'server' on mixed. (2x)
+  - src/addons/deploy/deployer/tasks/setup.php:138: Cannot access offset 'server' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:142: Cannot access offset 'server' on mixed.
+
+### Cannot access offset 'servername' on mixed. (2x)
+  - src/addons/deploy/deployer/tasks/setup.php:139: Cannot access offset 'servername' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:139: Cannot access offset 'servername' on mixed.
+
+### Cannot access offset 'error_email' on mixed. (2x)
+  - src/addons/deploy/deployer/tasks/setup.php:140: Cannot access offset 'error_email' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:140: Cannot access offset 'error_email' on mixed.
+
+### Cannot access offset 'db' on mixed. (2x)
+  - src/addons/deploy/deployer/tasks/setup.php:146: Cannot access offset 'db' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:187: Cannot access offset 'db' on mixed.
+
+### Cannot access offset 1 on mixed. (2x)
+  - src/addons/deploy/deployer/tasks/setup.php:146: Cannot access offset 1 on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:187: Cannot access offset 1 on mixed.
+
+### Cannot access offset 'password' on mixed. (2x)
+  - src/addons/deploy/deployer/tasks/setup.php:150: Cannot access offset 'password' on mixed.
+  - src/addons/deploy/deployer/tasks/setup.php:158: Cannot access offset 'password' on mixed.
+
+### Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::columnEqualsSchema() expects array{type: string, nullable: bool, default: mixed, extra: mixed}, mixed given. (2x)
+  - src/addons/deploy/lib/command/diff.php:233: Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::columnEqualsSchema() expects array{type: string, nullable: bool, default: mixed, extra: mixed}, mixed given.
+  - src/addons/deploy/lib/command/diff.php:278: Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::columnEqualsSchema() expects array{type: string, nullable: bool, default: mixed, extra: mixed}, mixed given.
+
+### Parameter #2 $data of method Alexplusde\Deploy\Command\Diff::getKey() expects array<string, mixed>, mixed given. (2x)
+  - src/addons/deploy/lib/command/diff.php:407: Parameter #2 $data of method Alexplusde\Deploy\Command\Diff::getKey() expects array<string, mixed>, mixed given.
+  - src/addons/deploy/lib/command/diff.php:436: Parameter #2 $data of method Alexplusde\Deploy\Command\Diff::getKey() expects array<string, mixed>, mixed given.
+
+### Parameter #1 $page of static method rex_url::backendPage() expects string, mixed given. (2x)
+  - src/addons/deploy/pages/system.ydeploy.php:123: Parameter #1 $page of static method rex_url::backendPage() expects string, mixed given.
+  - src/addons/deploy/pages/system.ydeploy.php:128: Parameter #1 $page of static method rex_url::backendPage() expects string, mixed given.
+
+### Binary operation "." between non-falsy-string and mixed results in an error. (2x)
+  - src/addons/deploy/pages/system.ydeploy.php:132: Binary operation "." between non-falsy-string and mixed results in an error.
+  - src/addons/deploy/pages/system.ydeploy.php:132: Binary operation "." between non-falsy-string and mixed results in an error.
+
+### Cannot access offset 'email' on mixed. (1x)
+  - src/addons/deploy/boot.php:56: Cannot access offset 'email' on mixed.
+
+### Cannot access offset 'yform' on mixed. (1x)
+  - src/addons/deploy/boot.php:56: Cannot access offset 'yform' on mixed.
 
 ### Anonymous class extends unknown class Deployer\Host\HostCollection. (1x)
   - src/addons/deploy/deployer/config.php:17: Anonymous class extends unknown class Deployer\Host\HostCollection.
+
+### Cannot cast mixed to string. (1x)
+  - src/addons/deploy/deployer/tasks/server/warmup.php:52: Cannot cast mixed to string.
+
+### Parameter #1 $input of static method Symfony\Component\Yaml\Yaml::parse() expects string, mixed given. (1x)
+  - src/addons/deploy/deployer/tasks/setup.php:132: Parameter #1 $input of static method Symfony\Component\Yaml\Yaml::parse() expects string, mixed given.
+
+### Cannot access offset 'setup' on mixed. (1x)
+  - src/addons/deploy/deployer/tasks/setup.php:134: Cannot access offset 'setup' on mixed.
+
+### Cannot access offset 'debug' on mixed. (1x)
+  - src/addons/deploy/deployer/tasks/setup.php:135: Cannot access offset 'debug' on mixed.
+
+### Cannot access offset 'instname' on mixed. (1x)
+  - src/addons/deploy/deployer/tasks/setup.php:136: Cannot access offset 'instname' on mixed.
+
+### Property class@anonymous/deployer/tasks/setup.php:18::$server (string|null) does not accept mixed. (1x)
+  - src/addons/deploy/deployer/tasks/setup.php:142: Property class@anonymous/deployer/tasks/setup.php:18::$server (string|null) does not accept mixed.
+
+### Parameter #1 $command of function escapeshellcmd expects string, mixed given. (1x)
+  - src/addons/deploy/deployer/tasks/setup.php:168: Parameter #1 $command of function escapeshellcmd expects string, mixed given.
+
+### Cannot access offset 'charset' on mixed. (1x)
+  - src/addons/deploy/lib/command/diff.php:209: Cannot access offset 'charset' on mixed.
+
+### Cannot access offset 'collation' on mixed. (1x)
+  - src/addons/deploy/lib/command/diff.php:210: Cannot access offset 'collation' on mixed.
+
+### Parameter #2 $oldName of method Alexplusde\Deploy\DiffFile::renameColumn() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:237: Parameter #2 $oldName of method Alexplusde\Deploy\DiffFile::renameColumn() expects string, mixed given.
+
+### Parameter #2 $columnName of method Alexplusde\Deploy\DiffFile::removeColumn() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:245: Parameter #2 $columnName of method Alexplusde\Deploy\DiffFile::removeColumn() expects string, mixed given.
+
+### Cannot access offset 'primaryKey' on mixed. (1x)
+  - src/addons/deploy/lib/command/diff.php:283: Cannot access offset 'primaryKey' on mixed.
+
+### Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::indexEqualsSchema() expects array{type: mixed, columns: list<string>}, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:288: Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::indexEqualsSchema() expects array{type: mixed, columns: list<string>}, mixed given.
+
+### Parameter #2 $indexName of method Alexplusde\Deploy\DiffFile::removeIndex() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:297: Parameter #2 $indexName of method Alexplusde\Deploy\DiffFile::removeIndex() expects string, mixed given.
+
+### Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::foreignKeyEqualsSchema() expects array{table: string, columns: array<string, string>, onUpdate: string, onDelete: string}, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:302: Parameter #2 $schema of method Alexplusde\Deploy\Command\Diff::foreignKeyEqualsSchema() expects array{table: string, columns: array<string, string>, onUpdate: string, onDelete: string}, mixed given.
+
+### Parameter #2 $foreignKeyName of method Alexplusde\Deploy\DiffFile::removeForeignKey() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:311: Parameter #2 $foreignKeyName of method Alexplusde\Deploy\DiffFile::removeForeignKey() expects string, mixed given.
+
+### Parameter #1 $tableName of method Alexplusde\Deploy\DiffFile::dropTable() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:319: Parameter #1 $tableName of method Alexplusde\Deploy\DiffFile::dropTable() expects string, mixed given.
+
+### Parameter #1 $viewName of method Alexplusde\Deploy\DiffFile::dropView() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:331: Parameter #1 $viewName of method Alexplusde\Deploy\DiffFile::dropView() expects string, mixed given.
+
+### Cannot access offset 'fixtures' on mixed. (1x)
+  - src/addons/deploy/lib/command/diff.php:375: Cannot access offset 'fixtures' on mixed.
+
+### Cannot access offset 'tables' on mixed. (1x)
+  - src/addons/deploy/lib/command/diff.php:375: Cannot access offset 'tables' on mixed.
+
+### Parameter #1 $table of static method rex::getTable() expects non-empty-string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:376: Parameter #1 $table of static method rex::getTable() expects non-empty-string, mixed given.
+
+### Parameter #2 $conditions of method Alexplusde\Deploy\Command\Diff::getData() expects array<string, mixed>|null, array<mixed, mixed>|null given. (1x)
+  - src/addons/deploy/lib/command/diff.php:396: Parameter #2 $conditions of method Alexplusde\Deploy\Command\Diff::getData() expects array<string, mixed>|null, array<mixed, mixed>|null given.
+
+### Parameter #1 $data of method Alexplusde\Deploy\Command\Diff::hash() expects array<string, mixed>, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:416: Parameter #1 $data of method Alexplusde\Deploy\Command\Diff::hash() expects array<string, mixed>, mixed given.
+
+### Parameter #2 $data of method Alexplusde\Deploy\DiffFile::ensureFixture() expects array<bool|float|int|string|null>, array<string, mixed> given. (1x)
+  - src/addons/deploy/lib/command/diff.php:424: Parameter #2 $data of method Alexplusde\Deploy\DiffFile::ensureFixture() expects array<bool|float|int|string|null>, array<string, mixed> given.
+
+### Parameter #1 $row of method Alexplusde\Deploy\Command\Diff::rowMatchesConditions() expects array<string, mixed>, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:431: Parameter #1 $row of method Alexplusde\Deploy\Command\Diff::rowMatchesConditions() expects array<string, mixed>, mixed given.
+
+### Parameter #2 $key of method Alexplusde\Deploy\DiffFile::removeFixture() expects array<string, int|string>, array<string, mixed> given. (1x)
+  - src/addons/deploy/lib/command/diff.php:436: Parameter #2 $key of method Alexplusde\Deploy\DiffFile::removeFixture() expects array<string, int|string>, array<string, mixed> given.
+
+### Parameter #1 $name of method rex_sql::escapeIdentifier() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/command/diff.php:481: Parameter #1 $name of method rex_sql::escapeIdentifier() expects string, mixed given.
+
+### Parameter #2 $params of method rex_sql::getArray() expects array<bool|float|int|string|null>, list<mixed> given. (1x)
+  - src/addons/deploy/lib/command/diff.php:490: Parameter #2 $params of method rex_sql::getArray() expects array<bool|float|int|string|null>, list<mixed> given.
+
+### Parameter #1 $path of function basename expects string, mixed given. (1x)
+  - src/addons/deploy/lib/handler.php:42: Parameter #1 $path of function basename expects string, mixed given.
+
+### Method Alexplusde\Deploy\Handler::getProtectedPages() should return array<string, array<int<0, max>|string, list<string>|string>|true> but returns mixed. (1x)
+  - src/addons/deploy/lib/handler.php:171: Method Alexplusde\Deploy\Handler::getProtectedPages() should return array<string, array<int<0, max>|string, list<string>|string>|true> but returns mixed.
+
+### Binary operation "." between mixed and string results in an error. (1x)
+  - src/addons/deploy/lib/handler.php:238: Binary operation "." between mixed and string results in an error.
+
+### Parameter #2 $datetime of static method DateTimeImmutable::createFromFormat() expects string, mixed given. (1x)
+  - src/addons/deploy/lib/ydeploy.php:44: Parameter #2 $datetime of static method DateTimeImmutable::createFromFormat() expects string, mixed given.
+
+### Binary operation "." between "\r\n            <tr>\r…" and mixed results in an error. (1x)
+  - src/addons/deploy/pages/system.ydeploy.php:132: Binary operation "." between "\r\n            <tr>\r…" and mixed results in an error.
 
