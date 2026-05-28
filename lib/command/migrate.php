@@ -38,12 +38,15 @@ final class Migrate extends AbstractCommand
         $fake = $input->getOption('fake');
 
         $glob = glob($this->addon->getDataPath('migrations/*-*-* *.*.php'));
+        if ($glob === false) {
+            $glob = [];
+        }
         $paths = [];
 
         foreach ($glob as $path) {
             $timestamp = substr(basename($path), 0, -4);
 
-            if (!preg_match('/^(\d{4}-\d{2}-\d{2}) (\d{2})[-:](\d{2})[-:](\d{2}\.\d+)$/', $timestamp, $match)) {
+            if (preg_match('/^(\d{4}-\d{2}-\d{2}) (\d{2})[-:](\d{2})[-:](\d{2}\.\d+)$/', $timestamp, $match) !== 1) {
                 continue;
             }
 
@@ -54,7 +57,7 @@ final class Migrate extends AbstractCommand
             }
         }
 
-        if (!$paths) {
+        if ($paths === []) {
             $io->success('Nothing to migrate.');
 
             return Command::SUCCESS;
@@ -68,8 +71,9 @@ final class Migrate extends AbstractCommand
 
         $path = null;
         try {
-            foreach ($paths as $path => $timestamp) {
-                if (!$fake) {
+            foreach ($paths as $migrationPath => $timestamp) {
+                $path = $migrationPath;
+                if (!(bool) $fake) {
                     $name = basename($path);
                     $time = time();
                     $io->text(sprintf('Migration "<comment>%s</comment>" started at <comment>%s</comment>', $name, date('H:i:s', $time)));
@@ -90,18 +94,18 @@ final class Migrate extends AbstractCommand
             rex_delete_cache();
 
             if ($countMigrated === $countMigrations) {
-                $io->success(sprintf('%s %s.', $fake ? 'Faked' : 'Executed', $countMigrationsText));
+                $io->success(sprintf('%s %s.', (bool) $fake ? 'Faked' : 'Executed', $countMigrationsText));
 
                 return Command::SUCCESS;
             }
 
-            $io->error(sprintf('%s %d of %s, aborted with "%s".', $fake ? 'Faked' : 'Executed', $countMigrated, $countMigrationsText, basename($path)));
+            $io->error(sprintf('%s %d of %s, aborted with "%s".', (bool) $fake ? 'Faked' : 'Executed', $countMigrated, $countMigrationsText, basename($path)));
         }
 
         return Command::FAILURE;
     }
 
-    private function migrate($path): void
+    private function migrate(string $path): void
     {
         require $path;
     }

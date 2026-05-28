@@ -264,7 +264,7 @@ task('setup', new class {
             throw $exception;
         }
 
-        if (!$data) {
+        if ($data === '') {
             return;
         }
 
@@ -273,7 +273,7 @@ task('setup', new class {
         foreach (explode("\n", $data) as $line) {
             [$id, $domain] = explode("\t", $line, 2);
             $id = (int) $id;
-            $domain = ask($domain . ':', $this->server ?: get('url'));
+            $domain = ask($domain . ':', $this->server !== '' ? $this->server : get('url'));
             run('< ' . escapeshellarg($this->mysqlOptions) . ' xargs {{bin/mysql}} -e "UPDATE rex_yrewrite_domain SET domain = \"' . addslashes($domain) . '\" WHERE id = ' . $id . '"');
         }
 

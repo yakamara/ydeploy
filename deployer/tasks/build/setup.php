@@ -11,7 +11,7 @@ task('build:setup', static function () {
         throw new RuntimeException('Task "build" can only be called on host "local"');
     }
 
-    if (getenv('CI')) {
+    if (getenv('CI') !== false) {
         return;
     }
 

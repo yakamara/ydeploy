@@ -42,7 +42,10 @@ final class Diff extends AbstractCommand
         $tables = rex_sql::factory()->getTables(rex::getTablePrefix());
 
         /** @var list<rex_sql_table> $tables */
-        $tables = array_map('rex_sql_table::get', $tables);
+        $tables = array_map(static function (string $name): rex_sql_table {
+            assert($name !== '');
+            return rex_sql_table::get($name);
+        }, $tables);
 
         $schemaExists = file_exists($this->addon->getDataPath('schema.yml'));
 
@@ -52,10 +55,10 @@ final class Diff extends AbstractCommand
         $this->handleFixtures($tables, $diff);
 
         $diffTimestamp = null;
-        if (!$diff->isEmpty() || $input->getOption('empty')) {
+        if (!$diff->isEmpty() || (bool) $input->getOption('empty')) {
             $diffTimestamp = $this->saveDiff($diff);
 
-            if (!$input->getOption('unmarked')) {
+            if (!(bool) $input->getOption('unmarked')) {
                 rex_sql::factory()
                     ->setTable($this->migrationTable)
                     ->setValue('timestamp', $diffTimestamp->format('Y-m-d H:i:s.u'))
@@ -65,7 +68,7 @@ final class Diff extends AbstractCommand
 
         if (!$schemaExists) {
             $io->success('Created initial schema and fixtures files.');
-        } elseif ($diffTimestamp) {
+        } elseif ($diffTimestamp !== null) {
             $io->success(sprintf('Updated schema and fixtures file and created diff file "%s.php".', $diffTimestamp->format('Y-m-d H-i-s.u')));
         } else {
             $io->success('Updated schema and fixtures files, nothing changed.');
@@ -88,13 +91,17 @@ final class Diff extends AbstractCommand
             WHERE T.TABLE_SCHEMA = DATABASE() AND T.TABLE_NAME LIKE :prefix
         ', ['prefix' => rex::getTablePrefix() . '%']);
 
+        /** @var array<string, array{charset: string, collation: string}> $charsets */
         $charsets = array_column($charsets, null, 'table_name');
 
         $views = [];
         foreach ($sql->getViews(rex::getTablePrefix()) as $view) {
             $sql->setQuery('SHOW CREATE VIEW ' . $sql->escapeIdentifier($view));
             $query = (string) $sql->getValue('Create View');
-            $query = substr($query, strpos($query, ' AS ') + 4);
+            $asPos = strpos($query, ' AS ');
+            if ($asPos !== false) {
+                $query = substr($query, $asPos + 4);
+            }
             $views[$view] = $query;
         }
 
@@ -104,6 +111,8 @@ final class Diff extends AbstractCommand
 
     /**
      * @param list<rex_sql_table> $tables
+     * @param array<string, array{charset: string, collation: string}> $charsets
+     * @param array<string, string> $views
      */
     private function createSchema(array $tables, array $charsets, array $views): void
     {
@@ -153,7 +162,7 @@ final class Diff extends AbstractCommand
 
         $schema = ['tables' => $schema];
 
-        if ($views) {
+        if ($views !== []) {
             $schema['views'] = $views;
         }
 
@@ -162,12 +171,14 @@ final class Diff extends AbstractCommand
 
     /**
      * @param list<rex_sql_table> $tables
+     * @param array<string, array{charset: string, collation: string}> $charsets
+     * @param array<string, string> $views
      */
     private function addSchemaDiff(DiffFile $diff, array $tables, array $charsets, array $views): void
     {
         $schema = rex_file::getConfig($this->addon->getDataPath('schema.yml'));
 
-        if (!$schema) {
+        if ($schema === []) {
             return;
         }
 
@@ -183,7 +194,7 @@ final class Diff extends AbstractCommand
             if (!isset($schema[$tableName])) {
                 $diff->createTable($table);
 
-                $defaultCharset = rex::getConfig('utf8mb4') ? 'utf8mb4' : 'utf8';
+                $defaultCharset = (bool) rex::getConfig('utf8mb4') ? 'utf8mb4' : 'utf8';
                 $defaultCollation = $defaultCharset . '_unicode_ci';
                 if ($defaultCharset !== $charsets[$tableName]['charset'] || $defaultCollation !== $charsets[$tableName]['collation']) {
                     $diff->setCharset($tableName, $charsets[$tableName]['charset'], $charsets[$tableName]['collation']);
@@ -242,7 +253,7 @@ final class Diff extends AbstractCommand
                 ) {
                     $diff->ensureColumn($tableName, $column, $after);
 
-                    if (false !== $previous = array_search($columnName, $currentOrder)) {
+                    if (false !== $previous = array_search($columnName, $currentOrder, true)) {
                         if (isset($currentOrder[$columnName])) {
                             $currentOrder[$previous] = $currentOrder[$columnName];
                         } else {
@@ -321,6 +332,9 @@ final class Diff extends AbstractCommand
         }
     }
 
+    /**
+     * @param array{type: string, nullable: bool, default: mixed, extra: mixed} $schema
+     */
     private function columnEqualsSchema(rex_sql_column $column, array $schema): bool
     {
         return
@@ -330,6 +344,9 @@ final class Diff extends AbstractCommand
             && $column->getExtra() === $schema['extra'];
     }
 
+    /**
+     * @param array{type: string, columns: list<string>} $schema
+     */
     private function indexEqualsSchema(rex_sql_index $index, array $schema): bool
     {
         return
@@ -337,6 +354,9 @@ final class Diff extends AbstractCommand
             && $index->getColumns() === $schema['columns'];
     }
 
+    /**
+     * @param array{table: string, columns: array<string, string>, onUpdate: string, onDelete: string} $schema
+     */
     private function foreignKeyEqualsSchema(rex_sql_foreign_key $foreignKey, array $schema): bool
     {
         return
@@ -353,7 +373,7 @@ final class Diff extends AbstractCommand
     {
         $fixtureTables = [];
         foreach ($this->addon->getProperty('config')['fixtures']['tables'] as $name => $config) {
-            $fixtureTables[rex::getTable($name)] = $config ?: true;
+            $fixtureTables[rex::getTable($name)] = $config !== null && $config !== [] && $config !== false ? $config : true;
         }
 
         $path = $this->addon->getDataPath('fixtures.yml');
@@ -369,7 +389,7 @@ final class Diff extends AbstractCommand
                 continue;
             }
 
-            if (!$table->getPrimaryKey()) {
+            if ($table->getPrimaryKey() === null) {
                 throw new Exception(sprintf('Table "%s" can not be used for fixtures because it does not have a primary key.', $tableName));
             }
 
@@ -405,8 +425,12 @@ final class Diff extends AbstractCommand
             }
 
             foreach ($hashedFixtures as $row) {
-                if (is_array($fixtureTables[$tableName]) && !$this->rowMatchesConditions($row, $fixtureTables[$tableName])) {
-                    continue;
+                if (is_array($fixtureTables[$tableName])) {
+                    /** @var list<array<string, mixed>> $cond */
+                    $cond = $fixtureTables[$tableName];
+                    if (!$this->rowMatchesConditions($row, $cond)) {
+                        continue;
+                    }
                 }
 
                 $diff->removeFixture($tableName, $this->getKey($table, $row));
@@ -416,18 +440,31 @@ final class Diff extends AbstractCommand
         rex_file::putConfig($this->addon->getDataPath('fixtures.yml'), $newFixtures);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
     private function getKey(rex_sql_table $table, array $data): array
     {
-        return array_intersect_key($data, array_flip($table->getPrimaryKey()));
+        $primaryKey = $table->getPrimaryKey() ?? [];
+
+        return array_intersect_key($data, array_flip($primaryKey));
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function hash(array $data): string
     {
         ksort($data);
 
-        return sha1(json_encode($data));
+        return sha1((string) json_encode($data));
     }
 
+    /**
+     * @param array<string, mixed>|null $conditions
+     * @return list<array<string, mixed>>
+     */
     private function getData(rex_sql_table $table, ?array $conditions = null): array
     {
         $sql = rex_sql::factory();
@@ -460,7 +497,7 @@ final class Diff extends AbstractCommand
 
                 if ('0' === $value) {
                     $value = 0;
-                } elseif (preg_match('/^[1-9]\d{0,8}$/', $value)) {
+                } elseif (preg_match('/^[1-9]\d{0,8}$/', $value) === 1) {
                     $value = (int) $value;
                 }
             }
@@ -469,6 +506,10 @@ final class Diff extends AbstractCommand
         return $data;
     }
 
+    /**
+     * @param array<string, mixed> $row
+     * @param list<array<string, mixed>> $conditions
+     */
     private function rowMatchesConditions(array $row, array $conditions): bool
     {
         foreach ($conditions as $condition) {

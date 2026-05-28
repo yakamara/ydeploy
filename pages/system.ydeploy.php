@@ -39,7 +39,7 @@ $apiUrl = static function (string $action, string $page, ?string $redirect = nul
     $params['action'] = $action;
     $params['protected_page'] = $page;
 
-    if ($redirect) {
+    if ($redirect !== null && $redirect !== '') {
         $params['redirect'] = $redirect;
     }
 
@@ -65,15 +65,15 @@ $pages = [];
 foreach (\Alexplusde\Deploy\Handler::getProtectedPages() as $page => $subpages) {
     $page = rex_be_controller::getPageObject($page);
 
-    if (!$page) {
+    if ($page === null) {
         continue;
     }
 
     $icon = $page->getIcon();
     $root = $page;
-    while ($parent = $root->getParent()) {
+    while (($parent = $root->getParent()) !== null) {
         $root = $parent;
-        $icon = $icon ?: $parent->getIcon();
+        $icon = ($icon !== null && $icon !== '') ? $icon : $parent->getIcon();
     }
 
     // create non-hidden fake page
@@ -87,7 +87,7 @@ foreach (\Alexplusde\Deploy\Handler::getProtectedPages() as $page => $subpages) 
     // rex_be_navigation does not provide the page keys in navigation items
     // so we misuse the href for the page key
     $fakePage->setHref($page->getFullKey());
-    $fakePage->setIcon($icon);
+    $fakePage->setIcon($icon ?? '');
 
     $pages[$root->getKey()][] = $fakePage;
 }

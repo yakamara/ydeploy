@@ -16,7 +16,8 @@ use function Deployer\upload;
 
 function uploadContent(string $destination, string $content): void
 {
-    if (!empty($workingPath = get('working_path', ''))) {
+    $workingPath = get('working_path', '');
+    if ($workingPath !== '' && $workingPath !== null) {
         $destination = "$workingPath/$destination";
     } else {
         $destination = "{{release_or_current_path}}/$destination";
@@ -34,7 +35,8 @@ function uploadContent(string $destination, string $content): void
 
 function downloadContent(string $source): string
 {
-    if (!empty($workingPath = get('working_path', ''))) {
+    $workingPath = get('working_path', '');
+    if ($workingPath !== '' && $workingPath !== null) {
         $source = "$workingPath/$source";
     } else {
         $source = "{{release_or_current_path}}/$source";
@@ -46,10 +48,10 @@ function downloadContent(string $source): string
     $content = file_get_contents($path);
     unlink($path);
 
-    return $content;
+    return $content === false ? '' : $content;
 }
 
-function onHost(Host $host, callable $callback)
+function onHost(Host $host, callable $callback): mixed
 {
     $return = null;
 
@@ -69,7 +71,7 @@ function upgradeReleasesList(): void
     }
 
     $releasesString = trim(run('cat .dep/releases'));
-    if (!$releasesString) {
+    if ($releasesString === '') {
         return;
     }
 
@@ -77,8 +79,9 @@ function upgradeReleasesList(): void
     foreach (explode("\n", $releasesString) as $release) {
         $release = explode(',', $release);
 
+        $created = DateTimeImmutable::createFromFormat('YmdHis', $release[0]);
         $releases[$release[1]] = json_encode([
-            'created_at' => DateTimeImmutable::createFromFormat('YmdHis', $release[0])->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:sO'),
+            'created_at' => $created !== false ? $created->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:sO') : '',
             'release_name' => $release[1],
             'user' => 'unknown',
             'target' => 'HEAD',

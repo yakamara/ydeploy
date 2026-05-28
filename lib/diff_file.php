@@ -123,7 +123,7 @@ final class DiffFile
 
     public function isEmpty(): bool
     {
-        return !$this->create && !$this->alter && !$this->drop && !$this->views && !$this->dropViews && !$this->fixtures;
+        return $this->create === [] && $this->alter === [] && $this->drop === [] && $this->views === [] && $this->dropViews === [] && $this->fixtures === [];
     }
 
     public function getContent(): string
@@ -145,7 +145,7 @@ final class DiffFile
             try {
             EOL;
 
-        if ($changes) {
+        if ($changes !== '') {
             $content .= "\n    " . $changes;
         } else {
             $content .= "\n    // Add migration stuff here";
@@ -174,7 +174,7 @@ final class DiffFile
                 $content .= $this->addEnsureColumn($column);
             }
 
-            if ($table->getPrimaryKey()) {
+            if ($table->getPrimaryKey() !== null) {
                 $content .= $this->addSetPrimaryKey($table->getPrimaryKey());
             }
 
@@ -249,7 +249,7 @@ final class DiffFile
                 }
             }
 
-            if ($lines) {
+            if ($lines !== '') {
                 $content .= $this->sprintf("\n\n    rex_sql_table::get(%s)", $tableName);
                 $content .= $lines;
                 $content .= "\n        ->alter();";
@@ -263,6 +263,9 @@ final class DiffFile
         return $content;
     }
 
+    /**
+     * @param array{0: string, 1: string} $charsetAndCollation
+     */
     private function addConvertCharset(string $tableName, array $charsetAndCollation): string
     {
         $tableName = addslashes(rex_sql::factory()->escapeIdentifier($tableName));
@@ -280,7 +283,7 @@ final class DiffFile
     private function addEnsureColumn(rex_sql_column $column, ?string $afterColumn = null): string
     {
         $addAfter = '';
-        if (rex_sql_table::FIRST == $afterColumn) {
+        if (rex_sql_table::FIRST === $afterColumn) {
             $addAfter = ', rex_sql_table::FIRST';
         } elseif (null !== $afterColumn) {
             $addAfter = $this->sprintf(', %s', $afterColumn);
@@ -296,6 +299,9 @@ final class DiffFile
         );
     }
 
+    /**
+     * @param list<string> $primaryKey
+     */
     private function addSetPrimaryKey(array $primaryKey): string
     {
         return $this->sprintf("\n        ->setPrimaryKey(%s)", $primaryKey);
@@ -403,11 +409,12 @@ final class DiffFile
                 }
 
                 $columns = array_keys($changes['ensure'][0]);
-                $primaryKey = rex_sql_table::get($tableName)->getPrimaryKey();
+                /** @var non-empty-string $tableName */
+                $primaryKey = rex_sql_table::get($tableName)->getPrimaryKey() ?? [];
 
                 $updates = [];
                 foreach ($columns as $column) {
-                    if (!in_array($column, $primaryKey)) {
+                    if (!in_array($column, $primaryKey, true)) {
                         $column = $sql->escapeIdentifier($column);
                         $updates[] = $column . ' = VALUES(' . $column . ')';
                     }
@@ -417,7 +424,7 @@ final class DiffFile
                 $query .= ' (' . implode(', ', array_map([$sql, 'escapeIdentifier'], $columns)) . ')';
                 $query .= "\nVALUES\n    ";
                 $query .= implode(",\n    ", $rows);
-                if ($updates) {
+                if ($updates !== []) {
                     $query .= "\nON DUPLICATE KEY UPDATE " . implode(', ', $updates);
                 }
 
@@ -429,7 +436,7 @@ final class DiffFile
                 foreach ($changes['remove'] as $key) {
                     $parts = [];
                     foreach ($key as $name => $value) {
-                        $parts[] = $sql->escapeIdentifier($name) . ' = ' . (is_int($value) ? $value : $sql->escape((string) $value));
+                        $parts[] = $sql->escapeIdentifier($name) . ' = ' . (is_int($value) ? $value : $sql->escape($value));
                     }
                     $where[] = implode(' AND ', $parts);
                 }
@@ -445,12 +452,12 @@ final class DiffFile
         return $content;
     }
 
-    private function sprintf(string $format, ...$args): string
+    private function sprintf(string $format, mixed ...$args): string
     {
         return sprintf($format, ...array_map([$this, 'quote'], $args));
     }
 
-    private function quote($var): string
+    private function quote(mixed $var): string
     {
         if (null === $var) {
             return 'null';

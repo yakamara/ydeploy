@@ -27,12 +27,12 @@ final class Handler
     {
         $pending = rex_addon::get('ydeploy')->getProperty('pending_migrations');
 
-        if (!is_array($pending) || !$pending) {
+        if (!is_array($pending) || $pending === []) {
             return $ep->getSubject();
         }
 
         $user = rex::getUser();
-        if (!$user || !$user->isAdmin()) {
+        if ($user === null || !$user->isAdmin()) {
             return $ep->getSubject();
         }
 
@@ -49,7 +49,10 @@ final class Handler
         return $ep->getSubject() . rex_view::warning($message);
     }
 
-    /** @param rex_extension_point<array<mixed>> $ep */
+    /**
+     * @param rex_extension_point<array<mixed>> $ep
+     * @return array<mixed>
+     */
     public static function addBodyClasses(rex_extension_point $ep): array
     {
         $ydeploy = YDeploy::factory();
@@ -59,8 +62,9 @@ final class Handler
         if ($ydeploy->isDeployed()) {
             $attr['class'][] = 'ydeploy-is-deployed';
 
-            if ($ydeploy->getStage()) {
-                $attr['class'][] = 'ydeploy-stage-' . rex_string::normalize($ydeploy->getStage(), '-');
+            $stage = $ydeploy->getStage();
+            if ($stage !== null && $stage !== '') {
+                $attr['class'][] = 'ydeploy-stage-' . rex_string::normalize($stage, '-');
             }
         } else {
             $attr['class'][] = 'ydeploy-is-not-deployed';
@@ -78,7 +82,7 @@ final class Handler
             $host = $ydeploy->getHost();
             $stage = $ydeploy->getStage();
 
-            $badge = ucfirst($stage);
+            $badge = ucfirst((string) $stage);
             if ($host !== $stage) {
                 $badge = $host . ' – ' . $badge;
             }
@@ -88,7 +92,7 @@ final class Handler
 
         $badge = rex_extension::registerPoint(new rex_extension_point('YDEPLOY_BADGE', $badge)); // @phpstan-ignore-line
 
-        if (!$badge) {
+        if ($badge === '') {
             return null;
         }
 
@@ -104,7 +108,7 @@ final class Handler
         foreach (self::getProtectedPages() as $page => $subpages) {
             $page = rex_be_controller::getPageObject($page);
 
-            if (!$page) {
+            if ($page === null) {
                 continue;
             }
 
@@ -144,10 +148,10 @@ final class Handler
                     continue;
                 }
 
-                foreach ($subpages[$key] as $subsubpage) {
+                foreach ((array) $subpages[$key] as $subsubpage) {
                     $subsubpage = $subpage->getSubpage($subsubpage);
 
-                    if ($subsubpage) {
+                    if ($subsubpage !== null) {
                         self::protectPage($subsubpage);
                     }
                 }
@@ -159,11 +163,17 @@ final class Handler
         }
     }
 
+    /**
+     * @return array<string, array<string, list<string>>|list<string>|true>
+     */
     public static function getProtectedPages(): array
     {
         return rex_addon::get('ydeploy')->getProperty('config')['protected_pages'];
     }
 
+    /**
+     * @return array<string, true>
+     */
     public static function getUnlockedPages(): array
     {
         return rex_session('ydeploy_unlocked_pages', 'array', []);
@@ -185,16 +195,19 @@ final class Handler
 
     private static function protectPage(rex_be_page $page): void
     {
-        if (rex_be_controller::getCurrentPage() && $page->isActive()) {
+        if (rex_be_controller::getCurrentPage() !== '' && $page->isActive()) {
             rex_be_controller::setCurrentPage('system/ydeploy');
         }
 
         $page->setHidden(true);
     }
 
+    /**
+     * @param array<string, list<string>>|list<string>|null $subpages
+     */
     private static function handleUnlockedPage(rex_be_page $page, ?array $subpages = null): void
     {
-        if (!rex_be_controller::getCurrentPage() || !$page->isActive()) {
+        if (rex_be_controller::getCurrentPage() === '' || !$page->isActive()) {
             return;
         }
 

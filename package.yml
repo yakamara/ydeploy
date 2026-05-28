@@ -1,6 +1,6 @@
-package: ydeploy
+package: deploy
 version: '2.1.1'
-author: 'Alexander Walther, ehem. Autor: Gregor Harlan`
+author: 'Alexander Walther, ehem. Autor: Gregor Harlan'
 supportpage: https://github.com/alexplusde/ydeploy
 
 requires:
@@ -17,8 +17,8 @@ console_commands:
     ydeploy:warmup: 'Alexplusde\Deploy\Command\Warmup'
 
 pages:
-    system/ydeploy:
-        title: YDeploy
+    system/deploy:
+        title: Deploy
         pjax: false
 
 config:
@@ -88,6 +88,7 @@ config:
         wenns_sein_muss:
             - iframe                              # nur iframe-Verwaltung sperren
 installer_ignore:
+    - .rexstan
     - .github
     - .tools
     - .gitignore

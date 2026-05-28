@@ -54,7 +54,7 @@ final class Warmup extends AbstractCommand
 
         $concurrency = max(1, (int) $input->getOption('concurrency'));
         $timeout = max(1, (int) $input->getOption('timeout'));
-        $useSitemap = !$input->getOption('no-sitemap');
+        $useSitemap = !(bool) $input->getOption('no-sitemap');
 
         /** @var list<string> $urlOption */
         $urlOption = $input->getOption('url');
@@ -62,14 +62,14 @@ final class Warmup extends AbstractCommand
         $urls = [];
 
         if ($canWarmupUrls) {
-            if ($urlOption) {
+            if ($urlOption !== []) {
                 foreach ($urlOption as $url) {
                     $urls[] = $url;
                 }
             } else {
                 $baseUrls = $this->getBaseUrls();
 
-                if (!$baseUrls) {
+                if ($baseUrls === []) {
                     $io->warning('No base URL could be determined for warmup. Use --url to specify URLs explicitly.');
                 } elseif ($useSitemap) {
                     foreach ($baseUrls as $baseUrl) {
@@ -77,7 +77,7 @@ final class Warmup extends AbstractCommand
                         $io->text(sprintf('Discovering URLs from <info>%s</info>', $sitemapUrl));
 
                         $discovered = $this->fetchSitemapUrls($sitemapUrl, $timeout);
-                        if (!$discovered) {
+                        if ($discovered === []) {
                             $io->text(sprintf('  No URLs found, falling back to <info>%s</info>', $baseUrl));
                             $urls[] = $baseUrl;
                             continue;
@@ -95,13 +95,13 @@ final class Warmup extends AbstractCommand
             }
             $urls = array_values(array_unique($urls));
 
-            if (!$urls) {
+            if ($urls === []) {
                 $io->warning('No URLs to warm up.');
             } else {
                 $io->section(sprintf('Warming up %d URL(s) (concurrency: %d)', count($urls), $concurrency));
                 [$success, $failed] = $this->warmupUrls($urls, $concurrency, $timeout, $io);
 
-                if ($failed) {
+                if ($failed > 0) {
                     $io->warning(sprintf('%d URL(s) warmed up, %d failed.', $success, $failed));
                 } else {
                     $io->success(sprintf('%d URL(s) warmed up successfully.', $success));
@@ -109,7 +109,7 @@ final class Warmup extends AbstractCommand
             }
         }
 
-        if (!$input->getOption('skip-search-it')) {
+        if (!(bool) $input->getOption('skip-search-it')) {
             $this->rebuildSearchIt($io);
         }
 
@@ -130,15 +130,15 @@ final class Warmup extends AbstractCommand
         if (rex_addon::get('yrewrite')->isAvailable() && class_exists(rex_yrewrite::class)) {
             foreach (rex_yrewrite::getDomains() as $domain) {
                 $url = $domain->getUrl();
-                if ($url && preg_match('#^https?://#i', $url)) {
+                if ($url !== '' && preg_match('#^https?://#i', $url) === 1) {
                     $urls[] = rtrim($url, '/');
                 }
             }
         }
 
-        if (!$urls) {
+        if ($urls === []) {
             $server = rex::getServer();
-            if ($server) {
+            if ($server !== '') {
                 $urls[] = rtrim($server, '/');
             }
         }
@@ -235,7 +235,7 @@ final class Warmup extends AbstractCommand
         $success = 0;
         $failed = 0;
 
-        $chunks = array_chunk($urls, $concurrency);
+        $chunks = array_chunk($urls, max(1, $concurrency));
 
         foreach ($chunks as $chunk) {
             $mh = curl_multi_init();
@@ -270,7 +270,7 @@ final class Warmup extends AbstractCommand
             foreach ($handles as $entry) {
                 $ch = $entry['handle'];
                 $url = $entry['url'];
-                $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $error = curl_error($ch);
 
                 if ('' === $error && $httpCode >= 200 && $httpCode < 400) {

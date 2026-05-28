@@ -37,7 +37,7 @@ if (rex_addon::get('media_manager')->isAvailable()) {
     rex_media_manager::setCacheDirectory(rex_path::addonData('media_manager', 'cache'));
 }
 
-if (!rex::isBackend() || !rex::getUser()) {
+if (!rex::isBackend() || rex::getUser() === null) {
     return;
 }
 
@@ -51,7 +51,7 @@ rex_extension::register('PAGE_TITLE_SHOWN', Handler::addPendingMigrationsWarning
 
 if (YDeploy::factory()->isDeployed()) {
     $developer = rex_addon::get('developer');
-    if ($developer->isAvailable() && $developer->getConfig('yform_email')) {
+    if ($developer->isAvailable() && (bool) $developer->getConfig('yform_email')) {
         $config = $this->getProperty('config');
         $config['protected_pages']['yform']['email'] = null;
         $this->setProperty('config', $config);

@@ -47,7 +47,7 @@ final class YDeploy
 
     public static function factory(): self
     {
-        if (self::$instance) {
+        if (self::$instance !== null) {
             return self::$instance;
         }
 
@@ -123,13 +123,16 @@ final class YDeploy
             return [];
         }
 
-        $glob = glob($addon->getDataPath('migrations/*-*-* *.*.php')) ?: [];
+        $glob = glob($addon->getDataPath('migrations/*-*-* *.*.php'));
+        if ($glob === false) {
+            $glob = [];
+        }
         $pending = [];
 
         foreach ($glob as $path) {
             $timestamp = substr(basename($path), 0, -4);
 
-            if (!preg_match('/^(\d{4}-\d{2}-\d{2}) (\d{2})[-:](\d{2})[-:](\d{2}\.\d+)$/', $timestamp, $match)) {
+            if (preg_match('/^(\d{4}-\d{2}-\d{2}) (\d{2})[-:](\d{2})[-:](\d{2}\.\d+)$/', $timestamp, $match) !== 1) {
                 continue;
             }
 

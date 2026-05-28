@@ -16,8 +16,10 @@ task('deploy:dump_info', static function () {
         $stage = $host;
     }
 
-    $branch = getenv('CI_COMMIT_REF_NAME') ?: get('branch') ?? onHost(host('local'), static fn () => run('{{bin/git}} rev-parse --abbrev-ref HEAD'));
-    $commit = getenv('CI_COMMIT_SHA') ?: onHost(host('local'), static fn () => run("{{bin/git}} rev-list $branch -1"));
+    $branchEnv = getenv('CI_COMMIT_REF_NAME');
+    $branch = $branchEnv !== false && $branchEnv !== '' ? $branchEnv : (get('branch') ?? onHost(host('local'), static fn () => run('{{bin/git}} rev-parse --abbrev-ref HEAD')));
+    $commitEnv = getenv('CI_COMMIT_SHA');
+    $commit = $commitEnv !== false && $commitEnv !== '' ? $commitEnv : onHost(host('local'), static fn () => run("{{bin/git}} rev-list $branch -1"));
 
     $infos = [
         'host' => $host,
@@ -28,6 +30,9 @@ task('deploy:dump_info', static function () {
     ];
 
     $infos = json_encode($infos, JSON_PRETTY_PRINT);
+    if ($infos === false) {
+        $infos = '{}';
+    }
 
     run('mkdir -p {{release_path}}/{{data_dir}}/addons/ydeploy');
     run('echo ' . escapeshellarg($infos) . ' > {{release_path}}/{{data_dir}}/addons/ydeploy/info.json');

@@ -16,9 +16,11 @@ require 'recipe/common.php'; /** @phpstan-ignore require.fileNotFound */
 require __DIR__ . '/deployer/config.php';
 require __DIR__ . '/deployer/functions.php';
 
-foreach (glob(__DIR__ . '/deployer/tasks/**/*.php', GLOB_NOSORT) as $path) {
+$tasksGlob = glob(__DIR__ . '/deployer/tasks/**/*.php', GLOB_NOSORT);
+foreach ($tasksGlob === false ? [] : $tasksGlob as $path) {
     require $path;
 }
-foreach (glob(__DIR__ . '/deployer/tasks/*.php', GLOB_NOSORT) as $path) {
+$tasksRootGlob = glob(__DIR__ . '/deployer/tasks/*.php', GLOB_NOSORT);
+foreach ($tasksRootGlob === false ? [] : $tasksRootGlob as $path) {
     require $path;
 }

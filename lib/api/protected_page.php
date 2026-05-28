@@ -43,7 +43,7 @@ final class ProtectedPage extends rex_api_function
             }
         }
 
-        if (!$foundPage) {
+        if ($foundPage === null) {
             throw new rex_api_exception('The page "' . $protectedPage . '" is not protected.');
         }
 
@@ -53,7 +53,8 @@ final class ProtectedPage extends rex_api_function
             Handler::lockPage($foundPage);
         }
 
-        if ($redirect = rex_get('redirect', 'string')) {
+        $redirect = rex_get('redirect', 'string');
+        if ($redirect !== '') {
             rex_response::sendRedirect($redirect);
         }
 

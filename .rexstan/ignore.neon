@@ -1,0 +1,54 @@
+# PHPStan ignoreErrors fuer ydeploy/deploy.
+#
+# Hintergrund: Deployer (deployer/deployer) wird global per Composer-Autoload
+# installiert und nicht in vendor/ des Addons gespiegelt. Daher kann PHPStan
+# die Deployer-Funktionen und -Klassen nicht aufloesen; das ist erwartet und
+# muss in dieser Analyse ignoriert werden.
+#
+# Wird von tools/rexstan/analyze.php automatisch eingebunden, falls vorhanden.
+
+parameters:
+    ignoreErrors:
+        # Deployer DSL-Funktionen (global, ohne Namespace)
+        -
+            message: '#^Function (run|writeln|set|get|task|desc|cd|ask|test|host|add|which|input|has|before|after|on|info|invoke|parse|upload|download|error|localhost|commandExist|askConfirmation|askChoice|askHiddenResponse) not found\.$#'
+            path: ../*
+        # Deployer DSL-Funktionen im Deployer\ Namespace
+        -
+            message: '#^(Function|Used function) Deployer\\[a-zA-Z]+ not found\.$#'
+            path: ../*
+        # Deployer-Klassen (nicht ausgeliefert)
+        -
+            message: '#Deployer\\(Deployer|Host\\Localhost|Host\\Host|Host\\HostCollection|Task\\Context|Exception\\RunException|Exception\\ConfigurationException)#'
+            path: ../*
+        # Anonyme Klasse erweitert Deployer\Host\HostCollection
+        -
+            message: '#Anonymous class extends unknown class Deployer\\Host\\HostCollection\.$#'
+            path: ../*
+        # parent::has()/parent::get() Aufrufe in der anonymen HostCollection
+        -
+            message: '#HostCollection@anonymous/deployer/config\.php:17::(has|get)\(\) calls parent::(has|get)\(\) but .* does not extend any class\.$#'
+            path: ../*
+        # Dead-code Hinweise an parent::has()/parent::get() Wrapper
+        -
+            message: '#Public method "AnonymousClass[a-f0-9]+::(has|get)\(\)" is never used$#'
+            path: ../*
+        # YDeploy\onHost erwartet Deployer\Host\Host (Klasse ignoriert -> Folgefehler)
+        -
+            message: '#Parameter \#1 \$host of function YDeploy\\onHost expects Deployer\\Host\\Host#'
+            path: ../*
+        - '#has invalid return type Deployer\\Host\\Host\.$#'
+        - '#has unknown class Deployer\\Host\\Host as its type\.$#'
+        - '#Call to method (getAlias|getMessage|getErrorOutput)\(\) on an unknown class Deployer\\#'
+        - '#Parameter \#1 \$arg of function escapeshellarg expects string, Deployer\\Host\\Host\|string given\.$#'
+        - '#Part \$path \(Deployer\\Host\\Host\|string\) of encapsed string cannot be cast to string\.$#'
+        - '#Binary operation "\." between non-falsy-string and Deployer\\Host\\Host\|string results in an error\.$#'
+
+        # Zugriff auf @internal markierte Klassen aus boot.php / pages/ desselben Addons.
+        # Die Klassen sind nur fuer Aufrufer ausserhalb des Addons "intern" gemeint;
+        # boot.php und pages/ liegen im globalen Namespace, gehoeren aber zum Addon.
+        -
+            message: '#(Access to constant on|Call to (static )?method [a-zA-Z]+\(\) of) internal class Alexplusde\\Deploy\\#'
+            paths:
+                - ../boot.php
+                - ../pages/*

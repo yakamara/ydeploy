@@ -12,7 +12,7 @@ use function YDeploy\upgradeReleasesList;
 
 $rootPath = dirname(DEPLOYER_DEPLOY_FILE); /** @phpstan-ignore-line */
 $command = (new ArgvInput())->getFirstArgument();
-$localBuildDir = 'setup' !== $command && !getenv('CI');
+$localBuildDir = 'setup' !== $command && getenv('CI') === false;
 
 Deployer::get()->hosts = new class($rootPath, $localBuildDir) extends Host\HostCollection {
     public function __construct(
@@ -77,8 +77,9 @@ set('releases_list', static function () use ($releasesList) {
 });
 
 $baseDir = $rootPath;
-if (str_starts_with($baseDir, getcwd())) {
-    $baseDir = substr($baseDir, strlen(getcwd()));
+$cwd = getcwd();
+if ($cwd !== false && str_starts_with($baseDir, $cwd)) {
+    $baseDir = substr($baseDir, strlen($cwd));
     $baseDir = ltrim($baseDir . '/', '/');
 }
 

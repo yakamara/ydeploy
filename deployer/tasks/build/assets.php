@@ -46,7 +46,7 @@ task('build:assets', static function () {
 
     cd('{{release_path}}');
 
-    $isLocal = !getenv('CI');
+    $isLocal = getenv('CI') === false;
     if ($isLocal && test('[ -d {{deploy_path}}/.node_modules ]')) {
         run('mv {{deploy_path}}/.node_modules node_modules');
     }

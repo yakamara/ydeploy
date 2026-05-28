@@ -41,7 +41,7 @@ task('pull', new class {
             return;
         }
 
-        if ($this->includeTables && $this->excludeTables) {
+        if ($this->includeTables !== [] && $this->excludeTables !== []) {
             writeln('<comment>"pull_include_tables" is set; "pull_exclude_tables" will be ignored.</comment>');
             writeln('');
             $this->excludeTables = [];
@@ -53,9 +53,9 @@ task('pull', new class {
 
         $summary = [];
         if (!$this->skipDatabase) {
-            $summary[] = $this->includeTables
+            $summary[] = $this->includeTables !== []
                 ? 'database (only: ' . implode(', ', $this->includeTables) . ')'
-                : ($this->excludeTables
+                : ($this->excludeTables !== []
                     ? 'database (excluding: ' . implode(', ', $this->excludeTables) . ')'
                     : 'database (all tables)');
         }
@@ -134,7 +134,7 @@ task('pull', new class {
             cd('{{current_path}}');
             run('mkdir -p ' . escapeshellarg(dirname($path)));
 
-            if ($this->includeTables) {
+            if ($this->includeTables !== []) {
                 $tableArgs = '';
                 foreach ($this->includeTables as $table) {
                     $tableArgs .= ' ' . escapeshellarg($table);
@@ -143,7 +143,7 @@ task('pull', new class {
                 run('{{bin/php}} {{bin/console}} db:connection-options | xargs sh -c \'exec {{bin/mysqldump}} "$@"' . $tableArgs . '\' sh > ' . escapeshellarg($path));
             } else {
                 $ignoreFlags = '';
-                if ($this->excludeTables) {
+                if ($this->excludeTables !== []) {
                     $dbName = trim(run('{{bin/php}} {{bin/console}} db:connection-options | awk \'{print $NF}\''));
                     if ('' === $dbName) {
                         throw new RuntimeException('Could not determine database name on host ' . $this->source . '.');
@@ -209,7 +209,6 @@ task('pull', new class {
         writeln('');
     }
 
-    private function ok(): void
     private function ok(): void
     {
         writeln('<info>✔</info> Ok');
