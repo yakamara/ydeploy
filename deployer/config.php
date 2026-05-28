@@ -14,6 +14,7 @@ $rootPath = dirname(DEPLOYER_DEPLOY_FILE); /** @phpstan-ignore-line */
 $command = (new ArgvInput())->getFirstArgument();
 $localBuildDir = 'setup' !== $command && getenv('CI') === false;
 
+/** @phpstan-ignore-next-line */
 Deployer::get()->hosts = new class($rootPath, $localBuildDir) extends Host\HostCollection {
     public function __construct(
         private readonly string $rootPath,
