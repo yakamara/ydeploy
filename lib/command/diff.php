@@ -128,6 +128,19 @@ final class rex_ydeploy_command_diff extends rex_ydeploy_command_abstract
                     'onDelete' => $foreignKey->getOnDelete(),
                 ];
             }
+
+            // Indexes and foreign keys are read from INFORMATION_SCHEMA without an
+            // ORDER BY, so their order is not guaranteed to be stable between runs.
+            // Sorting them by name keeps schema.yml free of spurious diffs. Columns
+            // are deliberately left untouched: their order is significant, it drives
+            // the `after` argument of ensureColumn() in generateDiff().
+            if (isset($schema[$tableName]['indexes'])) {
+                ksort($schema[$tableName]['indexes']);
+            }
+
+            if (isset($schema[$tableName]['foreignKeys'])) {
+                ksort($schema[$tableName]['foreignKeys']);
+            }
         }
 
         $schema = ['tables' => $schema];
