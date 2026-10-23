@@ -38,6 +38,7 @@ config:
             module_action: ~
             redactor_profile: ~
             redactor2_profiles: ~
+            url_generator_profile: ~
             yform_field: ~
             yform_table: ~
     protected_pages:
